@@ -66,7 +66,7 @@
 			////////////////////////////
 			// QApplication Customizations (e.g. EncodingType, etc.)
 			////////////////////////////
-			// public static $EncodingType = 'ISO-8859-1';
+			public static $EncodingType = 'UTF-8';
 
 			////////////////////////////
 			// Additional Static Methods
