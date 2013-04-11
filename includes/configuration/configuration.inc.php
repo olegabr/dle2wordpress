@@ -194,6 +194,10 @@ if (!defined('SERVER_INSTANCE')) {
 			 * 		those constraints are.  The path of the script can be defined here. - default is blank or none
 			 * Note: any option not used or set to blank will result in using the default value for that option
 			 */
+			
+			/**
+			 * The connection to the DLE database. The encoding used for it is cp1251.
+			 */
 			define('DB_CONNECTION_1', serialize(array(
 				'adapter' => 'MySqli5',
 				'server' => 'localhost',
@@ -202,6 +206,21 @@ if (!defined('SERVER_INSTANCE')) {
 				'username' => 'root',
 				'password' => '123456',
 				'caching' => false,
+				'encoding' => 'cp1251',
+				'profiling' => false)));
+
+			/**
+			 * The connection to the WP database. The encoding used for it is utf8.
+			 */
+			define('DB_CONNECTION_1', serialize(array(
+				'adapter' => 'MySqli5',
+				'server' => 'localhost',
+				'port' => null,
+				'database' => 'wordpress',
+				'username' => 'root',
+				'password' => '123456',
+				'caching' => false,
+				'encoding' => 'utf8',
 				'profiling' => false)));
 
 			// Additional Database Connection Strings can be defined here (e.g. for connection #2, #3, #4, #5, etc.)
