@@ -212,7 +212,7 @@ if (!defined('SERVER_INSTANCE')) {
 			/**
 			 * The connection to the WP database. The encoding used for it is utf8.
 			 */
-			define('DB_CONNECTION_1', serialize(array(
+			define('DB_CONNECTION_2', serialize(array(
 				'adapter' => 'MySqli5',
 				'server' => 'localhost',
 				'port' => null,
