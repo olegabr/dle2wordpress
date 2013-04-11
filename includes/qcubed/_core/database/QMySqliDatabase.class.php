@@ -467,7 +467,7 @@
 			$strColumnArray = $this->FetchArray();
 			
 			if ($strColumnArray)
-				return new QMySqliDatabaseRow($strColumnArray);
+				return new QMySqliDatabaseRow($strColumnArray, $this->objDb);
 			else
 				return null;
 		}
@@ -486,9 +486,14 @@
 	 */
 	class QMySqliDatabaseRow extends QDatabaseRowBase {
 		protected $strColumnArray;
+		/**
+		 * @var QMySqliDatabase 
+		 */
+		protected $objDb;
 
-		public function __construct($strColumnArray) {
+		public function __construct($strColumnArray, QMySqliDatabase $objDb) {
 			$this->strColumnArray = $strColumnArray;
+			$this->objDb = $objDb;
 		}
 
 		public function GetColumn($strColumnName, $strColumnType = null) {
@@ -510,6 +515,13 @@
 					case QDatabaseFieldType::Blob:
 					case QDatabaseFieldType::Char:
 					case QDatabaseFieldType::VarChar:
+						$strFromEncoding = $this->objDb->Encoding;
+						if (!$strFromEncoding || 0 == strlen($strFromEncoding)) {
+							$strFromEncoding = QApplication::$EncodingType;
+						}
+						if ($strFromEncoding != QApplication::$EncodingType) {
+							return mb_convert_encoding(QType::Cast($strColumnValue, QType::String), QApplication::$EncodingType, $strFromEncoding);
+						}
 						return QType::Cast($strColumnValue, QType::String);
 
 					case QDatabaseFieldType::Date:

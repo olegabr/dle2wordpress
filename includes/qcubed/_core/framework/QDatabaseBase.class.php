@@ -210,6 +210,7 @@
 				
 				case 'Username':
 				case 'Password':
+				case 'Encoding':
 					return $this->objConfigArray[strtolower($strName)];
 				case 'Caching':
 					return $this->objConfigArray['caching'];
