@@ -403,6 +403,13 @@
 			}
 
 			// Assume it's some kind of string value
+			$strToEncoding = $this->Encoding;
+			if (!$strToEncoding || 0 == strlen($strToEncoding)) {
+				$strToEncoding = QApplication::$EncodingType;
+			}
+			if ($strToEncoding != QApplication::$EncodingType) {
+				$mixData = mb_convert_encoding($mixData, $strToEncoding, QApplication::$EncodingType);
+			}
 			return $strToReturn . sprintf("'%s'", addslashes($mixData));
 		}
 
