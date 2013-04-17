@@ -21,6 +21,12 @@
 	 * @property string $Description the value for strDescription (Not Null)
 	 * @property integer $Parent the value for intParent (Not Null)
 	 * @property integer $Count the value for intCount (Not Null)
+	 * @property WpTerms $Term the value for the WpTerms object referenced by intTermId (Not Null)
+	 * @property WpTermTaxonomy $ParentObject the value for the WpTermTaxonomy object referenced by intParent (Not Null)
+	 * @property-read WpTermRelationships $_WpTermRelationshipsAsTermTaxonomy the value for the private _objWpTermRelationshipsAsTermTaxonomy (Read-Only) if set due to an expansion on the wp_term_relationships.term_taxonomy_id reverse relationship
+	 * @property-read WpTermRelationships[] $_WpTermRelationshipsAsTermTaxonomyArray the value for the private _objWpTermRelationshipsAsTermTaxonomyArray (Read-Only) if set due to an ExpandAsArray on the wp_term_relationships.term_taxonomy_id reverse relationship
+	 * @property-read WpTermTaxonomy $_ChildWpTermTaxonomy the value for the private _objChildWpTermTaxonomy (Read-Only) if set due to an expansion on the wp_term_taxonomy.parent reverse relationship
+	 * @property-read WpTermTaxonomy[] $_ChildWpTermTaxonomyArray the value for the private _objChildWpTermTaxonomyArray (Read-Only) if set due to an ExpandAsArray on the wp_term_taxonomy.parent reverse relationship
 	 * @property-read boolean $__Restored whether or not this object was restored from the database (as opposed to created new)
 	 */
 	class WpTermTaxonomyGen extends QBaseClass implements IteratorAggregate {
@@ -79,6 +85,38 @@
 
 
 		/**
+		 * Private member variable that stores a reference to a single WpTermRelationshipsAsTermTaxonomy object
+		 * (of type WpTermRelationships), if this WpTermTaxonomy object was restored with
+		 * an expansion on the wp_term_relationships association table.
+		 * @var WpTermRelationships _objWpTermRelationshipsAsTermTaxonomy;
+		 */
+		private $_objWpTermRelationshipsAsTermTaxonomy;
+
+		/**
+		 * Private member variable that stores a reference to an array of WpTermRelationshipsAsTermTaxonomy objects
+		 * (of type WpTermRelationships[]), if this WpTermTaxonomy object was restored with
+		 * an ExpandAsArray on the wp_term_relationships association table.
+		 * @var WpTermRelationships[] _objWpTermRelationshipsAsTermTaxonomyArray;
+		 */
+		private $_objWpTermRelationshipsAsTermTaxonomyArray = null;
+
+		/**
+		 * Private member variable that stores a reference to a single ChildWpTermTaxonomy object
+		 * (of type WpTermTaxonomy), if this WpTermTaxonomy object was restored with
+		 * an expansion on the wp_term_taxonomy association table.
+		 * @var WpTermTaxonomy _objChildWpTermTaxonomy;
+		 */
+		private $_objChildWpTermTaxonomy;
+
+		/**
+		 * Private member variable that stores a reference to an array of ChildWpTermTaxonomy objects
+		 * (of type WpTermTaxonomy[]), if this WpTermTaxonomy object was restored with
+		 * an ExpandAsArray on the wp_term_taxonomy association table.
+		 * @var WpTermTaxonomy[] _objChildWpTermTaxonomyArray;
+		 */
+		private $_objChildWpTermTaxonomyArray = null;
+
+		/**
 		 * Protected array of virtual attributes for this object (e.g. extra/other calculated and/or non-object bound
 		 * columns from the run-time database query result for this object).  Used by InstantiateDbRow and
 		 * GetVirtualAttribute.
@@ -99,6 +137,26 @@
 		///////////////////////////////
 		// PROTECTED MEMBER OBJECTS
 		///////////////////////////////
+
+		/**
+		 * Protected member variable that contains the object pointed by the reference
+		 * in the database column wp_term_taxonomy.term_id.
+		 *
+		 * NOTE: Always use the Term property getter to correctly retrieve this WpTerms object.
+		 * (Because this class implements late binding, this variable reference MAY be null.)
+		 * @var WpTerms objTerm
+		 */
+		protected $objTerm;
+
+		/**
+		 * Protected member variable that contains the object pointed by the reference
+		 * in the database column wp_term_taxonomy.parent.
+		 *
+		 * NOTE: Always use the ParentObject property getter to correctly retrieve this WpTermTaxonomy object.
+		 * (Because this class implements late binding, this variable reference MAY be null.)
+		 * @var WpTermTaxonomy objParentObject
+		 */
+		protected $objParentObject;
 
 
 
@@ -472,6 +530,65 @@
 			if (!$objDbRow) {
 				return null;
 			}
+			// See if we're doing an array expansion on the previous item
+			$strAlias = $strAliasPrefix . 'term_taxonomy_id';
+			$strAliasName = array_key_exists($strAlias, $strColumnAliasArray) ? $strColumnAliasArray[$strAlias] : $strAlias;
+			if (($strExpandAsArrayNodes) && is_array($arrPreviousItems) && count($arrPreviousItems)) {
+				foreach ($arrPreviousItems as $objPreviousItem) {
+					if ($objPreviousItem->intTermTaxonomyId == $objDbRow->GetColumn($strAliasName, 'Integer')) {
+						// We are.  Now, prepare to check for ExpandAsArray clauses
+						$blnExpandedViaArray = false;
+						if (!$strAliasPrefix)
+							$strAliasPrefix = 'wp_term_taxonomy__';
+
+
+						// Expanding reverse references: WpTermRelationshipsAsTermTaxonomy
+						$strAlias = $strAliasPrefix . 'wptermrelationshipsastermtaxonomy__object_id';
+						$strAliasName = array_key_exists($strAlias, $strColumnAliasArray) ? $strColumnAliasArray[$strAlias] : $strAlias;
+						if ((array_key_exists($strAlias, $strExpandAsArrayNodes)) &&
+							(!is_null($objDbRow->GetColumn($strAliasName)))) {
+							if(null === $objPreviousItem->_objWpTermRelationshipsAsTermTaxonomyArray)
+								$objPreviousItem->_objWpTermRelationshipsAsTermTaxonomyArray = array();
+							if ($intPreviousChildItemCount = count($objPreviousItem->_objWpTermRelationshipsAsTermTaxonomyArray)) {
+								$objPreviousChildItems = $objPreviousItem->_objWpTermRelationshipsAsTermTaxonomyArray;
+								$objChildItem = WpTermRelationships::InstantiateDbRow($objDbRow, $strAliasPrefix . 'wptermrelationshipsastermtaxonomy__', $strExpandAsArrayNodes, $objPreviousChildItems, $strColumnAliasArray);
+								if ($objChildItem) {
+									$objPreviousItem->_objWpTermRelationshipsAsTermTaxonomyArray[] = $objChildItem;
+								}
+							} else {
+								$objPreviousItem->_objWpTermRelationshipsAsTermTaxonomyArray[] = WpTermRelationships::InstantiateDbRow($objDbRow, $strAliasPrefix . 'wptermrelationshipsastermtaxonomy__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+							}
+							$blnExpandedViaArray = true;
+						}
+
+						// Expanding reverse references: ChildWpTermTaxonomy
+						$strAlias = $strAliasPrefix . 'childwptermtaxonomy__term_taxonomy_id';
+						$strAliasName = array_key_exists($strAlias, $strColumnAliasArray) ? $strColumnAliasArray[$strAlias] : $strAlias;
+						if ((array_key_exists($strAlias, $strExpandAsArrayNodes)) &&
+							(!is_null($objDbRow->GetColumn($strAliasName)))) {
+							if(null === $objPreviousItem->_objChildWpTermTaxonomyArray)
+								$objPreviousItem->_objChildWpTermTaxonomyArray = array();
+							if ($intPreviousChildItemCount = count($objPreviousItem->_objChildWpTermTaxonomyArray)) {
+								$objPreviousChildItems = $objPreviousItem->_objChildWpTermTaxonomyArray;
+								$objChildItem = WpTermTaxonomy::InstantiateDbRow($objDbRow, $strAliasPrefix . 'childwptermtaxonomy__', $strExpandAsArrayNodes, $objPreviousChildItems, $strColumnAliasArray);
+								if ($objChildItem) {
+									$objPreviousItem->_objChildWpTermTaxonomyArray[] = $objChildItem;
+								}
+							} else {
+								$objPreviousItem->_objChildWpTermTaxonomyArray[] = WpTermTaxonomy::InstantiateDbRow($objDbRow, $strAliasPrefix . 'childwptermtaxonomy__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+							}
+							$blnExpandedViaArray = true;
+						}
+
+						// Either return false to signal array expansion, or check-to-reset the Alias prefix and move on
+						if ($blnExpandedViaArray) {
+							return false;
+						} else if ($strAliasPrefix == 'wp_term_taxonomy__') {
+							$strAliasPrefix = null;
+						}
+					}
+				}
+			}
 
 			// Create a new instance of the WpTermTaxonomy object
 			$objToReturn = new WpTermTaxonomy();
@@ -501,6 +618,22 @@
 					if ($objToReturn->TermTaxonomyId != $objPreviousItem->TermTaxonomyId) {
 						continue;
 					}
+					$prevCnt = count($objPreviousItem->_objWpTermRelationshipsAsTermTaxonomyArray);
+					$cnt = count($objToReturn->_objWpTermRelationshipsAsTermTaxonomyArray);
+					if ($prevCnt != $cnt)
+					    continue;
+					if ($prevCnt == 0 || $cnt == 0 || !array_diff($objPreviousItem->_objWpTermRelationshipsAsTermTaxonomyArray, $objToReturn->_objWpTermRelationshipsAsTermTaxonomyArray)) {
+						continue;
+					}
+
+					$prevCnt = count($objPreviousItem->_objChildWpTermTaxonomyArray);
+					$cnt = count($objToReturn->_objChildWpTermTaxonomyArray);
+					if ($prevCnt != $cnt)
+					    continue;
+					if ($prevCnt == 0 || $cnt == 0 || !array_diff($objPreviousItem->_objChildWpTermTaxonomyArray, $objToReturn->_objChildWpTermTaxonomyArray)) {
+						continue;
+					}
+
 
 					// complete match - all primary key columns are the same
 					return null;
@@ -519,8 +652,46 @@
 			if (!$strAliasPrefix)
 				$strAliasPrefix = 'wp_term_taxonomy__';
 
+			// Check for Term Early Binding
+			$strAlias = $strAliasPrefix . 'term_id__term_id';
+			$strAliasName = array_key_exists($strAlias, $strColumnAliasArray) ? $strColumnAliasArray[$strAlias] : $strAlias;
+			if (!is_null($objDbRow->GetColumn($strAliasName)))
+				$objToReturn->objTerm = WpTerms::InstantiateDbRow($objDbRow, $strAliasPrefix . 'term_id__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+
+			// Check for ParentObject Early Binding
+			$strAlias = $strAliasPrefix . 'parent__term_taxonomy_id';
+			$strAliasName = array_key_exists($strAlias, $strColumnAliasArray) ? $strColumnAliasArray[$strAlias] : $strAlias;
+			if (!is_null($objDbRow->GetColumn($strAliasName)))
+				$objToReturn->objParentObject = WpTermTaxonomy::InstantiateDbRow($objDbRow, $strAliasPrefix . 'parent__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
 
 
+
+
+			// Check for WpTermRelationshipsAsTermTaxonomy Virtual Binding
+			$strAlias = $strAliasPrefix . 'wptermrelationshipsastermtaxonomy__object_id';
+			$strAliasName = array_key_exists($strAlias, $strColumnAliasArray) ? $strColumnAliasArray[$strAlias] : $strAlias;
+			$blnExpanded = $strExpandAsArrayNodes && array_key_exists($strAlias, $strExpandAsArrayNodes);
+			if ($blnExpanded && null === $objToReturn->_objWpTermRelationshipsAsTermTaxonomyArray)
+				$objToReturn->_objWpTermRelationshipsAsTermTaxonomyArray = array();
+			if (!is_null($objDbRow->GetColumn($strAliasName))) {
+				if ($blnExpanded)
+					$objToReturn->_objWpTermRelationshipsAsTermTaxonomyArray[] = WpTermRelationships::InstantiateDbRow($objDbRow, $strAliasPrefix . 'wptermrelationshipsastermtaxonomy__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+				else
+					$objToReturn->_objWpTermRelationshipsAsTermTaxonomy = WpTermRelationships::InstantiateDbRow($objDbRow, $strAliasPrefix . 'wptermrelationshipsastermtaxonomy__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+			}
+
+			// Check for ChildWpTermTaxonomy Virtual Binding
+			$strAlias = $strAliasPrefix . 'childwptermtaxonomy__term_taxonomy_id';
+			$strAliasName = array_key_exists($strAlias, $strColumnAliasArray) ? $strColumnAliasArray[$strAlias] : $strAlias;
+			$blnExpanded = $strExpandAsArrayNodes && array_key_exists($strAlias, $strExpandAsArrayNodes);
+			if ($blnExpanded && null === $objToReturn->_objChildWpTermTaxonomyArray)
+				$objToReturn->_objChildWpTermTaxonomyArray = array();
+			if (!is_null($objDbRow->GetColumn($strAliasName))) {
+				if ($blnExpanded)
+					$objToReturn->_objChildWpTermTaxonomyArray[] = WpTermTaxonomy::InstantiateDbRow($objDbRow, $strAliasPrefix . 'childwptermtaxonomy__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+				else
+					$objToReturn->_objChildWpTermTaxonomy = WpTermTaxonomy::InstantiateDbRow($objDbRow, $strAliasPrefix . 'childwptermtaxonomy__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+			}
 
 			return $objToReturn;
 		}
@@ -656,6 +827,70 @@
 			// Call WpTermTaxonomy::QueryCount to perform the CountByTaxonomy query
 			return WpTermTaxonomy::QueryCount(
 				QQ::Equal(QQN::WpTermTaxonomy()->Taxonomy, $strTaxonomy)
+			);
+		}
+
+		/**
+		 * Load an array of WpTermTaxonomy objects,
+		 * by TermId Index(es)
+		 * @param integer $intTermId
+		 * @param QQClause[] $objOptionalClauses additional optional QQClause objects for this query
+		 * @return WpTermTaxonomy[]
+		*/
+		public static function LoadArrayByTermId($intTermId, $objOptionalClauses = null) {
+			// Call WpTermTaxonomy::QueryArray to perform the LoadArrayByTermId query
+			try {
+				return WpTermTaxonomy::QueryArray(
+					QQ::Equal(QQN::WpTermTaxonomy()->TermId, $intTermId),
+					$objOptionalClauses);
+			} catch (QCallerException $objExc) {
+				$objExc->IncrementOffset();
+				throw $objExc;
+			}
+		}
+
+		/**
+		 * Count WpTermTaxonomies
+		 * by TermId Index(es)
+		 * @param integer $intTermId
+		 * @return int
+		*/
+		public static function CountByTermId($intTermId) {
+			// Call WpTermTaxonomy::QueryCount to perform the CountByTermId query
+			return WpTermTaxonomy::QueryCount(
+				QQ::Equal(QQN::WpTermTaxonomy()->TermId, $intTermId)
+			);
+		}
+
+		/**
+		 * Load an array of WpTermTaxonomy objects,
+		 * by Parent Index(es)
+		 * @param integer $intParent
+		 * @param QQClause[] $objOptionalClauses additional optional QQClause objects for this query
+		 * @return WpTermTaxonomy[]
+		*/
+		public static function LoadArrayByParent($intParent, $objOptionalClauses = null) {
+			// Call WpTermTaxonomy::QueryArray to perform the LoadArrayByParent query
+			try {
+				return WpTermTaxonomy::QueryArray(
+					QQ::Equal(QQN::WpTermTaxonomy()->Parent, $intParent),
+					$objOptionalClauses);
+			} catch (QCallerException $objExc) {
+				$objExc->IncrementOffset();
+				throw $objExc;
+			}
+		}
+
+		/**
+		 * Count WpTermTaxonomies
+		 * by Parent Index(es)
+		 * @param integer $intParent
+		 * @return int
+		*/
+		public static function CountByParent($intParent) {
+			// Call WpTermTaxonomy::QueryCount to perform the CountByParent query
+			return WpTermTaxonomy::QueryCount(
+				QQ::Equal(QQN::WpTermTaxonomy()->Parent, $intParent)
 			);
 		}
 
@@ -824,10 +1059,10 @@
 			$objReloaded = WpTermTaxonomy::Load($this->intTermTaxonomyId);
 
 			// Update $this's local variables to match
-			$this->intTermId = $objReloaded->intTermId;
+			$this->TermId = $objReloaded->TermId;
 			$this->strTaxonomy = $objReloaded->strTaxonomy;
 			$this->strDescription = $objReloaded->strDescription;
-			$this->intParent = $objReloaded->intParent;
+			$this->Parent = $objReloaded->Parent;
 			$this->intCount = $objReloaded->intCount;
 		}
 
@@ -895,11 +1130,71 @@
 				///////////////////
 				// Member Objects
 				///////////////////
+				case 'Term':
+					/**
+					 * Gets the value for the WpTerms object referenced by intTermId (Not Null)
+					 * @return WpTerms
+					 */
+					try {
+						if ((!$this->objTerm) && (!is_null($this->intTermId)))
+							$this->objTerm = WpTerms::Load($this->intTermId);
+						return $this->objTerm;
+					} catch (QCallerException $objExc) {
+						$objExc->IncrementOffset();
+						throw $objExc;
+					}
+
+				case 'ParentObject':
+					/**
+					 * Gets the value for the WpTermTaxonomy object referenced by intParent (Not Null)
+					 * @return WpTermTaxonomy
+					 */
+					try {
+						if ((!$this->objParentObject) && (!is_null($this->intParent)))
+							$this->objParentObject = WpTermTaxonomy::Load($this->intParent);
+						return $this->objParentObject;
+					} catch (QCallerException $objExc) {
+						$objExc->IncrementOffset();
+						throw $objExc;
+					}
+
 
 				////////////////////////////
 				// Virtual Object References (Many to Many and Reverse References)
 				// (If restored via a "Many-to" expansion)
 				////////////////////////////
+
+				case '_WpTermRelationshipsAsTermTaxonomy':
+					/**
+					 * Gets the value for the private _objWpTermRelationshipsAsTermTaxonomy (Read-Only)
+					 * if set due to an expansion on the wp_term_relationships.term_taxonomy_id reverse relationship
+					 * @return WpTermRelationships
+					 */
+					return $this->_objWpTermRelationshipsAsTermTaxonomy;
+
+				case '_WpTermRelationshipsAsTermTaxonomyArray':
+					/**
+					 * Gets the value for the private _objWpTermRelationshipsAsTermTaxonomyArray (Read-Only)
+					 * if set due to an ExpandAsArray on the wp_term_relationships.term_taxonomy_id reverse relationship
+					 * @return WpTermRelationships[]
+					 */
+					return $this->_objWpTermRelationshipsAsTermTaxonomyArray;
+
+				case '_ChildWpTermTaxonomy':
+					/**
+					 * Gets the value for the private _objChildWpTermTaxonomy (Read-Only)
+					 * if set due to an expansion on the wp_term_taxonomy.parent reverse relationship
+					 * @return WpTermTaxonomy
+					 */
+					return $this->_objChildWpTermTaxonomy;
+
+				case '_ChildWpTermTaxonomyArray':
+					/**
+					 * Gets the value for the private _objChildWpTermTaxonomyArray (Read-Only)
+					 * if set due to an ExpandAsArray on the wp_term_taxonomy.parent reverse relationship
+					 * @return WpTermTaxonomy[]
+					 */
+					return $this->_objChildWpTermTaxonomyArray;
 
 
 				case '__Restored':
@@ -935,6 +1230,7 @@
 					 * @return integer
 					 */
 					try {
+						$this->objTerm = null;
 						return ($this->intTermId = QType::Cast($mixValue, QType::Integer));
 					} catch (QCallerException $objExc) {
 						$objExc->IncrementOffset();
@@ -974,6 +1270,7 @@
 					 * @return integer
 					 */
 					try {
+						$this->objParentObject = null;
 						return ($this->intParent = QType::Cast($mixValue, QType::Integer));
 					} catch (QCallerException $objExc) {
 						$objExc->IncrementOffset();
@@ -997,6 +1294,70 @@
 				///////////////////
 				// Member Objects
 				///////////////////
+				case 'Term':
+					/**
+					 * Sets the value for the WpTerms object referenced by intTermId (Not Null)
+					 * @param WpTerms $mixValue
+					 * @return WpTerms
+					 */
+					if (is_null($mixValue)) {
+						$this->intTermId = null;
+						$this->objTerm = null;
+						return null;
+					} else {
+						// Make sure $mixValue actually is a WpTerms object
+						try {
+							$mixValue = QType::Cast($mixValue, 'WpTerms');
+						} catch (QInvalidCastException $objExc) {
+							$objExc->IncrementOffset();
+							throw $objExc;
+						}
+
+						// Make sure $mixValue is a SAVED WpTerms object
+						if (is_null($mixValue->TermId))
+							throw new QCallerException('Unable to set an unsaved Term for this WpTermTaxonomy');
+
+						// Update Local Member Variables
+						$this->objTerm = $mixValue;
+						$this->intTermId = $mixValue->TermId;
+
+						// Return $mixValue
+						return $mixValue;
+					}
+					break;
+
+				case 'ParentObject':
+					/**
+					 * Sets the value for the WpTermTaxonomy object referenced by intParent (Not Null)
+					 * @param WpTermTaxonomy $mixValue
+					 * @return WpTermTaxonomy
+					 */
+					if (is_null($mixValue)) {
+						$this->intParent = null;
+						$this->objParentObject = null;
+						return null;
+					} else {
+						// Make sure $mixValue actually is a WpTermTaxonomy object
+						try {
+							$mixValue = QType::Cast($mixValue, 'WpTermTaxonomy');
+						} catch (QInvalidCastException $objExc) {
+							$objExc->IncrementOffset();
+							throw $objExc;
+						}
+
+						// Make sure $mixValue is a SAVED WpTermTaxonomy object
+						if (is_null($mixValue->TermTaxonomyId))
+							throw new QCallerException('Unable to set an unsaved ParentObject for this WpTermTaxonomy');
+
+						// Update Local Member Variables
+						$this->objParentObject = $mixValue;
+						$this->intParent = $mixValue->TermTaxonomyId;
+
+						// Return $mixValue
+						return $mixValue;
+					}
+					break;
+
 				default:
 					try {
 						return parent::__set($strName, $mixValue);
@@ -1024,6 +1385,307 @@
 		// ASSOCIATED OBJECTS' METHODS
 		///////////////////////////////
 
+
+
+		// Related Objects' Methods for WpTermRelationshipsAsTermTaxonomy
+		//-------------------------------------------------------------------
+
+		/**
+		 * Gets all associated WpTermRelationshipsesAsTermTaxonomy as an array of WpTermRelationships objects
+		 * @param QQClause[] $objOptionalClauses additional optional QQClause objects for this query
+		 * @return WpTermRelationships[]
+		*/
+		public function GetWpTermRelationshipsAsTermTaxonomyArray($objOptionalClauses = null) {
+			if ((is_null($this->intTermTaxonomyId)))
+				return array();
+
+			try {
+				return WpTermRelationships::LoadArrayByTermTaxonomyId($this->intTermTaxonomyId, $objOptionalClauses);
+			} catch (QCallerException $objExc) {
+				$objExc->IncrementOffset();
+				throw $objExc;
+			}
+		}
+
+		/**
+		 * Counts all associated WpTermRelationshipsesAsTermTaxonomy
+		 * @return int
+		*/
+		public function CountWpTermRelationshipsesAsTermTaxonomy() {
+			if ((is_null($this->intTermTaxonomyId)))
+				return 0;
+
+			return WpTermRelationships::CountByTermTaxonomyId($this->intTermTaxonomyId);
+		}
+
+		/**
+		 * Associates a WpTermRelationshipsAsTermTaxonomy
+		 * @param WpTermRelationships $objWpTermRelationships
+		 * @return void
+		*/
+		public function AssociateWpTermRelationshipsAsTermTaxonomy(WpTermRelationships $objWpTermRelationships) {
+			if ((is_null($this->intTermTaxonomyId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call AssociateWpTermRelationshipsAsTermTaxonomy on this unsaved WpTermTaxonomy.');
+			if ((is_null($objWpTermRelationships->ObjectId)) || (is_null($objWpTermRelationships->TermTaxonomyId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call AssociateWpTermRelationshipsAsTermTaxonomy on this WpTermTaxonomy with an unsaved WpTermRelationships.');
+
+			// Get the Database Object for this Class
+			$objDatabase = WpTermTaxonomy::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				UPDATE
+					`wp_term_relationships`
+				SET
+					`term_taxonomy_id` = ' . $objDatabase->SqlVariable($this->intTermTaxonomyId) . '
+				WHERE
+					`object_id` = ' . $objDatabase->SqlVariable($objWpTermRelationships->ObjectId) . ' AND
+					`term_taxonomy_id` = ' . $objDatabase->SqlVariable($objWpTermRelationships->TermTaxonomyId) . ' 
+			');
+		}
+
+		/**
+		 * Unassociates a WpTermRelationshipsAsTermTaxonomy
+		 * @param WpTermRelationships $objWpTermRelationships
+		 * @return void
+		*/
+		public function UnassociateWpTermRelationshipsAsTermTaxonomy(WpTermRelationships $objWpTermRelationships) {
+			if ((is_null($this->intTermTaxonomyId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateWpTermRelationshipsAsTermTaxonomy on this unsaved WpTermTaxonomy.');
+			if ((is_null($objWpTermRelationships->ObjectId)) || (is_null($objWpTermRelationships->TermTaxonomyId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateWpTermRelationshipsAsTermTaxonomy on this WpTermTaxonomy with an unsaved WpTermRelationships.');
+
+			// Get the Database Object for this Class
+			$objDatabase = WpTermTaxonomy::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				UPDATE
+					`wp_term_relationships`
+				SET
+					`term_taxonomy_id` = null
+				WHERE
+					`object_id` = ' . $objDatabase->SqlVariable($objWpTermRelationships->ObjectId) . ' AND
+					`term_taxonomy_id` = ' . $objDatabase->SqlVariable($objWpTermRelationships->TermTaxonomyId) . ' AND
+					`term_taxonomy_id` = ' . $objDatabase->SqlVariable($this->intTermTaxonomyId) . '
+			');
+		}
+
+		/**
+		 * Unassociates all WpTermRelationshipsesAsTermTaxonomy
+		 * @return void
+		*/
+		public function UnassociateAllWpTermRelationshipsesAsTermTaxonomy() {
+			if ((is_null($this->intTermTaxonomyId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateWpTermRelationshipsAsTermTaxonomy on this unsaved WpTermTaxonomy.');
+
+			// Get the Database Object for this Class
+			$objDatabase = WpTermTaxonomy::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				UPDATE
+					`wp_term_relationships`
+				SET
+					`term_taxonomy_id` = null
+				WHERE
+					`term_taxonomy_id` = ' . $objDatabase->SqlVariable($this->intTermTaxonomyId) . '
+			');
+		}
+
+		/**
+		 * Deletes an associated WpTermRelationshipsAsTermTaxonomy
+		 * @param WpTermRelationships $objWpTermRelationships
+		 * @return void
+		*/
+		public function DeleteAssociatedWpTermRelationshipsAsTermTaxonomy(WpTermRelationships $objWpTermRelationships) {
+			if ((is_null($this->intTermTaxonomyId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateWpTermRelationshipsAsTermTaxonomy on this unsaved WpTermTaxonomy.');
+			if ((is_null($objWpTermRelationships->ObjectId)) || (is_null($objWpTermRelationships->TermTaxonomyId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateWpTermRelationshipsAsTermTaxonomy on this WpTermTaxonomy with an unsaved WpTermRelationships.');
+
+			// Get the Database Object for this Class
+			$objDatabase = WpTermTaxonomy::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				DELETE FROM
+					`wp_term_relationships`
+				WHERE
+					`object_id` = ' . $objDatabase->SqlVariable($objWpTermRelationships->ObjectId) . ' AND
+					`term_taxonomy_id` = ' . $objDatabase->SqlVariable($objWpTermRelationships->TermTaxonomyId) . ' AND
+					`term_taxonomy_id` = ' . $objDatabase->SqlVariable($this->intTermTaxonomyId) . '
+			');
+		}
+
+		/**
+		 * Deletes all associated WpTermRelationshipsesAsTermTaxonomy
+		 * @return void
+		*/
+		public function DeleteAllWpTermRelationshipsesAsTermTaxonomy() {
+			if ((is_null($this->intTermTaxonomyId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateWpTermRelationshipsAsTermTaxonomy on this unsaved WpTermTaxonomy.');
+
+			// Get the Database Object for this Class
+			$objDatabase = WpTermTaxonomy::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				DELETE FROM
+					`wp_term_relationships`
+				WHERE
+					`term_taxonomy_id` = ' . $objDatabase->SqlVariable($this->intTermTaxonomyId) . '
+			');
+		}
+
+
+		// Related Objects' Methods for ChildWpTermTaxonomy
+		//-------------------------------------------------------------------
+
+		/**
+		 * Gets all associated ChildWpTermTaxonomies as an array of WpTermTaxonomy objects
+		 * @param QQClause[] $objOptionalClauses additional optional QQClause objects for this query
+		 * @return WpTermTaxonomy[]
+		*/
+		public function GetChildWpTermTaxonomyArray($objOptionalClauses = null) {
+			if ((is_null($this->intTermTaxonomyId)))
+				return array();
+
+			try {
+				return WpTermTaxonomy::LoadArrayByParent($this->intTermTaxonomyId, $objOptionalClauses);
+			} catch (QCallerException $objExc) {
+				$objExc->IncrementOffset();
+				throw $objExc;
+			}
+		}
+
+		/**
+		 * Counts all associated ChildWpTermTaxonomies
+		 * @return int
+		*/
+		public function CountChildWpTermTaxonomies() {
+			if ((is_null($this->intTermTaxonomyId)))
+				return 0;
+
+			return WpTermTaxonomy::CountByParent($this->intTermTaxonomyId);
+		}
+
+		/**
+		 * Associates a ChildWpTermTaxonomy
+		 * @param WpTermTaxonomy $objWpTermTaxonomy
+		 * @return void
+		*/
+		public function AssociateChildWpTermTaxonomy(WpTermTaxonomy $objWpTermTaxonomy) {
+			if ((is_null($this->intTermTaxonomyId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call AssociateChildWpTermTaxonomy on this unsaved WpTermTaxonomy.');
+			if ((is_null($objWpTermTaxonomy->TermTaxonomyId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call AssociateChildWpTermTaxonomy on this WpTermTaxonomy with an unsaved WpTermTaxonomy.');
+
+			// Get the Database Object for this Class
+			$objDatabase = WpTermTaxonomy::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				UPDATE
+					`wp_term_taxonomy`
+				SET
+					`parent` = ' . $objDatabase->SqlVariable($this->intTermTaxonomyId) . '
+				WHERE
+					`term_taxonomy_id` = ' . $objDatabase->SqlVariable($objWpTermTaxonomy->TermTaxonomyId) . ' 
+			');
+		}
+
+		/**
+		 * Unassociates a ChildWpTermTaxonomy
+		 * @param WpTermTaxonomy $objWpTermTaxonomy
+		 * @return void
+		*/
+		public function UnassociateChildWpTermTaxonomy(WpTermTaxonomy $objWpTermTaxonomy) {
+			if ((is_null($this->intTermTaxonomyId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateChildWpTermTaxonomy on this unsaved WpTermTaxonomy.');
+			if ((is_null($objWpTermTaxonomy->TermTaxonomyId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateChildWpTermTaxonomy on this WpTermTaxonomy with an unsaved WpTermTaxonomy.');
+
+			// Get the Database Object for this Class
+			$objDatabase = WpTermTaxonomy::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				UPDATE
+					`wp_term_taxonomy`
+				SET
+					`parent` = null
+				WHERE
+					`term_taxonomy_id` = ' . $objDatabase->SqlVariable($objWpTermTaxonomy->TermTaxonomyId) . ' AND
+					`parent` = ' . $objDatabase->SqlVariable($this->intTermTaxonomyId) . '
+			');
+		}
+
+		/**
+		 * Unassociates all ChildWpTermTaxonomies
+		 * @return void
+		*/
+		public function UnassociateAllChildWpTermTaxonomies() {
+			if ((is_null($this->intTermTaxonomyId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateChildWpTermTaxonomy on this unsaved WpTermTaxonomy.');
+
+			// Get the Database Object for this Class
+			$objDatabase = WpTermTaxonomy::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				UPDATE
+					`wp_term_taxonomy`
+				SET
+					`parent` = null
+				WHERE
+					`parent` = ' . $objDatabase->SqlVariable($this->intTermTaxonomyId) . '
+			');
+		}
+
+		/**
+		 * Deletes an associated ChildWpTermTaxonomy
+		 * @param WpTermTaxonomy $objWpTermTaxonomy
+		 * @return void
+		*/
+		public function DeleteAssociatedChildWpTermTaxonomy(WpTermTaxonomy $objWpTermTaxonomy) {
+			if ((is_null($this->intTermTaxonomyId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateChildWpTermTaxonomy on this unsaved WpTermTaxonomy.');
+			if ((is_null($objWpTermTaxonomy->TermTaxonomyId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateChildWpTermTaxonomy on this WpTermTaxonomy with an unsaved WpTermTaxonomy.');
+
+			// Get the Database Object for this Class
+			$objDatabase = WpTermTaxonomy::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				DELETE FROM
+					`wp_term_taxonomy`
+				WHERE
+					`term_taxonomy_id` = ' . $objDatabase->SqlVariable($objWpTermTaxonomy->TermTaxonomyId) . ' AND
+					`parent` = ' . $objDatabase->SqlVariable($this->intTermTaxonomyId) . '
+			');
+		}
+
+		/**
+		 * Deletes all associated ChildWpTermTaxonomies
+		 * @return void
+		*/
+		public function DeleteAllChildWpTermTaxonomies() {
+			if ((is_null($this->intTermTaxonomyId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateChildWpTermTaxonomy on this unsaved WpTermTaxonomy.');
+
+			// Get the Database Object for this Class
+			$objDatabase = WpTermTaxonomy::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				DELETE FROM
+					`wp_term_taxonomy`
+				WHERE
+					`parent` = ' . $objDatabase->SqlVariable($this->intTermTaxonomyId) . '
+			');
+		}
 
 
 		
@@ -1065,10 +1727,10 @@
 		public static function GetSoapComplexTypeXml() {
 			$strToReturn = '<complexType name="WpTermTaxonomy"><sequence>';
 			$strToReturn .= '<element name="TermTaxonomyId" type="xsd:int"/>';
-			$strToReturn .= '<element name="TermId" type="xsd:int"/>';
+			$strToReturn .= '<element name="Term" type="xsd1:WpTerms"/>';
 			$strToReturn .= '<element name="Taxonomy" type="xsd:string"/>';
 			$strToReturn .= '<element name="Description" type="xsd:string"/>';
-			$strToReturn .= '<element name="Parent" type="xsd:int"/>';
+			$strToReturn .= '<element name="ParentObject" type="xsd1:WpTermTaxonomy"/>';
 			$strToReturn .= '<element name="Count" type="xsd:int"/>';
 			$strToReturn .= '<element name="__blnRestored" type="xsd:boolean"/>';
 			$strToReturn .= '</sequence></complexType>';
@@ -1078,6 +1740,8 @@
 		public static function AlterSoapComplexTypeArray(&$strComplexTypeArray) {
 			if (!array_key_exists('WpTermTaxonomy', $strComplexTypeArray)) {
 				$strComplexTypeArray['WpTermTaxonomy'] = WpTermTaxonomy::GetSoapComplexTypeXml();
+				WpTerms::AlterSoapComplexTypeArray($strComplexTypeArray);
+				WpTermTaxonomy::AlterSoapComplexTypeArray($strComplexTypeArray);
 			}
 		}
 
@@ -1094,14 +1758,16 @@
 			$objToReturn = new WpTermTaxonomy();
 			if (property_exists($objSoapObject, 'TermTaxonomyId'))
 				$objToReturn->intTermTaxonomyId = $objSoapObject->TermTaxonomyId;
-			if (property_exists($objSoapObject, 'TermId'))
-				$objToReturn->intTermId = $objSoapObject->TermId;
+			if ((property_exists($objSoapObject, 'Term')) &&
+				($objSoapObject->Term))
+				$objToReturn->Term = WpTerms::GetObjectFromSoapObject($objSoapObject->Term);
 			if (property_exists($objSoapObject, 'Taxonomy'))
 				$objToReturn->strTaxonomy = $objSoapObject->Taxonomy;
 			if (property_exists($objSoapObject, 'Description'))
 				$objToReturn->strDescription = $objSoapObject->Description;
-			if (property_exists($objSoapObject, 'Parent'))
-				$objToReturn->intParent = $objSoapObject->Parent;
+			if ((property_exists($objSoapObject, 'ParentObject')) &&
+				($objSoapObject->ParentObject))
+				$objToReturn->ParentObject = WpTermTaxonomy::GetObjectFromSoapObject($objSoapObject->ParentObject);
 			if (property_exists($objSoapObject, 'Count'))
 				$objToReturn->intCount = $objSoapObject->Count;
 			if (property_exists($objSoapObject, '__blnRestored'))
@@ -1122,6 +1788,14 @@
 		}
 
 		public static function GetSoapObjectFromObject($objObject, $blnBindRelatedObjects) {
+			if ($objObject->objTerm)
+				$objObject->objTerm = WpTerms::GetSoapObjectFromObject($objObject->objTerm, false);
+			else if (!$blnBindRelatedObjects)
+				$objObject->intTermId = null;
+			if ($objObject->objParentObject)
+				$objObject->objParentObject = WpTermTaxonomy::GetSoapObjectFromObject($objObject->objParentObject, false);
+			else if (!$blnBindRelatedObjects)
+				$objObject->intParent = null;
 			return $objObject;
 		}
 
@@ -1181,12 +1855,16 @@
      *
      * @property-read QQNode $TermTaxonomyId
      * @property-read QQNode $TermId
+     * @property-read QQNodeWpTerms $Term
      * @property-read QQNode $Taxonomy
      * @property-read QQNode $Description
      * @property-read QQNode $Parent
+     * @property-read QQNodeWpTermTaxonomy $ParentObject
      * @property-read QQNode $Count
      *
      *
+     * @property-read QQReverseReferenceNodeWpTermRelationships $WpTermRelationshipsAsTermTaxonomy
+     * @property-read QQReverseReferenceNodeWpTermTaxonomy $ChildWpTermTaxonomy
 
      * @property-read QQNode $_PrimaryKeyNode
      **/
@@ -1200,14 +1878,22 @@
 					return new QQNode('term_taxonomy_id', 'TermTaxonomyId', 'Integer', $this);
 				case 'TermId':
 					return new QQNode('term_id', 'TermId', 'Integer', $this);
+				case 'Term':
+					return new QQNodeWpTerms('term_id', 'Term', 'Integer', $this);
 				case 'Taxonomy':
 					return new QQNode('taxonomy', 'Taxonomy', 'VarChar', $this);
 				case 'Description':
 					return new QQNode('description', 'Description', 'Blob', $this);
 				case 'Parent':
 					return new QQNode('parent', 'Parent', 'Integer', $this);
+				case 'ParentObject':
+					return new QQNodeWpTermTaxonomy('parent', 'ParentObject', 'Integer', $this);
 				case 'Count':
 					return new QQNode('count', 'Count', 'Integer', $this);
+				case 'WpTermRelationshipsAsTermTaxonomy':
+					return new QQReverseReferenceNodeWpTermRelationships($this, 'wptermrelationshipsastermtaxonomy', 'reverse_reference', 'term_taxonomy_id');
+				case 'ChildWpTermTaxonomy':
+					return new QQReverseReferenceNodeWpTermTaxonomy($this, 'childwptermtaxonomy', 'reverse_reference', 'parent');
 
 				case '_PrimaryKeyNode':
 					return new QQNode('term_taxonomy_id', 'TermTaxonomyId', 'Integer', $this);
@@ -1225,12 +1911,16 @@
     /**
      * @property-read QQNode $TermTaxonomyId
      * @property-read QQNode $TermId
+     * @property-read QQNodeWpTerms $Term
      * @property-read QQNode $Taxonomy
      * @property-read QQNode $Description
      * @property-read QQNode $Parent
+     * @property-read QQNodeWpTermTaxonomy $ParentObject
      * @property-read QQNode $Count
      *
      *
+     * @property-read QQReverseReferenceNodeWpTermRelationships $WpTermRelationshipsAsTermTaxonomy
+     * @property-read QQReverseReferenceNodeWpTermTaxonomy $ChildWpTermTaxonomy
 
      * @property-read QQNode $_PrimaryKeyNode
      **/
@@ -1244,14 +1934,22 @@
 					return new QQNode('term_taxonomy_id', 'TermTaxonomyId', 'integer', $this);
 				case 'TermId':
 					return new QQNode('term_id', 'TermId', 'integer', $this);
+				case 'Term':
+					return new QQNodeWpTerms('term_id', 'Term', 'integer', $this);
 				case 'Taxonomy':
 					return new QQNode('taxonomy', 'Taxonomy', 'string', $this);
 				case 'Description':
 					return new QQNode('description', 'Description', 'string', $this);
 				case 'Parent':
 					return new QQNode('parent', 'Parent', 'integer', $this);
+				case 'ParentObject':
+					return new QQNodeWpTermTaxonomy('parent', 'ParentObject', 'integer', $this);
 				case 'Count':
 					return new QQNode('count', 'Count', 'integer', $this);
+				case 'WpTermRelationshipsAsTermTaxonomy':
+					return new QQReverseReferenceNodeWpTermRelationships($this, 'wptermrelationshipsastermtaxonomy', 'reverse_reference', 'term_taxonomy_id');
+				case 'ChildWpTermTaxonomy':
+					return new QQReverseReferenceNodeWpTermTaxonomy($this, 'childwptermtaxonomy', 'reverse_reference', 'parent');
 
 				case '_PrimaryKeyNode':
 					return new QQNode('term_taxonomy_id', 'TermTaxonomyId', 'integer', $this);

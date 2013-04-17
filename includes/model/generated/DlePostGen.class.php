@@ -46,6 +46,11 @@
 	 * @property boolean $ViewEdit the value for blnViewEdit (Not Null)
 	 * @property string $Tags the value for strTags (Not Null)
 	 * @property string $Metatitle the value for strMetatitle (Not Null)
+	 * @property DleUsers $AutorObject the value for the DleUsers object referenced by strAutor (Not Null)
+	 * @property-read DleComments $_DleCommentsAsPost the value for the private _objDleCommentsAsPost (Read-Only) if set due to an expansion on the dle_comments.post_id reverse relationship
+	 * @property-read DleComments[] $_DleCommentsAsPostArray the value for the private _objDleCommentsAsPostArray (Read-Only) if set due to an ExpandAsArray on the dle_comments.post_id reverse relationship
+	 * @property-read DleTags $_DleTagsAsNews the value for the private _objDleTagsAsNews (Read-Only) if set due to an expansion on the dle_tags.news_id reverse relationship
+	 * @property-read DleTags[] $_DleTagsAsNewsArray the value for the private _objDleTagsAsNewsArray (Read-Only) if set due to an ExpandAsArray on the dle_tags.news_id reverse relationship
 	 * @property-read boolean $__Restored whether or not this object was restored from the database (as opposed to created new)
 	 */
 	class DlePostGen extends QBaseClass implements IteratorAggregate {
@@ -315,6 +320,38 @@
 
 
 		/**
+		 * Private member variable that stores a reference to a single DleCommentsAsPost object
+		 * (of type DleComments), if this DlePost object was restored with
+		 * an expansion on the dle_comments association table.
+		 * @var DleComments _objDleCommentsAsPost;
+		 */
+		private $_objDleCommentsAsPost;
+
+		/**
+		 * Private member variable that stores a reference to an array of DleCommentsAsPost objects
+		 * (of type DleComments[]), if this DlePost object was restored with
+		 * an ExpandAsArray on the dle_comments association table.
+		 * @var DleComments[] _objDleCommentsAsPostArray;
+		 */
+		private $_objDleCommentsAsPostArray = null;
+
+		/**
+		 * Private member variable that stores a reference to a single DleTagsAsNews object
+		 * (of type DleTags), if this DlePost object was restored with
+		 * an expansion on the dle_tags association table.
+		 * @var DleTags _objDleTagsAsNews;
+		 */
+		private $_objDleTagsAsNews;
+
+		/**
+		 * Private member variable that stores a reference to an array of DleTagsAsNews objects
+		 * (of type DleTags[]), if this DlePost object was restored with
+		 * an ExpandAsArray on the dle_tags association table.
+		 * @var DleTags[] _objDleTagsAsNewsArray;
+		 */
+		private $_objDleTagsAsNewsArray = null;
+
+		/**
 		 * Protected array of virtual attributes for this object (e.g. extra/other calculated and/or non-object bound
 		 * columns from the run-time database query result for this object).  Used by InstantiateDbRow and
 		 * GetVirtualAttribute.
@@ -335,6 +372,16 @@
 		///////////////////////////////
 		// PROTECTED MEMBER OBJECTS
 		///////////////////////////////
+
+		/**
+		 * Protected member variable that contains the object pointed by the reference
+		 * in the database column dle_post.autor.
+		 *
+		 * NOTE: Always use the AutorObject property getter to correctly retrieve this DleUsers object.
+		 * (Because this class implements late binding, this variable reference MAY be null.)
+		 * @var DleUsers objAutorObject
+		 */
+		protected $objAutorObject;
 
 
 
@@ -758,6 +805,65 @@
 			if (!$objDbRow) {
 				return null;
 			}
+			// See if we're doing an array expansion on the previous item
+			$strAlias = $strAliasPrefix . 'id';
+			$strAliasName = array_key_exists($strAlias, $strColumnAliasArray) ? $strColumnAliasArray[$strAlias] : $strAlias;
+			if (($strExpandAsArrayNodes) && is_array($arrPreviousItems) && count($arrPreviousItems)) {
+				foreach ($arrPreviousItems as $objPreviousItem) {
+					if ($objPreviousItem->intId == $objDbRow->GetColumn($strAliasName, 'Integer')) {
+						// We are.  Now, prepare to check for ExpandAsArray clauses
+						$blnExpandedViaArray = false;
+						if (!$strAliasPrefix)
+							$strAliasPrefix = 'dle_post__';
+
+
+						// Expanding reverse references: DleCommentsAsPost
+						$strAlias = $strAliasPrefix . 'dlecommentsaspost__id';
+						$strAliasName = array_key_exists($strAlias, $strColumnAliasArray) ? $strColumnAliasArray[$strAlias] : $strAlias;
+						if ((array_key_exists($strAlias, $strExpandAsArrayNodes)) &&
+							(!is_null($objDbRow->GetColumn($strAliasName)))) {
+							if(null === $objPreviousItem->_objDleCommentsAsPostArray)
+								$objPreviousItem->_objDleCommentsAsPostArray = array();
+							if ($intPreviousChildItemCount = count($objPreviousItem->_objDleCommentsAsPostArray)) {
+								$objPreviousChildItems = $objPreviousItem->_objDleCommentsAsPostArray;
+								$objChildItem = DleComments::InstantiateDbRow($objDbRow, $strAliasPrefix . 'dlecommentsaspost__', $strExpandAsArrayNodes, $objPreviousChildItems, $strColumnAliasArray);
+								if ($objChildItem) {
+									$objPreviousItem->_objDleCommentsAsPostArray[] = $objChildItem;
+								}
+							} else {
+								$objPreviousItem->_objDleCommentsAsPostArray[] = DleComments::InstantiateDbRow($objDbRow, $strAliasPrefix . 'dlecommentsaspost__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+							}
+							$blnExpandedViaArray = true;
+						}
+
+						// Expanding reverse references: DleTagsAsNews
+						$strAlias = $strAliasPrefix . 'dletagsasnews__id';
+						$strAliasName = array_key_exists($strAlias, $strColumnAliasArray) ? $strColumnAliasArray[$strAlias] : $strAlias;
+						if ((array_key_exists($strAlias, $strExpandAsArrayNodes)) &&
+							(!is_null($objDbRow->GetColumn($strAliasName)))) {
+							if(null === $objPreviousItem->_objDleTagsAsNewsArray)
+								$objPreviousItem->_objDleTagsAsNewsArray = array();
+							if ($intPreviousChildItemCount = count($objPreviousItem->_objDleTagsAsNewsArray)) {
+								$objPreviousChildItems = $objPreviousItem->_objDleTagsAsNewsArray;
+								$objChildItem = DleTags::InstantiateDbRow($objDbRow, $strAliasPrefix . 'dletagsasnews__', $strExpandAsArrayNodes, $objPreviousChildItems, $strColumnAliasArray);
+								if ($objChildItem) {
+									$objPreviousItem->_objDleTagsAsNewsArray[] = $objChildItem;
+								}
+							} else {
+								$objPreviousItem->_objDleTagsAsNewsArray[] = DleTags::InstantiateDbRow($objDbRow, $strAliasPrefix . 'dletagsasnews__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+							}
+							$blnExpandedViaArray = true;
+						}
+
+						// Either return false to signal array expansion, or check-to-reset the Alias prefix and move on
+						if ($blnExpandedViaArray) {
+							return false;
+						} else if ($strAliasPrefix == 'dle_post__') {
+							$strAliasPrefix = null;
+						}
+					}
+				}
+			}
 
 			// Create a new instance of the DlePost object
 			$objToReturn = new DlePost();
@@ -862,6 +968,22 @@
 					if ($objToReturn->Id != $objPreviousItem->Id) {
 						continue;
 					}
+					$prevCnt = count($objPreviousItem->_objDleCommentsAsPostArray);
+					$cnt = count($objToReturn->_objDleCommentsAsPostArray);
+					if ($prevCnt != $cnt)
+					    continue;
+					if ($prevCnt == 0 || $cnt == 0 || !array_diff($objPreviousItem->_objDleCommentsAsPostArray, $objToReturn->_objDleCommentsAsPostArray)) {
+						continue;
+					}
+
+					$prevCnt = count($objPreviousItem->_objDleTagsAsNewsArray);
+					$cnt = count($objToReturn->_objDleTagsAsNewsArray);
+					if ($prevCnt != $cnt)
+					    continue;
+					if ($prevCnt == 0 || $cnt == 0 || !array_diff($objPreviousItem->_objDleTagsAsNewsArray, $objToReturn->_objDleTagsAsNewsArray)) {
+						continue;
+					}
+
 
 					// complete match - all primary key columns are the same
 					return null;
@@ -880,8 +1002,40 @@
 			if (!$strAliasPrefix)
 				$strAliasPrefix = 'dle_post__';
 
+			// Check for AutorObject Early Binding
+			$strAlias = $strAliasPrefix . 'autor__user_id';
+			$strAliasName = array_key_exists($strAlias, $strColumnAliasArray) ? $strColumnAliasArray[$strAlias] : $strAlias;
+			if (!is_null($objDbRow->GetColumn($strAliasName)))
+				$objToReturn->objAutorObject = DleUsers::InstantiateDbRow($objDbRow, $strAliasPrefix . 'autor__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
 
 
+
+
+			// Check for DleCommentsAsPost Virtual Binding
+			$strAlias = $strAliasPrefix . 'dlecommentsaspost__id';
+			$strAliasName = array_key_exists($strAlias, $strColumnAliasArray) ? $strColumnAliasArray[$strAlias] : $strAlias;
+			$blnExpanded = $strExpandAsArrayNodes && array_key_exists($strAlias, $strExpandAsArrayNodes);
+			if ($blnExpanded && null === $objToReturn->_objDleCommentsAsPostArray)
+				$objToReturn->_objDleCommentsAsPostArray = array();
+			if (!is_null($objDbRow->GetColumn($strAliasName))) {
+				if ($blnExpanded)
+					$objToReturn->_objDleCommentsAsPostArray[] = DleComments::InstantiateDbRow($objDbRow, $strAliasPrefix . 'dlecommentsaspost__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+				else
+					$objToReturn->_objDleCommentsAsPost = DleComments::InstantiateDbRow($objDbRow, $strAliasPrefix . 'dlecommentsaspost__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+			}
+
+			// Check for DleTagsAsNews Virtual Binding
+			$strAlias = $strAliasPrefix . 'dletagsasnews__id';
+			$strAliasName = array_key_exists($strAlias, $strColumnAliasArray) ? $strColumnAliasArray[$strAlias] : $strAlias;
+			$blnExpanded = $strExpandAsArrayNodes && array_key_exists($strAlias, $strExpandAsArrayNodes);
+			if ($blnExpanded && null === $objToReturn->_objDleTagsAsNewsArray)
+				$objToReturn->_objDleTagsAsNewsArray = array();
+			if (!is_null($objDbRow->GetColumn($strAliasName))) {
+				if ($blnExpanded)
+					$objToReturn->_objDleTagsAsNewsArray[] = DleTags::InstantiateDbRow($objDbRow, $strAliasPrefix . 'dletagsasnews__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+				else
+					$objToReturn->_objDleTagsAsNews = DleTags::InstantiateDbRow($objDbRow, $strAliasPrefix . 'dletagsasnews__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+			}
 
 			return $objToReturn;
 		}
@@ -1498,7 +1652,7 @@
 			$objReloaded = DlePost::Load($this->intId);
 
 			// Update $this's local variables to match
-			$this->strAutor = $objReloaded->strAutor;
+			$this->Autor = $objReloaded->Autor;
 			$this->dttDate = $objReloaded->dttDate;
 			$this->strShortStory = $objReloaded->strShortStory;
 			$this->strFullStory = $objReloaded->strFullStory;
@@ -1769,11 +1923,57 @@
 				///////////////////
 				// Member Objects
 				///////////////////
+				case 'AutorObject':
+					/**
+					 * Gets the value for the DleUsers object referenced by strAutor (Not Null)
+					 * @return DleUsers
+					 */
+					try {
+						if ((!$this->objAutorObject) && (!is_null($this->strAutor)))
+							$this->objAutorObject = DleUsers::Load($this->strAutor);
+						return $this->objAutorObject;
+					} catch (QCallerException $objExc) {
+						$objExc->IncrementOffset();
+						throw $objExc;
+					}
+
 
 				////////////////////////////
 				// Virtual Object References (Many to Many and Reverse References)
 				// (If restored via a "Many-to" expansion)
 				////////////////////////////
+
+				case '_DleCommentsAsPost':
+					/**
+					 * Gets the value for the private _objDleCommentsAsPost (Read-Only)
+					 * if set due to an expansion on the dle_comments.post_id reverse relationship
+					 * @return DleComments
+					 */
+					return $this->_objDleCommentsAsPost;
+
+				case '_DleCommentsAsPostArray':
+					/**
+					 * Gets the value for the private _objDleCommentsAsPostArray (Read-Only)
+					 * if set due to an ExpandAsArray on the dle_comments.post_id reverse relationship
+					 * @return DleComments[]
+					 */
+					return $this->_objDleCommentsAsPostArray;
+
+				case '_DleTagsAsNews':
+					/**
+					 * Gets the value for the private _objDleTagsAsNews (Read-Only)
+					 * if set due to an expansion on the dle_tags.news_id reverse relationship
+					 * @return DleTags
+					 */
+					return $this->_objDleTagsAsNews;
+
+				case '_DleTagsAsNewsArray':
+					/**
+					 * Gets the value for the private _objDleTagsAsNewsArray (Read-Only)
+					 * if set due to an ExpandAsArray on the dle_tags.news_id reverse relationship
+					 * @return DleTags[]
+					 */
+					return $this->_objDleTagsAsNewsArray;
 
 
 				case '__Restored':
@@ -1809,6 +2009,7 @@
 					 * @return string
 					 */
 					try {
+						$this->objAutorObject = null;
 						return ($this->strAutor = QType::Cast($mixValue, QType::String));
 					} catch (QCallerException $objExc) {
 						$objExc->IncrementOffset();
@@ -2196,6 +2397,38 @@
 				///////////////////
 				// Member Objects
 				///////////////////
+				case 'AutorObject':
+					/**
+					 * Sets the value for the DleUsers object referenced by strAutor (Not Null)
+					 * @param DleUsers $mixValue
+					 * @return DleUsers
+					 */
+					if (is_null($mixValue)) {
+						$this->strAutor = null;
+						$this->objAutorObject = null;
+						return null;
+					} else {
+						// Make sure $mixValue actually is a DleUsers object
+						try {
+							$mixValue = QType::Cast($mixValue, 'DleUsers');
+						} catch (QInvalidCastException $objExc) {
+							$objExc->IncrementOffset();
+							throw $objExc;
+						}
+
+						// Make sure $mixValue is a SAVED DleUsers object
+						if (is_null($mixValue->Name))
+							throw new QCallerException('Unable to set an unsaved AutorObject for this DlePost');
+
+						// Update Local Member Variables
+						$this->objAutorObject = $mixValue;
+						$this->strAutor = $mixValue->Name;
+
+						// Return $mixValue
+						return $mixValue;
+					}
+					break;
+
 				default:
 					try {
 						return parent::__set($strName, $mixValue);
@@ -2223,6 +2456,304 @@
 		// ASSOCIATED OBJECTS' METHODS
 		///////////////////////////////
 
+
+
+		// Related Objects' Methods for DleCommentsAsPost
+		//-------------------------------------------------------------------
+
+		/**
+		 * Gets all associated DleCommentsesAsPost as an array of DleComments objects
+		 * @param QQClause[] $objOptionalClauses additional optional QQClause objects for this query
+		 * @return DleComments[]
+		*/
+		public function GetDleCommentsAsPostArray($objOptionalClauses = null) {
+			if ((is_null($this->intId)))
+				return array();
+
+			try {
+				return DleComments::LoadArrayByPostId($this->intId, $objOptionalClauses);
+			} catch (QCallerException $objExc) {
+				$objExc->IncrementOffset();
+				throw $objExc;
+			}
+		}
+
+		/**
+		 * Counts all associated DleCommentsesAsPost
+		 * @return int
+		*/
+		public function CountDleCommentsesAsPost() {
+			if ((is_null($this->intId)))
+				return 0;
+
+			return DleComments::CountByPostId($this->intId);
+		}
+
+		/**
+		 * Associates a DleCommentsAsPost
+		 * @param DleComments $objDleComments
+		 * @return void
+		*/
+		public function AssociateDleCommentsAsPost(DleComments $objDleComments) {
+			if ((is_null($this->intId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call AssociateDleCommentsAsPost on this unsaved DlePost.');
+			if ((is_null($objDleComments->Id)))
+				throw new QUndefinedPrimaryKeyException('Unable to call AssociateDleCommentsAsPost on this DlePost with an unsaved DleComments.');
+
+			// Get the Database Object for this Class
+			$objDatabase = DlePost::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				UPDATE
+					`dle_comments`
+				SET
+					`post_id` = ' . $objDatabase->SqlVariable($this->intId) . '
+				WHERE
+					`id` = ' . $objDatabase->SqlVariable($objDleComments->Id) . ' 
+			');
+		}
+
+		/**
+		 * Unassociates a DleCommentsAsPost
+		 * @param DleComments $objDleComments
+		 * @return void
+		*/
+		public function UnassociateDleCommentsAsPost(DleComments $objDleComments) {
+			if ((is_null($this->intId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateDleCommentsAsPost on this unsaved DlePost.');
+			if ((is_null($objDleComments->Id)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateDleCommentsAsPost on this DlePost with an unsaved DleComments.');
+
+			// Get the Database Object for this Class
+			$objDatabase = DlePost::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				UPDATE
+					`dle_comments`
+				SET
+					`post_id` = null
+				WHERE
+					`id` = ' . $objDatabase->SqlVariable($objDleComments->Id) . ' AND
+					`post_id` = ' . $objDatabase->SqlVariable($this->intId) . '
+			');
+		}
+
+		/**
+		 * Unassociates all DleCommentsesAsPost
+		 * @return void
+		*/
+		public function UnassociateAllDleCommentsesAsPost() {
+			if ((is_null($this->intId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateDleCommentsAsPost on this unsaved DlePost.');
+
+			// Get the Database Object for this Class
+			$objDatabase = DlePost::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				UPDATE
+					`dle_comments`
+				SET
+					`post_id` = null
+				WHERE
+					`post_id` = ' . $objDatabase->SqlVariable($this->intId) . '
+			');
+		}
+
+		/**
+		 * Deletes an associated DleCommentsAsPost
+		 * @param DleComments $objDleComments
+		 * @return void
+		*/
+		public function DeleteAssociatedDleCommentsAsPost(DleComments $objDleComments) {
+			if ((is_null($this->intId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateDleCommentsAsPost on this unsaved DlePost.');
+			if ((is_null($objDleComments->Id)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateDleCommentsAsPost on this DlePost with an unsaved DleComments.');
+
+			// Get the Database Object for this Class
+			$objDatabase = DlePost::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				DELETE FROM
+					`dle_comments`
+				WHERE
+					`id` = ' . $objDatabase->SqlVariable($objDleComments->Id) . ' AND
+					`post_id` = ' . $objDatabase->SqlVariable($this->intId) . '
+			');
+		}
+
+		/**
+		 * Deletes all associated DleCommentsesAsPost
+		 * @return void
+		*/
+		public function DeleteAllDleCommentsesAsPost() {
+			if ((is_null($this->intId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateDleCommentsAsPost on this unsaved DlePost.');
+
+			// Get the Database Object for this Class
+			$objDatabase = DlePost::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				DELETE FROM
+					`dle_comments`
+				WHERE
+					`post_id` = ' . $objDatabase->SqlVariable($this->intId) . '
+			');
+		}
+
+
+		// Related Objects' Methods for DleTagsAsNews
+		//-------------------------------------------------------------------
+
+		/**
+		 * Gets all associated DleTagsesAsNews as an array of DleTags objects
+		 * @param QQClause[] $objOptionalClauses additional optional QQClause objects for this query
+		 * @return DleTags[]
+		*/
+		public function GetDleTagsAsNewsArray($objOptionalClauses = null) {
+			if ((is_null($this->intId)))
+				return array();
+
+			try {
+				return DleTags::LoadArrayByNewsId($this->intId, $objOptionalClauses);
+			} catch (QCallerException $objExc) {
+				$objExc->IncrementOffset();
+				throw $objExc;
+			}
+		}
+
+		/**
+		 * Counts all associated DleTagsesAsNews
+		 * @return int
+		*/
+		public function CountDleTagsesAsNews() {
+			if ((is_null($this->intId)))
+				return 0;
+
+			return DleTags::CountByNewsId($this->intId);
+		}
+
+		/**
+		 * Associates a DleTagsAsNews
+		 * @param DleTags $objDleTags
+		 * @return void
+		*/
+		public function AssociateDleTagsAsNews(DleTags $objDleTags) {
+			if ((is_null($this->intId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call AssociateDleTagsAsNews on this unsaved DlePost.');
+			if ((is_null($objDleTags->Id)))
+				throw new QUndefinedPrimaryKeyException('Unable to call AssociateDleTagsAsNews on this DlePost with an unsaved DleTags.');
+
+			// Get the Database Object for this Class
+			$objDatabase = DlePost::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				UPDATE
+					`dle_tags`
+				SET
+					`news_id` = ' . $objDatabase->SqlVariable($this->intId) . '
+				WHERE
+					`id` = ' . $objDatabase->SqlVariable($objDleTags->Id) . ' 
+			');
+		}
+
+		/**
+		 * Unassociates a DleTagsAsNews
+		 * @param DleTags $objDleTags
+		 * @return void
+		*/
+		public function UnassociateDleTagsAsNews(DleTags $objDleTags) {
+			if ((is_null($this->intId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateDleTagsAsNews on this unsaved DlePost.');
+			if ((is_null($objDleTags->Id)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateDleTagsAsNews on this DlePost with an unsaved DleTags.');
+
+			// Get the Database Object for this Class
+			$objDatabase = DlePost::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				UPDATE
+					`dle_tags`
+				SET
+					`news_id` = null
+				WHERE
+					`id` = ' . $objDatabase->SqlVariable($objDleTags->Id) . ' AND
+					`news_id` = ' . $objDatabase->SqlVariable($this->intId) . '
+			');
+		}
+
+		/**
+		 * Unassociates all DleTagsesAsNews
+		 * @return void
+		*/
+		public function UnassociateAllDleTagsesAsNews() {
+			if ((is_null($this->intId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateDleTagsAsNews on this unsaved DlePost.');
+
+			// Get the Database Object for this Class
+			$objDatabase = DlePost::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				UPDATE
+					`dle_tags`
+				SET
+					`news_id` = null
+				WHERE
+					`news_id` = ' . $objDatabase->SqlVariable($this->intId) . '
+			');
+		}
+
+		/**
+		 * Deletes an associated DleTagsAsNews
+		 * @param DleTags $objDleTags
+		 * @return void
+		*/
+		public function DeleteAssociatedDleTagsAsNews(DleTags $objDleTags) {
+			if ((is_null($this->intId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateDleTagsAsNews on this unsaved DlePost.');
+			if ((is_null($objDleTags->Id)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateDleTagsAsNews on this DlePost with an unsaved DleTags.');
+
+			// Get the Database Object for this Class
+			$objDatabase = DlePost::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				DELETE FROM
+					`dle_tags`
+				WHERE
+					`id` = ' . $objDatabase->SqlVariable($objDleTags->Id) . ' AND
+					`news_id` = ' . $objDatabase->SqlVariable($this->intId) . '
+			');
+		}
+
+		/**
+		 * Deletes all associated DleTagsesAsNews
+		 * @return void
+		*/
+		public function DeleteAllDleTagsesAsNews() {
+			if ((is_null($this->intId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateDleTagsAsNews on this unsaved DlePost.');
+
+			// Get the Database Object for this Class
+			$objDatabase = DlePost::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				DELETE FROM
+					`dle_tags`
+				WHERE
+					`news_id` = ' . $objDatabase->SqlVariable($this->intId) . '
+			');
+		}
 
 
 		
@@ -2264,7 +2795,7 @@
 		public static function GetSoapComplexTypeXml() {
 			$strToReturn = '<complexType name="DlePost"><sequence>';
 			$strToReturn .= '<element name="Id" type="xsd:int"/>';
-			$strToReturn .= '<element name="Autor" type="xsd:string"/>';
+			$strToReturn .= '<element name="AutorObject" type="xsd1:DleUsers"/>';
 			$strToReturn .= '<element name="Date" type="xsd:dateTime"/>';
 			$strToReturn .= '<element name="ShortStory" type="xsd:string"/>';
 			$strToReturn .= '<element name="FullStory" type="xsd:string"/>';
@@ -2302,6 +2833,7 @@
 		public static function AlterSoapComplexTypeArray(&$strComplexTypeArray) {
 			if (!array_key_exists('DlePost', $strComplexTypeArray)) {
 				$strComplexTypeArray['DlePost'] = DlePost::GetSoapComplexTypeXml();
+				DleUsers::AlterSoapComplexTypeArray($strComplexTypeArray);
 			}
 		}
 
@@ -2318,8 +2850,9 @@
 			$objToReturn = new DlePost();
 			if (property_exists($objSoapObject, 'Id'))
 				$objToReturn->intId = $objSoapObject->Id;
-			if (property_exists($objSoapObject, 'Autor'))
-				$objToReturn->strAutor = $objSoapObject->Autor;
+			if ((property_exists($objSoapObject, 'AutorObject')) &&
+				($objSoapObject->AutorObject))
+				$objToReturn->AutorObject = DleUsers::GetObjectFromSoapObject($objSoapObject->AutorObject);
 			if (property_exists($objSoapObject, 'Date'))
 				$objToReturn->dttDate = new QDateTime($objSoapObject->Date);
 			if (property_exists($objSoapObject, 'ShortStory'))
@@ -2396,6 +2929,10 @@
 		}
 
 		public static function GetSoapObjectFromObject($objObject, $blnBindRelatedObjects) {
+			if ($objObject->objAutorObject)
+				$objObject->objAutorObject = DleUsers::GetSoapObjectFromObject($objObject->objAutorObject, false);
+			else if (!$blnBindRelatedObjects)
+				$objObject->strAutor = null;
 			if ($objObject->dttDate)
 				$objObject->dttDate = $objObject->dttDate->qFormat(QDateTime::FormatSoap);
 			return $objObject;
@@ -2482,6 +3019,7 @@
      *
      * @property-read QQNode $Id
      * @property-read QQNode $Autor
+     * @property-read QQNodeDleUsers $AutorObject
      * @property-read QQNode $Date
      * @property-read QQNode $ShortStory
      * @property-read QQNode $FullStory
@@ -2513,6 +3051,8 @@
      * @property-read QQNode $Metatitle
      *
      *
+     * @property-read QQReverseReferenceNodeDleComments $DleCommentsAsPost
+     * @property-read QQReverseReferenceNodeDleTags $DleTagsAsNews
 
      * @property-read QQNode $_PrimaryKeyNode
      **/
@@ -2526,6 +3066,8 @@
 					return new QQNode('id', 'Id', 'Integer', $this);
 				case 'Autor':
 					return new QQNode('autor', 'Autor', 'VarChar', $this);
+				case 'AutorObject':
+					return new QQNodeDleUsers('autor', 'AutorObject', 'VarChar', $this);
 				case 'Date':
 					return new QQNode('date', 'Date', 'DateTime', $this);
 				case 'ShortStory':
@@ -2584,6 +3126,10 @@
 					return new QQNode('tags', 'Tags', 'VarChar', $this);
 				case 'Metatitle':
 					return new QQNode('metatitle', 'Metatitle', 'VarChar', $this);
+				case 'DleCommentsAsPost':
+					return new QQReverseReferenceNodeDleComments($this, 'dlecommentsaspost', 'reverse_reference', 'post_id');
+				case 'DleTagsAsNews':
+					return new QQReverseReferenceNodeDleTags($this, 'dletagsasnews', 'reverse_reference', 'news_id');
 
 				case '_PrimaryKeyNode':
 					return new QQNode('id', 'Id', 'Integer', $this);
@@ -2601,6 +3147,7 @@
     /**
      * @property-read QQNode $Id
      * @property-read QQNode $Autor
+     * @property-read QQNodeDleUsers $AutorObject
      * @property-read QQNode $Date
      * @property-read QQNode $ShortStory
      * @property-read QQNode $FullStory
@@ -2632,6 +3179,8 @@
      * @property-read QQNode $Metatitle
      *
      *
+     * @property-read QQReverseReferenceNodeDleComments $DleCommentsAsPost
+     * @property-read QQReverseReferenceNodeDleTags $DleTagsAsNews
 
      * @property-read QQNode $_PrimaryKeyNode
      **/
@@ -2645,6 +3194,8 @@
 					return new QQNode('id', 'Id', 'integer', $this);
 				case 'Autor':
 					return new QQNode('autor', 'Autor', 'string', $this);
+				case 'AutorObject':
+					return new QQNodeDleUsers('autor', 'AutorObject', 'string', $this);
 				case 'Date':
 					return new QQNode('date', 'Date', 'QDateTime', $this);
 				case 'ShortStory':
@@ -2703,6 +3254,10 @@
 					return new QQNode('tags', 'Tags', 'string', $this);
 				case 'Metatitle':
 					return new QQNode('metatitle', 'Metatitle', 'string', $this);
+				case 'DleCommentsAsPost':
+					return new QQReverseReferenceNodeDleComments($this, 'dlecommentsaspost', 'reverse_reference', 'post_id');
+				case 'DleTagsAsNews':
+					return new QQReverseReferenceNodeDleTags($this, 'dletagsasnews', 'reverse_reference', 'news_id');
 
 				case '_PrimaryKeyNode':
 					return new QQNode('id', 'Id', 'integer', $this);

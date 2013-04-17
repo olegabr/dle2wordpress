@@ -18,6 +18,7 @@
 	 * @property-read integer $Id the value for intId (Read-Only PK)
 	 * @property string $Postnum the value for strPostnum (Not Null)
 	 * @property integer $Postcount the value for intPostcount (Not Null)
+	 * @property WpPosts $PostnumObject the value for the WpPosts object referenced by strPostnum (Not Null)
 	 * @property-read boolean $__Restored whether or not this object was restored from the database (as opposed to created new)
 	 */
 	class WpPvcTotalGen extends QBaseClass implements IteratorAggregate {
@@ -72,6 +73,16 @@
 		///////////////////////////////
 		// PROTECTED MEMBER OBJECTS
 		///////////////////////////////
+
+		/**
+		 * Protected member variable that contains the object pointed by the reference
+		 * in the database column wp_pvc_total.postnum.
+		 *
+		 * NOTE: Always use the PostnumObject property getter to correctly retrieve this WpPosts object.
+		 * (Because this class implements late binding, this variable reference MAY be null.)
+		 * @var WpPosts objPostnumObject
+		 */
+		protected $objPostnumObject;
 
 
 
@@ -477,6 +488,12 @@
 			if (!$strAliasPrefix)
 				$strAliasPrefix = 'wp_pvc_total__';
 
+			// Check for PostnumObject Early Binding
+			$strAlias = $strAliasPrefix . 'postnum__ID';
+			$strAliasName = array_key_exists($strAlias, $strColumnAliasArray) ? $strColumnAliasArray[$strAlias] : $strAlias;
+			if (!is_null($objDbRow->GetColumn($strAliasName)))
+				$objToReturn->objPostnumObject = WpPosts::InstantiateDbRow($objDbRow, $strAliasPrefix . 'postnum__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+
 
 
 
@@ -564,6 +581,38 @@
 					QQ::Equal(QQN::WpPvcTotal()->Id, $intId)
 				),
 				$objOptionalClauses
+			);
+		}
+
+		/**
+		 * Load an array of WpPvcTotal objects,
+		 * by Postnum Index(es)
+		 * @param string $strPostnum
+		 * @param QQClause[] $objOptionalClauses additional optional QQClause objects for this query
+		 * @return WpPvcTotal[]
+		*/
+		public static function LoadArrayByPostnum($strPostnum, $objOptionalClauses = null) {
+			// Call WpPvcTotal::QueryArray to perform the LoadArrayByPostnum query
+			try {
+				return WpPvcTotal::QueryArray(
+					QQ::Equal(QQN::WpPvcTotal()->Postnum, $strPostnum),
+					$objOptionalClauses);
+			} catch (QCallerException $objExc) {
+				$objExc->IncrementOffset();
+				throw $objExc;
+			}
+		}
+
+		/**
+		 * Count WpPvcTotals
+		 * by Postnum Index(es)
+		 * @param string $strPostnum
+		 * @return int
+		*/
+		public static function CountByPostnum($strPostnum) {
+			// Call WpPvcTotal::QueryCount to perform the CountByPostnum query
+			return WpPvcTotal::QueryCount(
+				QQ::Equal(QQN::WpPvcTotal()->Postnum, $strPostnum)
 			);
 		}
 
@@ -723,7 +772,7 @@
 			$objReloaded = WpPvcTotal::Load($this->intId);
 
 			// Update $this's local variables to match
-			$this->strPostnum = $objReloaded->strPostnum;
+			$this->Postnum = $objReloaded->Postnum;
 			$this->intPostcount = $objReloaded->intPostcount;
 		}
 
@@ -770,6 +819,20 @@
 				///////////////////
 				// Member Objects
 				///////////////////
+				case 'PostnumObject':
+					/**
+					 * Gets the value for the WpPosts object referenced by strPostnum (Not Null)
+					 * @return WpPosts
+					 */
+					try {
+						if ((!$this->objPostnumObject) && (!is_null($this->strPostnum)))
+							$this->objPostnumObject = WpPosts::Load($this->strPostnum);
+						return $this->objPostnumObject;
+					} catch (QCallerException $objExc) {
+						$objExc->IncrementOffset();
+						throw $objExc;
+					}
+
 
 				////////////////////////////
 				// Virtual Object References (Many to Many and Reverse References)
@@ -810,6 +873,7 @@
 					 * @return string
 					 */
 					try {
+						$this->objPostnumObject = null;
 						return ($this->strPostnum = QType::Cast($mixValue, QType::String));
 					} catch (QCallerException $objExc) {
 						$objExc->IncrementOffset();
@@ -833,6 +897,38 @@
 				///////////////////
 				// Member Objects
 				///////////////////
+				case 'PostnumObject':
+					/**
+					 * Sets the value for the WpPosts object referenced by strPostnum (Not Null)
+					 * @param WpPosts $mixValue
+					 * @return WpPosts
+					 */
+					if (is_null($mixValue)) {
+						$this->strPostnum = null;
+						$this->objPostnumObject = null;
+						return null;
+					} else {
+						// Make sure $mixValue actually is a WpPosts object
+						try {
+							$mixValue = QType::Cast($mixValue, 'WpPosts');
+						} catch (QInvalidCastException $objExc) {
+							$objExc->IncrementOffset();
+							throw $objExc;
+						}
+
+						// Make sure $mixValue is a SAVED WpPosts object
+						if (is_null($mixValue->Id))
+							throw new QCallerException('Unable to set an unsaved PostnumObject for this WpPvcTotal');
+
+						// Update Local Member Variables
+						$this->objPostnumObject = $mixValue;
+						$this->strPostnum = $mixValue->Id;
+
+						// Return $mixValue
+						return $mixValue;
+					}
+					break;
+
 				default:
 					try {
 						return parent::__set($strName, $mixValue);
@@ -901,7 +997,7 @@
 		public static function GetSoapComplexTypeXml() {
 			$strToReturn = '<complexType name="WpPvcTotal"><sequence>';
 			$strToReturn .= '<element name="Id" type="xsd:int"/>';
-			$strToReturn .= '<element name="Postnum" type="xsd:string"/>';
+			$strToReturn .= '<element name="PostnumObject" type="xsd1:WpPosts"/>';
 			$strToReturn .= '<element name="Postcount" type="xsd:int"/>';
 			$strToReturn .= '<element name="__blnRestored" type="xsd:boolean"/>';
 			$strToReturn .= '</sequence></complexType>';
@@ -911,6 +1007,7 @@
 		public static function AlterSoapComplexTypeArray(&$strComplexTypeArray) {
 			if (!array_key_exists('WpPvcTotal', $strComplexTypeArray)) {
 				$strComplexTypeArray['WpPvcTotal'] = WpPvcTotal::GetSoapComplexTypeXml();
+				WpPosts::AlterSoapComplexTypeArray($strComplexTypeArray);
 			}
 		}
 
@@ -927,8 +1024,9 @@
 			$objToReturn = new WpPvcTotal();
 			if (property_exists($objSoapObject, 'Id'))
 				$objToReturn->intId = $objSoapObject->Id;
-			if (property_exists($objSoapObject, 'Postnum'))
-				$objToReturn->strPostnum = $objSoapObject->Postnum;
+			if ((property_exists($objSoapObject, 'PostnumObject')) &&
+				($objSoapObject->PostnumObject))
+				$objToReturn->PostnumObject = WpPosts::GetObjectFromSoapObject($objSoapObject->PostnumObject);
 			if (property_exists($objSoapObject, 'Postcount'))
 				$objToReturn->intPostcount = $objSoapObject->Postcount;
 			if (property_exists($objSoapObject, '__blnRestored'))
@@ -949,6 +1047,10 @@
 		}
 
 		public static function GetSoapObjectFromObject($objObject, $blnBindRelatedObjects) {
+			if ($objObject->objPostnumObject)
+				$objObject->objPostnumObject = WpPosts::GetSoapObjectFromObject($objObject->objPostnumObject, false);
+			else if (!$blnBindRelatedObjects)
+				$objObject->strPostnum = null;
 			return $objObject;
 		}
 
@@ -1005,6 +1107,7 @@
      *
      * @property-read QQNode $Id
      * @property-read QQNode $Postnum
+     * @property-read QQNodeWpPosts $PostnumObject
      * @property-read QQNode $Postcount
      *
      *
@@ -1021,6 +1124,8 @@
 					return new QQNode('id', 'Id', 'Integer', $this);
 				case 'Postnum':
 					return new QQNode('postnum', 'Postnum', 'VarChar', $this);
+				case 'PostnumObject':
+					return new QQNodeWpPosts('postnum', 'PostnumObject', 'VarChar', $this);
 				case 'Postcount':
 					return new QQNode('postcount', 'Postcount', 'Integer', $this);
 
@@ -1040,6 +1145,7 @@
     /**
      * @property-read QQNode $Id
      * @property-read QQNode $Postnum
+     * @property-read QQNodeWpPosts $PostnumObject
      * @property-read QQNode $Postcount
      *
      *
@@ -1056,6 +1162,8 @@
 					return new QQNode('id', 'Id', 'integer', $this);
 				case 'Postnum':
 					return new QQNode('postnum', 'Postnum', 'string', $this);
+				case 'PostnumObject':
+					return new QQNodeWpPosts('postnum', 'PostnumObject', 'string', $this);
 				case 'Postcount':
 					return new QQNode('postcount', 'Postcount', 'integer', $this);
 

@@ -25,6 +25,16 @@
 	 * @property string $UserActivationKey the value for strUserActivationKey (Not Null)
 	 * @property integer $UserStatus the value for intUserStatus (Not Null)
 	 * @property string $DisplayName the value for strDisplayName (Not Null)
+	 * @property-read WpComments $_WpCommentsAsUser the value for the private _objWpCommentsAsUser (Read-Only) if set due to an expansion on the wp_comments.user_id reverse relationship
+	 * @property-read WpComments[] $_WpCommentsAsUserArray the value for the private _objWpCommentsAsUserArray (Read-Only) if set due to an ExpandAsArray on the wp_comments.user_id reverse relationship
+	 * @property-read WpPollsip $_WpPollsipAsPollipUserid the value for the private _objWpPollsipAsPollipUserid (Read-Only) if set due to an expansion on the wp_pollsip.pollip_userid reverse relationship
+	 * @property-read WpPollsip[] $_WpPollsipAsPollipUseridArray the value for the private _objWpPollsipAsPollipUseridArray (Read-Only) if set due to an ExpandAsArray on the wp_pollsip.pollip_userid reverse relationship
+	 * @property-read WpPosts $_WpPostsAsPostAuthor the value for the private _objWpPostsAsPostAuthor (Read-Only) if set due to an expansion on the wp_posts.post_author reverse relationship
+	 * @property-read WpPosts[] $_WpPostsAsPostAuthorArray the value for the private _objWpPostsAsPostAuthorArray (Read-Only) if set due to an ExpandAsArray on the wp_posts.post_author reverse relationship
+	 * @property-read WpUsermeta $_WpUsermetaAsUser the value for the private _objWpUsermetaAsUser (Read-Only) if set due to an expansion on the wp_usermeta.user_id reverse relationship
+	 * @property-read WpUsermeta[] $_WpUsermetaAsUserArray the value for the private _objWpUsermetaAsUserArray (Read-Only) if set due to an ExpandAsArray on the wp_usermeta.user_id reverse relationship
+	 * @property-read WpWtiLikePost $_WpWtiLikePostAsUser the value for the private _objWpWtiLikePostAsUser (Read-Only) if set due to an expansion on the wp_wti_like_post.user_id reverse relationship
+	 * @property-read WpWtiLikePost[] $_WpWtiLikePostAsUserArray the value for the private _objWpWtiLikePostAsUserArray (Read-Only) if set due to an ExpandAsArray on the wp_wti_like_post.user_id reverse relationship
 	 * @property-read boolean $__Restored whether or not this object was restored from the database (as opposed to created new)
 	 */
 	class WpUsersGen extends QBaseClass implements IteratorAggregate {
@@ -119,6 +129,86 @@
 		const DisplayNameMaxLength = 250;
 		const DisplayNameDefault = null;
 
+
+		/**
+		 * Private member variable that stores a reference to a single WpCommentsAsUser object
+		 * (of type WpComments), if this WpUsers object was restored with
+		 * an expansion on the wp_comments association table.
+		 * @var WpComments _objWpCommentsAsUser;
+		 */
+		private $_objWpCommentsAsUser;
+
+		/**
+		 * Private member variable that stores a reference to an array of WpCommentsAsUser objects
+		 * (of type WpComments[]), if this WpUsers object was restored with
+		 * an ExpandAsArray on the wp_comments association table.
+		 * @var WpComments[] _objWpCommentsAsUserArray;
+		 */
+		private $_objWpCommentsAsUserArray = null;
+
+		/**
+		 * Private member variable that stores a reference to a single WpPollsipAsPollipUserid object
+		 * (of type WpPollsip), if this WpUsers object was restored with
+		 * an expansion on the wp_pollsip association table.
+		 * @var WpPollsip _objWpPollsipAsPollipUserid;
+		 */
+		private $_objWpPollsipAsPollipUserid;
+
+		/**
+		 * Private member variable that stores a reference to an array of WpPollsipAsPollipUserid objects
+		 * (of type WpPollsip[]), if this WpUsers object was restored with
+		 * an ExpandAsArray on the wp_pollsip association table.
+		 * @var WpPollsip[] _objWpPollsipAsPollipUseridArray;
+		 */
+		private $_objWpPollsipAsPollipUseridArray = null;
+
+		/**
+		 * Private member variable that stores a reference to a single WpPostsAsPostAuthor object
+		 * (of type WpPosts), if this WpUsers object was restored with
+		 * an expansion on the wp_posts association table.
+		 * @var WpPosts _objWpPostsAsPostAuthor;
+		 */
+		private $_objWpPostsAsPostAuthor;
+
+		/**
+		 * Private member variable that stores a reference to an array of WpPostsAsPostAuthor objects
+		 * (of type WpPosts[]), if this WpUsers object was restored with
+		 * an ExpandAsArray on the wp_posts association table.
+		 * @var WpPosts[] _objWpPostsAsPostAuthorArray;
+		 */
+		private $_objWpPostsAsPostAuthorArray = null;
+
+		/**
+		 * Private member variable that stores a reference to a single WpUsermetaAsUser object
+		 * (of type WpUsermeta), if this WpUsers object was restored with
+		 * an expansion on the wp_usermeta association table.
+		 * @var WpUsermeta _objWpUsermetaAsUser;
+		 */
+		private $_objWpUsermetaAsUser;
+
+		/**
+		 * Private member variable that stores a reference to an array of WpUsermetaAsUser objects
+		 * (of type WpUsermeta[]), if this WpUsers object was restored with
+		 * an ExpandAsArray on the wp_usermeta association table.
+		 * @var WpUsermeta[] _objWpUsermetaAsUserArray;
+		 */
+		private $_objWpUsermetaAsUserArray = null;
+
+		/**
+		 * Private member variable that stores a reference to a single WpWtiLikePostAsUser object
+		 * (of type WpWtiLikePost), if this WpUsers object was restored with
+		 * an expansion on the wp_wti_like_post association table.
+		 * @var WpWtiLikePost _objWpWtiLikePostAsUser;
+		 */
+		private $_objWpWtiLikePostAsUser;
+
+		/**
+		 * Private member variable that stores a reference to an array of WpWtiLikePostAsUser objects
+		 * (of type WpWtiLikePost[]), if this WpUsers object was restored with
+		 * an ExpandAsArray on the wp_wti_like_post association table.
+		 * @var WpWtiLikePost[] _objWpWtiLikePostAsUserArray;
+		 */
+		private $_objWpWtiLikePostAsUserArray = null;
 
 		/**
 		 * Protected array of virtual attributes for this object (e.g. extra/other calculated and/or non-object bound
@@ -522,6 +612,122 @@
 			if (!$objDbRow) {
 				return null;
 			}
+			// See if we're doing an array expansion on the previous item
+			$strAlias = $strAliasPrefix . 'ID';
+			$strAliasName = array_key_exists($strAlias, $strColumnAliasArray) ? $strColumnAliasArray[$strAlias] : $strAlias;
+			if (($strExpandAsArrayNodes) && is_array($arrPreviousItems) && count($arrPreviousItems)) {
+				foreach ($arrPreviousItems as $objPreviousItem) {
+					if ($objPreviousItem->intId == $objDbRow->GetColumn($strAliasName, 'Integer')) {
+						// We are.  Now, prepare to check for ExpandAsArray clauses
+						$blnExpandedViaArray = false;
+						if (!$strAliasPrefix)
+							$strAliasPrefix = 'wp_users__';
+
+
+						// Expanding reverse references: WpCommentsAsUser
+						$strAlias = $strAliasPrefix . 'wpcommentsasuser__comment_ID';
+						$strAliasName = array_key_exists($strAlias, $strColumnAliasArray) ? $strColumnAliasArray[$strAlias] : $strAlias;
+						if ((array_key_exists($strAlias, $strExpandAsArrayNodes)) &&
+							(!is_null($objDbRow->GetColumn($strAliasName)))) {
+							if(null === $objPreviousItem->_objWpCommentsAsUserArray)
+								$objPreviousItem->_objWpCommentsAsUserArray = array();
+							if ($intPreviousChildItemCount = count($objPreviousItem->_objWpCommentsAsUserArray)) {
+								$objPreviousChildItems = $objPreviousItem->_objWpCommentsAsUserArray;
+								$objChildItem = WpComments::InstantiateDbRow($objDbRow, $strAliasPrefix . 'wpcommentsasuser__', $strExpandAsArrayNodes, $objPreviousChildItems, $strColumnAliasArray);
+								if ($objChildItem) {
+									$objPreviousItem->_objWpCommentsAsUserArray[] = $objChildItem;
+								}
+							} else {
+								$objPreviousItem->_objWpCommentsAsUserArray[] = WpComments::InstantiateDbRow($objDbRow, $strAliasPrefix . 'wpcommentsasuser__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+							}
+							$blnExpandedViaArray = true;
+						}
+
+						// Expanding reverse references: WpPollsipAsPollipUserid
+						$strAlias = $strAliasPrefix . 'wppollsipaspollipuserid__pollip_id';
+						$strAliasName = array_key_exists($strAlias, $strColumnAliasArray) ? $strColumnAliasArray[$strAlias] : $strAlias;
+						if ((array_key_exists($strAlias, $strExpandAsArrayNodes)) &&
+							(!is_null($objDbRow->GetColumn($strAliasName)))) {
+							if(null === $objPreviousItem->_objWpPollsipAsPollipUseridArray)
+								$objPreviousItem->_objWpPollsipAsPollipUseridArray = array();
+							if ($intPreviousChildItemCount = count($objPreviousItem->_objWpPollsipAsPollipUseridArray)) {
+								$objPreviousChildItems = $objPreviousItem->_objWpPollsipAsPollipUseridArray;
+								$objChildItem = WpPollsip::InstantiateDbRow($objDbRow, $strAliasPrefix . 'wppollsipaspollipuserid__', $strExpandAsArrayNodes, $objPreviousChildItems, $strColumnAliasArray);
+								if ($objChildItem) {
+									$objPreviousItem->_objWpPollsipAsPollipUseridArray[] = $objChildItem;
+								}
+							} else {
+								$objPreviousItem->_objWpPollsipAsPollipUseridArray[] = WpPollsip::InstantiateDbRow($objDbRow, $strAliasPrefix . 'wppollsipaspollipuserid__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+							}
+							$blnExpandedViaArray = true;
+						}
+
+						// Expanding reverse references: WpPostsAsPostAuthor
+						$strAlias = $strAliasPrefix . 'wppostsaspostauthor__ID';
+						$strAliasName = array_key_exists($strAlias, $strColumnAliasArray) ? $strColumnAliasArray[$strAlias] : $strAlias;
+						if ((array_key_exists($strAlias, $strExpandAsArrayNodes)) &&
+							(!is_null($objDbRow->GetColumn($strAliasName)))) {
+							if(null === $objPreviousItem->_objWpPostsAsPostAuthorArray)
+								$objPreviousItem->_objWpPostsAsPostAuthorArray = array();
+							if ($intPreviousChildItemCount = count($objPreviousItem->_objWpPostsAsPostAuthorArray)) {
+								$objPreviousChildItems = $objPreviousItem->_objWpPostsAsPostAuthorArray;
+								$objChildItem = WpPosts::InstantiateDbRow($objDbRow, $strAliasPrefix . 'wppostsaspostauthor__', $strExpandAsArrayNodes, $objPreviousChildItems, $strColumnAliasArray);
+								if ($objChildItem) {
+									$objPreviousItem->_objWpPostsAsPostAuthorArray[] = $objChildItem;
+								}
+							} else {
+								$objPreviousItem->_objWpPostsAsPostAuthorArray[] = WpPosts::InstantiateDbRow($objDbRow, $strAliasPrefix . 'wppostsaspostauthor__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+							}
+							$blnExpandedViaArray = true;
+						}
+
+						// Expanding reverse references: WpUsermetaAsUser
+						$strAlias = $strAliasPrefix . 'wpusermetaasuser__umeta_id';
+						$strAliasName = array_key_exists($strAlias, $strColumnAliasArray) ? $strColumnAliasArray[$strAlias] : $strAlias;
+						if ((array_key_exists($strAlias, $strExpandAsArrayNodes)) &&
+							(!is_null($objDbRow->GetColumn($strAliasName)))) {
+							if(null === $objPreviousItem->_objWpUsermetaAsUserArray)
+								$objPreviousItem->_objWpUsermetaAsUserArray = array();
+							if ($intPreviousChildItemCount = count($objPreviousItem->_objWpUsermetaAsUserArray)) {
+								$objPreviousChildItems = $objPreviousItem->_objWpUsermetaAsUserArray;
+								$objChildItem = WpUsermeta::InstantiateDbRow($objDbRow, $strAliasPrefix . 'wpusermetaasuser__', $strExpandAsArrayNodes, $objPreviousChildItems, $strColumnAliasArray);
+								if ($objChildItem) {
+									$objPreviousItem->_objWpUsermetaAsUserArray[] = $objChildItem;
+								}
+							} else {
+								$objPreviousItem->_objWpUsermetaAsUserArray[] = WpUsermeta::InstantiateDbRow($objDbRow, $strAliasPrefix . 'wpusermetaasuser__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+							}
+							$blnExpandedViaArray = true;
+						}
+
+						// Expanding reverse references: WpWtiLikePostAsUser
+						$strAlias = $strAliasPrefix . 'wpwtilikepostasuser__id';
+						$strAliasName = array_key_exists($strAlias, $strColumnAliasArray) ? $strColumnAliasArray[$strAlias] : $strAlias;
+						if ((array_key_exists($strAlias, $strExpandAsArrayNodes)) &&
+							(!is_null($objDbRow->GetColumn($strAliasName)))) {
+							if(null === $objPreviousItem->_objWpWtiLikePostAsUserArray)
+								$objPreviousItem->_objWpWtiLikePostAsUserArray = array();
+							if ($intPreviousChildItemCount = count($objPreviousItem->_objWpWtiLikePostAsUserArray)) {
+								$objPreviousChildItems = $objPreviousItem->_objWpWtiLikePostAsUserArray;
+								$objChildItem = WpWtiLikePost::InstantiateDbRow($objDbRow, $strAliasPrefix . 'wpwtilikepostasuser__', $strExpandAsArrayNodes, $objPreviousChildItems, $strColumnAliasArray);
+								if ($objChildItem) {
+									$objPreviousItem->_objWpWtiLikePostAsUserArray[] = $objChildItem;
+								}
+							} else {
+								$objPreviousItem->_objWpWtiLikePostAsUserArray[] = WpWtiLikePost::InstantiateDbRow($objDbRow, $strAliasPrefix . 'wpwtilikepostasuser__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+							}
+							$blnExpandedViaArray = true;
+						}
+
+						// Either return false to signal array expansion, or check-to-reset the Alias prefix and move on
+						if ($blnExpandedViaArray) {
+							return false;
+						} else if ($strAliasPrefix == 'wp_users__') {
+							$strAliasPrefix = null;
+						}
+					}
+				}
+			}
 
 			// Create a new instance of the WpUsers object
 			$objToReturn = new WpUsers();
@@ -563,6 +769,46 @@
 					if ($objToReturn->Id != $objPreviousItem->Id) {
 						continue;
 					}
+					$prevCnt = count($objPreviousItem->_objWpCommentsAsUserArray);
+					$cnt = count($objToReturn->_objWpCommentsAsUserArray);
+					if ($prevCnt != $cnt)
+					    continue;
+					if ($prevCnt == 0 || $cnt == 0 || !array_diff($objPreviousItem->_objWpCommentsAsUserArray, $objToReturn->_objWpCommentsAsUserArray)) {
+						continue;
+					}
+
+					$prevCnt = count($objPreviousItem->_objWpPollsipAsPollipUseridArray);
+					$cnt = count($objToReturn->_objWpPollsipAsPollipUseridArray);
+					if ($prevCnt != $cnt)
+					    continue;
+					if ($prevCnt == 0 || $cnt == 0 || !array_diff($objPreviousItem->_objWpPollsipAsPollipUseridArray, $objToReturn->_objWpPollsipAsPollipUseridArray)) {
+						continue;
+					}
+
+					$prevCnt = count($objPreviousItem->_objWpPostsAsPostAuthorArray);
+					$cnt = count($objToReturn->_objWpPostsAsPostAuthorArray);
+					if ($prevCnt != $cnt)
+					    continue;
+					if ($prevCnt == 0 || $cnt == 0 || !array_diff($objPreviousItem->_objWpPostsAsPostAuthorArray, $objToReturn->_objWpPostsAsPostAuthorArray)) {
+						continue;
+					}
+
+					$prevCnt = count($objPreviousItem->_objWpUsermetaAsUserArray);
+					$cnt = count($objToReturn->_objWpUsermetaAsUserArray);
+					if ($prevCnt != $cnt)
+					    continue;
+					if ($prevCnt == 0 || $cnt == 0 || !array_diff($objPreviousItem->_objWpUsermetaAsUserArray, $objToReturn->_objWpUsermetaAsUserArray)) {
+						continue;
+					}
+
+					$prevCnt = count($objPreviousItem->_objWpWtiLikePostAsUserArray);
+					$cnt = count($objToReturn->_objWpWtiLikePostAsUserArray);
+					if ($prevCnt != $cnt)
+					    continue;
+					if ($prevCnt == 0 || $cnt == 0 || !array_diff($objPreviousItem->_objWpWtiLikePostAsUserArray, $objToReturn->_objWpWtiLikePostAsUserArray)) {
+						continue;
+					}
+
 
 					// complete match - all primary key columns are the same
 					return null;
@@ -583,6 +829,71 @@
 
 
 
+
+			// Check for WpCommentsAsUser Virtual Binding
+			$strAlias = $strAliasPrefix . 'wpcommentsasuser__comment_ID';
+			$strAliasName = array_key_exists($strAlias, $strColumnAliasArray) ? $strColumnAliasArray[$strAlias] : $strAlias;
+			$blnExpanded = $strExpandAsArrayNodes && array_key_exists($strAlias, $strExpandAsArrayNodes);
+			if ($blnExpanded && null === $objToReturn->_objWpCommentsAsUserArray)
+				$objToReturn->_objWpCommentsAsUserArray = array();
+			if (!is_null($objDbRow->GetColumn($strAliasName))) {
+				if ($blnExpanded)
+					$objToReturn->_objWpCommentsAsUserArray[] = WpComments::InstantiateDbRow($objDbRow, $strAliasPrefix . 'wpcommentsasuser__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+				else
+					$objToReturn->_objWpCommentsAsUser = WpComments::InstantiateDbRow($objDbRow, $strAliasPrefix . 'wpcommentsasuser__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+			}
+
+			// Check for WpPollsipAsPollipUserid Virtual Binding
+			$strAlias = $strAliasPrefix . 'wppollsipaspollipuserid__pollip_id';
+			$strAliasName = array_key_exists($strAlias, $strColumnAliasArray) ? $strColumnAliasArray[$strAlias] : $strAlias;
+			$blnExpanded = $strExpandAsArrayNodes && array_key_exists($strAlias, $strExpandAsArrayNodes);
+			if ($blnExpanded && null === $objToReturn->_objWpPollsipAsPollipUseridArray)
+				$objToReturn->_objWpPollsipAsPollipUseridArray = array();
+			if (!is_null($objDbRow->GetColumn($strAliasName))) {
+				if ($blnExpanded)
+					$objToReturn->_objWpPollsipAsPollipUseridArray[] = WpPollsip::InstantiateDbRow($objDbRow, $strAliasPrefix . 'wppollsipaspollipuserid__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+				else
+					$objToReturn->_objWpPollsipAsPollipUserid = WpPollsip::InstantiateDbRow($objDbRow, $strAliasPrefix . 'wppollsipaspollipuserid__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+			}
+
+			// Check for WpPostsAsPostAuthor Virtual Binding
+			$strAlias = $strAliasPrefix . 'wppostsaspostauthor__ID';
+			$strAliasName = array_key_exists($strAlias, $strColumnAliasArray) ? $strColumnAliasArray[$strAlias] : $strAlias;
+			$blnExpanded = $strExpandAsArrayNodes && array_key_exists($strAlias, $strExpandAsArrayNodes);
+			if ($blnExpanded && null === $objToReturn->_objWpPostsAsPostAuthorArray)
+				$objToReturn->_objWpPostsAsPostAuthorArray = array();
+			if (!is_null($objDbRow->GetColumn($strAliasName))) {
+				if ($blnExpanded)
+					$objToReturn->_objWpPostsAsPostAuthorArray[] = WpPosts::InstantiateDbRow($objDbRow, $strAliasPrefix . 'wppostsaspostauthor__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+				else
+					$objToReturn->_objWpPostsAsPostAuthor = WpPosts::InstantiateDbRow($objDbRow, $strAliasPrefix . 'wppostsaspostauthor__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+			}
+
+			// Check for WpUsermetaAsUser Virtual Binding
+			$strAlias = $strAliasPrefix . 'wpusermetaasuser__umeta_id';
+			$strAliasName = array_key_exists($strAlias, $strColumnAliasArray) ? $strColumnAliasArray[$strAlias] : $strAlias;
+			$blnExpanded = $strExpandAsArrayNodes && array_key_exists($strAlias, $strExpandAsArrayNodes);
+			if ($blnExpanded && null === $objToReturn->_objWpUsermetaAsUserArray)
+				$objToReturn->_objWpUsermetaAsUserArray = array();
+			if (!is_null($objDbRow->GetColumn($strAliasName))) {
+				if ($blnExpanded)
+					$objToReturn->_objWpUsermetaAsUserArray[] = WpUsermeta::InstantiateDbRow($objDbRow, $strAliasPrefix . 'wpusermetaasuser__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+				else
+					$objToReturn->_objWpUsermetaAsUser = WpUsermeta::InstantiateDbRow($objDbRow, $strAliasPrefix . 'wpusermetaasuser__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+			}
+
+			// Check for WpWtiLikePostAsUser Virtual Binding
+			$strAlias = $strAliasPrefix . 'wpwtilikepostasuser__id';
+			$strAliasName = array_key_exists($strAlias, $strColumnAliasArray) ? $strColumnAliasArray[$strAlias] : $strAlias;
+			$blnExpanded = $strExpandAsArrayNodes && array_key_exists($strAlias, $strExpandAsArrayNodes);
+			if ($blnExpanded && null === $objToReturn->_objWpWtiLikePostAsUserArray)
+				$objToReturn->_objWpWtiLikePostAsUserArray = array();
+			if (!is_null($objDbRow->GetColumn($strAliasName))) {
+				if ($blnExpanded)
+					$objToReturn->_objWpWtiLikePostAsUserArray[] = WpWtiLikePost::InstantiateDbRow($objDbRow, $strAliasPrefix . 'wpwtilikepostasuser__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+				else
+					$objToReturn->_objWpWtiLikePostAsUser = WpWtiLikePost::InstantiateDbRow($objDbRow, $strAliasPrefix . 'wpwtilikepostasuser__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+			}
 
 			return $objToReturn;
 		}
@@ -1021,6 +1332,86 @@
 				// (If restored via a "Many-to" expansion)
 				////////////////////////////
 
+				case '_WpCommentsAsUser':
+					/**
+					 * Gets the value for the private _objWpCommentsAsUser (Read-Only)
+					 * if set due to an expansion on the wp_comments.user_id reverse relationship
+					 * @return WpComments
+					 */
+					return $this->_objWpCommentsAsUser;
+
+				case '_WpCommentsAsUserArray':
+					/**
+					 * Gets the value for the private _objWpCommentsAsUserArray (Read-Only)
+					 * if set due to an ExpandAsArray on the wp_comments.user_id reverse relationship
+					 * @return WpComments[]
+					 */
+					return $this->_objWpCommentsAsUserArray;
+
+				case '_WpPollsipAsPollipUserid':
+					/**
+					 * Gets the value for the private _objWpPollsipAsPollipUserid (Read-Only)
+					 * if set due to an expansion on the wp_pollsip.pollip_userid reverse relationship
+					 * @return WpPollsip
+					 */
+					return $this->_objWpPollsipAsPollipUserid;
+
+				case '_WpPollsipAsPollipUseridArray':
+					/**
+					 * Gets the value for the private _objWpPollsipAsPollipUseridArray (Read-Only)
+					 * if set due to an ExpandAsArray on the wp_pollsip.pollip_userid reverse relationship
+					 * @return WpPollsip[]
+					 */
+					return $this->_objWpPollsipAsPollipUseridArray;
+
+				case '_WpPostsAsPostAuthor':
+					/**
+					 * Gets the value for the private _objWpPostsAsPostAuthor (Read-Only)
+					 * if set due to an expansion on the wp_posts.post_author reverse relationship
+					 * @return WpPosts
+					 */
+					return $this->_objWpPostsAsPostAuthor;
+
+				case '_WpPostsAsPostAuthorArray':
+					/**
+					 * Gets the value for the private _objWpPostsAsPostAuthorArray (Read-Only)
+					 * if set due to an ExpandAsArray on the wp_posts.post_author reverse relationship
+					 * @return WpPosts[]
+					 */
+					return $this->_objWpPostsAsPostAuthorArray;
+
+				case '_WpUsermetaAsUser':
+					/**
+					 * Gets the value for the private _objWpUsermetaAsUser (Read-Only)
+					 * if set due to an expansion on the wp_usermeta.user_id reverse relationship
+					 * @return WpUsermeta
+					 */
+					return $this->_objWpUsermetaAsUser;
+
+				case '_WpUsermetaAsUserArray':
+					/**
+					 * Gets the value for the private _objWpUsermetaAsUserArray (Read-Only)
+					 * if set due to an ExpandAsArray on the wp_usermeta.user_id reverse relationship
+					 * @return WpUsermeta[]
+					 */
+					return $this->_objWpUsermetaAsUserArray;
+
+				case '_WpWtiLikePostAsUser':
+					/**
+					 * Gets the value for the private _objWpWtiLikePostAsUser (Read-Only)
+					 * if set due to an expansion on the wp_wti_like_post.user_id reverse relationship
+					 * @return WpWtiLikePost
+					 */
+					return $this->_objWpWtiLikePostAsUser;
+
+				case '_WpWtiLikePostAsUserArray':
+					/**
+					 * Gets the value for the private _objWpWtiLikePostAsUserArray (Read-Only)
+					 * if set due to an ExpandAsArray on the wp_wti_like_post.user_id reverse relationship
+					 * @return WpWtiLikePost[]
+					 */
+					return $this->_objWpWtiLikePostAsUserArray;
+
 
 				case '__Restored':
 					return $this->__blnRestored;
@@ -1196,6 +1587,751 @@
 		// ASSOCIATED OBJECTS' METHODS
 		///////////////////////////////
 
+
+
+		// Related Objects' Methods for WpCommentsAsUser
+		//-------------------------------------------------------------------
+
+		/**
+		 * Gets all associated WpCommentsesAsUser as an array of WpComments objects
+		 * @param QQClause[] $objOptionalClauses additional optional QQClause objects for this query
+		 * @return WpComments[]
+		*/
+		public function GetWpCommentsAsUserArray($objOptionalClauses = null) {
+			if ((is_null($this->intId)))
+				return array();
+
+			try {
+				return WpComments::LoadArrayByUserId($this->intId, $objOptionalClauses);
+			} catch (QCallerException $objExc) {
+				$objExc->IncrementOffset();
+				throw $objExc;
+			}
+		}
+
+		/**
+		 * Counts all associated WpCommentsesAsUser
+		 * @return int
+		*/
+		public function CountWpCommentsesAsUser() {
+			if ((is_null($this->intId)))
+				return 0;
+
+			return WpComments::CountByUserId($this->intId);
+		}
+
+		/**
+		 * Associates a WpCommentsAsUser
+		 * @param WpComments $objWpComments
+		 * @return void
+		*/
+		public function AssociateWpCommentsAsUser(WpComments $objWpComments) {
+			if ((is_null($this->intId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call AssociateWpCommentsAsUser on this unsaved WpUsers.');
+			if ((is_null($objWpComments->CommentID)))
+				throw new QUndefinedPrimaryKeyException('Unable to call AssociateWpCommentsAsUser on this WpUsers with an unsaved WpComments.');
+
+			// Get the Database Object for this Class
+			$objDatabase = WpUsers::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				UPDATE
+					`wp_comments`
+				SET
+					`user_id` = ' . $objDatabase->SqlVariable($this->intId) . '
+				WHERE
+					`comment_ID` = ' . $objDatabase->SqlVariable($objWpComments->CommentID) . ' 
+			');
+		}
+
+		/**
+		 * Unassociates a WpCommentsAsUser
+		 * @param WpComments $objWpComments
+		 * @return void
+		*/
+		public function UnassociateWpCommentsAsUser(WpComments $objWpComments) {
+			if ((is_null($this->intId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateWpCommentsAsUser on this unsaved WpUsers.');
+			if ((is_null($objWpComments->CommentID)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateWpCommentsAsUser on this WpUsers with an unsaved WpComments.');
+
+			// Get the Database Object for this Class
+			$objDatabase = WpUsers::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				UPDATE
+					`wp_comments`
+				SET
+					`user_id` = null
+				WHERE
+					`comment_ID` = ' . $objDatabase->SqlVariable($objWpComments->CommentID) . ' AND
+					`user_id` = ' . $objDatabase->SqlVariable($this->intId) . '
+			');
+		}
+
+		/**
+		 * Unassociates all WpCommentsesAsUser
+		 * @return void
+		*/
+		public function UnassociateAllWpCommentsesAsUser() {
+			if ((is_null($this->intId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateWpCommentsAsUser on this unsaved WpUsers.');
+
+			// Get the Database Object for this Class
+			$objDatabase = WpUsers::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				UPDATE
+					`wp_comments`
+				SET
+					`user_id` = null
+				WHERE
+					`user_id` = ' . $objDatabase->SqlVariable($this->intId) . '
+			');
+		}
+
+		/**
+		 * Deletes an associated WpCommentsAsUser
+		 * @param WpComments $objWpComments
+		 * @return void
+		*/
+		public function DeleteAssociatedWpCommentsAsUser(WpComments $objWpComments) {
+			if ((is_null($this->intId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateWpCommentsAsUser on this unsaved WpUsers.');
+			if ((is_null($objWpComments->CommentID)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateWpCommentsAsUser on this WpUsers with an unsaved WpComments.');
+
+			// Get the Database Object for this Class
+			$objDatabase = WpUsers::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				DELETE FROM
+					`wp_comments`
+				WHERE
+					`comment_ID` = ' . $objDatabase->SqlVariable($objWpComments->CommentID) . ' AND
+					`user_id` = ' . $objDatabase->SqlVariable($this->intId) . '
+			');
+		}
+
+		/**
+		 * Deletes all associated WpCommentsesAsUser
+		 * @return void
+		*/
+		public function DeleteAllWpCommentsesAsUser() {
+			if ((is_null($this->intId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateWpCommentsAsUser on this unsaved WpUsers.');
+
+			// Get the Database Object for this Class
+			$objDatabase = WpUsers::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				DELETE FROM
+					`wp_comments`
+				WHERE
+					`user_id` = ' . $objDatabase->SqlVariable($this->intId) . '
+			');
+		}
+
+
+		// Related Objects' Methods for WpPollsipAsPollipUserid
+		//-------------------------------------------------------------------
+
+		/**
+		 * Gets all associated WpPollsipsAsPollipUserid as an array of WpPollsip objects
+		 * @param QQClause[] $objOptionalClauses additional optional QQClause objects for this query
+		 * @return WpPollsip[]
+		*/
+		public function GetWpPollsipAsPollipUseridArray($objOptionalClauses = null) {
+			if ((is_null($this->intId)))
+				return array();
+
+			try {
+				return WpPollsip::LoadArrayByPollipUserid($this->intId, $objOptionalClauses);
+			} catch (QCallerException $objExc) {
+				$objExc->IncrementOffset();
+				throw $objExc;
+			}
+		}
+
+		/**
+		 * Counts all associated WpPollsipsAsPollipUserid
+		 * @return int
+		*/
+		public function CountWpPollsipsAsPollipUserid() {
+			if ((is_null($this->intId)))
+				return 0;
+
+			return WpPollsip::CountByPollipUserid($this->intId);
+		}
+
+		/**
+		 * Associates a WpPollsipAsPollipUserid
+		 * @param WpPollsip $objWpPollsip
+		 * @return void
+		*/
+		public function AssociateWpPollsipAsPollipUserid(WpPollsip $objWpPollsip) {
+			if ((is_null($this->intId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call AssociateWpPollsipAsPollipUserid on this unsaved WpUsers.');
+			if ((is_null($objWpPollsip->PollipId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call AssociateWpPollsipAsPollipUserid on this WpUsers with an unsaved WpPollsip.');
+
+			// Get the Database Object for this Class
+			$objDatabase = WpUsers::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				UPDATE
+					`wp_pollsip`
+				SET
+					`pollip_userid` = ' . $objDatabase->SqlVariable($this->intId) . '
+				WHERE
+					`pollip_id` = ' . $objDatabase->SqlVariable($objWpPollsip->PollipId) . ' 
+			');
+		}
+
+		/**
+		 * Unassociates a WpPollsipAsPollipUserid
+		 * @param WpPollsip $objWpPollsip
+		 * @return void
+		*/
+		public function UnassociateWpPollsipAsPollipUserid(WpPollsip $objWpPollsip) {
+			if ((is_null($this->intId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateWpPollsipAsPollipUserid on this unsaved WpUsers.');
+			if ((is_null($objWpPollsip->PollipId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateWpPollsipAsPollipUserid on this WpUsers with an unsaved WpPollsip.');
+
+			// Get the Database Object for this Class
+			$objDatabase = WpUsers::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				UPDATE
+					`wp_pollsip`
+				SET
+					`pollip_userid` = null
+				WHERE
+					`pollip_id` = ' . $objDatabase->SqlVariable($objWpPollsip->PollipId) . ' AND
+					`pollip_userid` = ' . $objDatabase->SqlVariable($this->intId) . '
+			');
+		}
+
+		/**
+		 * Unassociates all WpPollsipsAsPollipUserid
+		 * @return void
+		*/
+		public function UnassociateAllWpPollsipsAsPollipUserid() {
+			if ((is_null($this->intId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateWpPollsipAsPollipUserid on this unsaved WpUsers.');
+
+			// Get the Database Object for this Class
+			$objDatabase = WpUsers::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				UPDATE
+					`wp_pollsip`
+				SET
+					`pollip_userid` = null
+				WHERE
+					`pollip_userid` = ' . $objDatabase->SqlVariable($this->intId) . '
+			');
+		}
+
+		/**
+		 * Deletes an associated WpPollsipAsPollipUserid
+		 * @param WpPollsip $objWpPollsip
+		 * @return void
+		*/
+		public function DeleteAssociatedWpPollsipAsPollipUserid(WpPollsip $objWpPollsip) {
+			if ((is_null($this->intId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateWpPollsipAsPollipUserid on this unsaved WpUsers.');
+			if ((is_null($objWpPollsip->PollipId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateWpPollsipAsPollipUserid on this WpUsers with an unsaved WpPollsip.');
+
+			// Get the Database Object for this Class
+			$objDatabase = WpUsers::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				DELETE FROM
+					`wp_pollsip`
+				WHERE
+					`pollip_id` = ' . $objDatabase->SqlVariable($objWpPollsip->PollipId) . ' AND
+					`pollip_userid` = ' . $objDatabase->SqlVariable($this->intId) . '
+			');
+		}
+
+		/**
+		 * Deletes all associated WpPollsipsAsPollipUserid
+		 * @return void
+		*/
+		public function DeleteAllWpPollsipsAsPollipUserid() {
+			if ((is_null($this->intId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateWpPollsipAsPollipUserid on this unsaved WpUsers.');
+
+			// Get the Database Object for this Class
+			$objDatabase = WpUsers::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				DELETE FROM
+					`wp_pollsip`
+				WHERE
+					`pollip_userid` = ' . $objDatabase->SqlVariable($this->intId) . '
+			');
+		}
+
+
+		// Related Objects' Methods for WpPostsAsPostAuthor
+		//-------------------------------------------------------------------
+
+		/**
+		 * Gets all associated WpPostsesAsPostAuthor as an array of WpPosts objects
+		 * @param QQClause[] $objOptionalClauses additional optional QQClause objects for this query
+		 * @return WpPosts[]
+		*/
+		public function GetWpPostsAsPostAuthorArray($objOptionalClauses = null) {
+			if ((is_null($this->intId)))
+				return array();
+
+			try {
+				return WpPosts::LoadArrayByPostAuthor($this->intId, $objOptionalClauses);
+			} catch (QCallerException $objExc) {
+				$objExc->IncrementOffset();
+				throw $objExc;
+			}
+		}
+
+		/**
+		 * Counts all associated WpPostsesAsPostAuthor
+		 * @return int
+		*/
+		public function CountWpPostsesAsPostAuthor() {
+			if ((is_null($this->intId)))
+				return 0;
+
+			return WpPosts::CountByPostAuthor($this->intId);
+		}
+
+		/**
+		 * Associates a WpPostsAsPostAuthor
+		 * @param WpPosts $objWpPosts
+		 * @return void
+		*/
+		public function AssociateWpPostsAsPostAuthor(WpPosts $objWpPosts) {
+			if ((is_null($this->intId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call AssociateWpPostsAsPostAuthor on this unsaved WpUsers.');
+			if ((is_null($objWpPosts->Id)))
+				throw new QUndefinedPrimaryKeyException('Unable to call AssociateWpPostsAsPostAuthor on this WpUsers with an unsaved WpPosts.');
+
+			// Get the Database Object for this Class
+			$objDatabase = WpUsers::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				UPDATE
+					`wp_posts`
+				SET
+					`post_author` = ' . $objDatabase->SqlVariable($this->intId) . '
+				WHERE
+					`ID` = ' . $objDatabase->SqlVariable($objWpPosts->Id) . ' 
+			');
+		}
+
+		/**
+		 * Unassociates a WpPostsAsPostAuthor
+		 * @param WpPosts $objWpPosts
+		 * @return void
+		*/
+		public function UnassociateWpPostsAsPostAuthor(WpPosts $objWpPosts) {
+			if ((is_null($this->intId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateWpPostsAsPostAuthor on this unsaved WpUsers.');
+			if ((is_null($objWpPosts->Id)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateWpPostsAsPostAuthor on this WpUsers with an unsaved WpPosts.');
+
+			// Get the Database Object for this Class
+			$objDatabase = WpUsers::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				UPDATE
+					`wp_posts`
+				SET
+					`post_author` = null
+				WHERE
+					`ID` = ' . $objDatabase->SqlVariable($objWpPosts->Id) . ' AND
+					`post_author` = ' . $objDatabase->SqlVariable($this->intId) . '
+			');
+		}
+
+		/**
+		 * Unassociates all WpPostsesAsPostAuthor
+		 * @return void
+		*/
+		public function UnassociateAllWpPostsesAsPostAuthor() {
+			if ((is_null($this->intId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateWpPostsAsPostAuthor on this unsaved WpUsers.');
+
+			// Get the Database Object for this Class
+			$objDatabase = WpUsers::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				UPDATE
+					`wp_posts`
+				SET
+					`post_author` = null
+				WHERE
+					`post_author` = ' . $objDatabase->SqlVariable($this->intId) . '
+			');
+		}
+
+		/**
+		 * Deletes an associated WpPostsAsPostAuthor
+		 * @param WpPosts $objWpPosts
+		 * @return void
+		*/
+		public function DeleteAssociatedWpPostsAsPostAuthor(WpPosts $objWpPosts) {
+			if ((is_null($this->intId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateWpPostsAsPostAuthor on this unsaved WpUsers.');
+			if ((is_null($objWpPosts->Id)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateWpPostsAsPostAuthor on this WpUsers with an unsaved WpPosts.');
+
+			// Get the Database Object for this Class
+			$objDatabase = WpUsers::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				DELETE FROM
+					`wp_posts`
+				WHERE
+					`ID` = ' . $objDatabase->SqlVariable($objWpPosts->Id) . ' AND
+					`post_author` = ' . $objDatabase->SqlVariable($this->intId) . '
+			');
+		}
+
+		/**
+		 * Deletes all associated WpPostsesAsPostAuthor
+		 * @return void
+		*/
+		public function DeleteAllWpPostsesAsPostAuthor() {
+			if ((is_null($this->intId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateWpPostsAsPostAuthor on this unsaved WpUsers.');
+
+			// Get the Database Object for this Class
+			$objDatabase = WpUsers::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				DELETE FROM
+					`wp_posts`
+				WHERE
+					`post_author` = ' . $objDatabase->SqlVariable($this->intId) . '
+			');
+		}
+
+
+		// Related Objects' Methods for WpUsermetaAsUser
+		//-------------------------------------------------------------------
+
+		/**
+		 * Gets all associated WpUsermetasAsUser as an array of WpUsermeta objects
+		 * @param QQClause[] $objOptionalClauses additional optional QQClause objects for this query
+		 * @return WpUsermeta[]
+		*/
+		public function GetWpUsermetaAsUserArray($objOptionalClauses = null) {
+			if ((is_null($this->intId)))
+				return array();
+
+			try {
+				return WpUsermeta::LoadArrayByUserId($this->intId, $objOptionalClauses);
+			} catch (QCallerException $objExc) {
+				$objExc->IncrementOffset();
+				throw $objExc;
+			}
+		}
+
+		/**
+		 * Counts all associated WpUsermetasAsUser
+		 * @return int
+		*/
+		public function CountWpUsermetasAsUser() {
+			if ((is_null($this->intId)))
+				return 0;
+
+			return WpUsermeta::CountByUserId($this->intId);
+		}
+
+		/**
+		 * Associates a WpUsermetaAsUser
+		 * @param WpUsermeta $objWpUsermeta
+		 * @return void
+		*/
+		public function AssociateWpUsermetaAsUser(WpUsermeta $objWpUsermeta) {
+			if ((is_null($this->intId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call AssociateWpUsermetaAsUser on this unsaved WpUsers.');
+			if ((is_null($objWpUsermeta->UmetaId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call AssociateWpUsermetaAsUser on this WpUsers with an unsaved WpUsermeta.');
+
+			// Get the Database Object for this Class
+			$objDatabase = WpUsers::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				UPDATE
+					`wp_usermeta`
+				SET
+					`user_id` = ' . $objDatabase->SqlVariable($this->intId) . '
+				WHERE
+					`umeta_id` = ' . $objDatabase->SqlVariable($objWpUsermeta->UmetaId) . ' 
+			');
+		}
+
+		/**
+		 * Unassociates a WpUsermetaAsUser
+		 * @param WpUsermeta $objWpUsermeta
+		 * @return void
+		*/
+		public function UnassociateWpUsermetaAsUser(WpUsermeta $objWpUsermeta) {
+			if ((is_null($this->intId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateWpUsermetaAsUser on this unsaved WpUsers.');
+			if ((is_null($objWpUsermeta->UmetaId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateWpUsermetaAsUser on this WpUsers with an unsaved WpUsermeta.');
+
+			// Get the Database Object for this Class
+			$objDatabase = WpUsers::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				UPDATE
+					`wp_usermeta`
+				SET
+					`user_id` = null
+				WHERE
+					`umeta_id` = ' . $objDatabase->SqlVariable($objWpUsermeta->UmetaId) . ' AND
+					`user_id` = ' . $objDatabase->SqlVariable($this->intId) . '
+			');
+		}
+
+		/**
+		 * Unassociates all WpUsermetasAsUser
+		 * @return void
+		*/
+		public function UnassociateAllWpUsermetasAsUser() {
+			if ((is_null($this->intId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateWpUsermetaAsUser on this unsaved WpUsers.');
+
+			// Get the Database Object for this Class
+			$objDatabase = WpUsers::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				UPDATE
+					`wp_usermeta`
+				SET
+					`user_id` = null
+				WHERE
+					`user_id` = ' . $objDatabase->SqlVariable($this->intId) . '
+			');
+		}
+
+		/**
+		 * Deletes an associated WpUsermetaAsUser
+		 * @param WpUsermeta $objWpUsermeta
+		 * @return void
+		*/
+		public function DeleteAssociatedWpUsermetaAsUser(WpUsermeta $objWpUsermeta) {
+			if ((is_null($this->intId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateWpUsermetaAsUser on this unsaved WpUsers.');
+			if ((is_null($objWpUsermeta->UmetaId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateWpUsermetaAsUser on this WpUsers with an unsaved WpUsermeta.');
+
+			// Get the Database Object for this Class
+			$objDatabase = WpUsers::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				DELETE FROM
+					`wp_usermeta`
+				WHERE
+					`umeta_id` = ' . $objDatabase->SqlVariable($objWpUsermeta->UmetaId) . ' AND
+					`user_id` = ' . $objDatabase->SqlVariable($this->intId) . '
+			');
+		}
+
+		/**
+		 * Deletes all associated WpUsermetasAsUser
+		 * @return void
+		*/
+		public function DeleteAllWpUsermetasAsUser() {
+			if ((is_null($this->intId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateWpUsermetaAsUser on this unsaved WpUsers.');
+
+			// Get the Database Object for this Class
+			$objDatabase = WpUsers::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				DELETE FROM
+					`wp_usermeta`
+				WHERE
+					`user_id` = ' . $objDatabase->SqlVariable($this->intId) . '
+			');
+		}
+
+
+		// Related Objects' Methods for WpWtiLikePostAsUser
+		//-------------------------------------------------------------------
+
+		/**
+		 * Gets all associated WpWtiLikePostsAsUser as an array of WpWtiLikePost objects
+		 * @param QQClause[] $objOptionalClauses additional optional QQClause objects for this query
+		 * @return WpWtiLikePost[]
+		*/
+		public function GetWpWtiLikePostAsUserArray($objOptionalClauses = null) {
+			if ((is_null($this->intId)))
+				return array();
+
+			try {
+				return WpWtiLikePost::LoadArrayByUserId($this->intId, $objOptionalClauses);
+			} catch (QCallerException $objExc) {
+				$objExc->IncrementOffset();
+				throw $objExc;
+			}
+		}
+
+		/**
+		 * Counts all associated WpWtiLikePostsAsUser
+		 * @return int
+		*/
+		public function CountWpWtiLikePostsAsUser() {
+			if ((is_null($this->intId)))
+				return 0;
+
+			return WpWtiLikePost::CountByUserId($this->intId);
+		}
+
+		/**
+		 * Associates a WpWtiLikePostAsUser
+		 * @param WpWtiLikePost $objWpWtiLikePost
+		 * @return void
+		*/
+		public function AssociateWpWtiLikePostAsUser(WpWtiLikePost $objWpWtiLikePost) {
+			if ((is_null($this->intId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call AssociateWpWtiLikePostAsUser on this unsaved WpUsers.');
+			if ((is_null($objWpWtiLikePost->Id)))
+				throw new QUndefinedPrimaryKeyException('Unable to call AssociateWpWtiLikePostAsUser on this WpUsers with an unsaved WpWtiLikePost.');
+
+			// Get the Database Object for this Class
+			$objDatabase = WpUsers::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				UPDATE
+					`wp_wti_like_post`
+				SET
+					`user_id` = ' . $objDatabase->SqlVariable($this->intId) . '
+				WHERE
+					`id` = ' . $objDatabase->SqlVariable($objWpWtiLikePost->Id) . ' 
+			');
+		}
+
+		/**
+		 * Unassociates a WpWtiLikePostAsUser
+		 * @param WpWtiLikePost $objWpWtiLikePost
+		 * @return void
+		*/
+		public function UnassociateWpWtiLikePostAsUser(WpWtiLikePost $objWpWtiLikePost) {
+			if ((is_null($this->intId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateWpWtiLikePostAsUser on this unsaved WpUsers.');
+			if ((is_null($objWpWtiLikePost->Id)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateWpWtiLikePostAsUser on this WpUsers with an unsaved WpWtiLikePost.');
+
+			// Get the Database Object for this Class
+			$objDatabase = WpUsers::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				UPDATE
+					`wp_wti_like_post`
+				SET
+					`user_id` = null
+				WHERE
+					`id` = ' . $objDatabase->SqlVariable($objWpWtiLikePost->Id) . ' AND
+					`user_id` = ' . $objDatabase->SqlVariable($this->intId) . '
+			');
+		}
+
+		/**
+		 * Unassociates all WpWtiLikePostsAsUser
+		 * @return void
+		*/
+		public function UnassociateAllWpWtiLikePostsAsUser() {
+			if ((is_null($this->intId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateWpWtiLikePostAsUser on this unsaved WpUsers.');
+
+			// Get the Database Object for this Class
+			$objDatabase = WpUsers::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				UPDATE
+					`wp_wti_like_post`
+				SET
+					`user_id` = null
+				WHERE
+					`user_id` = ' . $objDatabase->SqlVariable($this->intId) . '
+			');
+		}
+
+		/**
+		 * Deletes an associated WpWtiLikePostAsUser
+		 * @param WpWtiLikePost $objWpWtiLikePost
+		 * @return void
+		*/
+		public function DeleteAssociatedWpWtiLikePostAsUser(WpWtiLikePost $objWpWtiLikePost) {
+			if ((is_null($this->intId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateWpWtiLikePostAsUser on this unsaved WpUsers.');
+			if ((is_null($objWpWtiLikePost->Id)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateWpWtiLikePostAsUser on this WpUsers with an unsaved WpWtiLikePost.');
+
+			// Get the Database Object for this Class
+			$objDatabase = WpUsers::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				DELETE FROM
+					`wp_wti_like_post`
+				WHERE
+					`id` = ' . $objDatabase->SqlVariable($objWpWtiLikePost->Id) . ' AND
+					`user_id` = ' . $objDatabase->SqlVariable($this->intId) . '
+			');
+		}
+
+		/**
+		 * Deletes all associated WpWtiLikePostsAsUser
+		 * @return void
+		*/
+		public function DeleteAllWpWtiLikePostsAsUser() {
+			if ((is_null($this->intId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateWpWtiLikePostAsUser on this unsaved WpUsers.');
+
+			// Get the Database Object for this Class
+			$objDatabase = WpUsers::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				DELETE FROM
+					`wp_wti_like_post`
+				WHERE
+					`user_id` = ' . $objDatabase->SqlVariable($this->intId) . '
+			');
+		}
 
 
 		
@@ -1381,6 +2517,11 @@
      * @property-read QQNode $DisplayName
      *
      *
+     * @property-read QQReverseReferenceNodeWpComments $WpCommentsAsUser
+     * @property-read QQReverseReferenceNodeWpPollsip $WpPollsipAsPollipUserid
+     * @property-read QQReverseReferenceNodeWpPosts $WpPostsAsPostAuthor
+     * @property-read QQReverseReferenceNodeWpUsermeta $WpUsermetaAsUser
+     * @property-read QQReverseReferenceNodeWpWtiLikePost $WpWtiLikePostAsUser
 
      * @property-read QQNode $_PrimaryKeyNode
      **/
@@ -1410,6 +2551,16 @@
 					return new QQNode('user_status', 'UserStatus', 'Integer', $this);
 				case 'DisplayName':
 					return new QQNode('display_name', 'DisplayName', 'VarChar', $this);
+				case 'WpCommentsAsUser':
+					return new QQReverseReferenceNodeWpComments($this, 'wpcommentsasuser', 'reverse_reference', 'user_id');
+				case 'WpPollsipAsPollipUserid':
+					return new QQReverseReferenceNodeWpPollsip($this, 'wppollsipaspollipuserid', 'reverse_reference', 'pollip_userid');
+				case 'WpPostsAsPostAuthor':
+					return new QQReverseReferenceNodeWpPosts($this, 'wppostsaspostauthor', 'reverse_reference', 'post_author');
+				case 'WpUsermetaAsUser':
+					return new QQReverseReferenceNodeWpUsermeta($this, 'wpusermetaasuser', 'reverse_reference', 'user_id');
+				case 'WpWtiLikePostAsUser':
+					return new QQReverseReferenceNodeWpWtiLikePost($this, 'wpwtilikepostasuser', 'reverse_reference', 'user_id');
 
 				case '_PrimaryKeyNode':
 					return new QQNode('ID', 'Id', 'Integer', $this);
@@ -1437,6 +2588,11 @@
      * @property-read QQNode $DisplayName
      *
      *
+     * @property-read QQReverseReferenceNodeWpComments $WpCommentsAsUser
+     * @property-read QQReverseReferenceNodeWpPollsip $WpPollsipAsPollipUserid
+     * @property-read QQReverseReferenceNodeWpPosts $WpPostsAsPostAuthor
+     * @property-read QQReverseReferenceNodeWpUsermeta $WpUsermetaAsUser
+     * @property-read QQReverseReferenceNodeWpWtiLikePost $WpWtiLikePostAsUser
 
      * @property-read QQNode $_PrimaryKeyNode
      **/
@@ -1466,6 +2622,16 @@
 					return new QQNode('user_status', 'UserStatus', 'integer', $this);
 				case 'DisplayName':
 					return new QQNode('display_name', 'DisplayName', 'string', $this);
+				case 'WpCommentsAsUser':
+					return new QQReverseReferenceNodeWpComments($this, 'wpcommentsasuser', 'reverse_reference', 'user_id');
+				case 'WpPollsipAsPollipUserid':
+					return new QQReverseReferenceNodeWpPollsip($this, 'wppollsipaspollipuserid', 'reverse_reference', 'pollip_userid');
+				case 'WpPostsAsPostAuthor':
+					return new QQReverseReferenceNodeWpPosts($this, 'wppostsaspostauthor', 'reverse_reference', 'post_author');
+				case 'WpUsermetaAsUser':
+					return new QQReverseReferenceNodeWpUsermeta($this, 'wpusermetaasuser', 'reverse_reference', 'user_id');
+				case 'WpWtiLikePostAsUser':
+					return new QQReverseReferenceNodeWpWtiLikePost($this, 'wpwtilikepostasuser', 'reverse_reference', 'user_id');
 
 				case '_PrimaryKeyNode':
 					return new QQNode('ID', 'Id', 'integer', $this);

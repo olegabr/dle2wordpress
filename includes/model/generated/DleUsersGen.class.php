@@ -43,6 +43,10 @@
 	 * @property boolean $Restricted the value for blnRestricted (Not Null)
 	 * @property integer $RestrictedDays the value for intRestrictedDays (Not Null)
 	 * @property string $RestrictedDate the value for strRestrictedDate (Not Null)
+	 * @property-read DleComments $_DleCommentsAsUser the value for the private _objDleCommentsAsUser (Read-Only) if set due to an expansion on the dle_comments.user_id reverse relationship
+	 * @property-read DleComments[] $_DleCommentsAsUserArray the value for the private _objDleCommentsAsUserArray (Read-Only) if set due to an ExpandAsArray on the dle_comments.user_id reverse relationship
+	 * @property-read DlePost $_DlePostAsAutor the value for the private _objDlePostAsAutor (Read-Only) if set due to an expansion on the dle_post.autor reverse relationship
+	 * @property-read DlePost[] $_DlePostAsAutorArray the value for the private _objDlePostAsAutorArray (Read-Only) if set due to an ExpandAsArray on the dle_post.autor reverse relationship
 	 * @property-read boolean $__Restored whether or not this object was restored from the database (as opposed to created new)
 	 */
 	class DleUsersGen extends QBaseClass implements IteratorAggregate {
@@ -289,6 +293,38 @@
 		const RestrictedDateMaxLength = 15;
 		const RestrictedDateDefault = null;
 
+
+		/**
+		 * Private member variable that stores a reference to a single DleCommentsAsUser object
+		 * (of type DleComments), if this DleUsers object was restored with
+		 * an expansion on the dle_comments association table.
+		 * @var DleComments _objDleCommentsAsUser;
+		 */
+		private $_objDleCommentsAsUser;
+
+		/**
+		 * Private member variable that stores a reference to an array of DleCommentsAsUser objects
+		 * (of type DleComments[]), if this DleUsers object was restored with
+		 * an ExpandAsArray on the dle_comments association table.
+		 * @var DleComments[] _objDleCommentsAsUserArray;
+		 */
+		private $_objDleCommentsAsUserArray = null;
+
+		/**
+		 * Private member variable that stores a reference to a single DlePostAsAutor object
+		 * (of type DlePost), if this DleUsers object was restored with
+		 * an expansion on the dle_post association table.
+		 * @var DlePost _objDlePostAsAutor;
+		 */
+		private $_objDlePostAsAutor;
+
+		/**
+		 * Private member variable that stores a reference to an array of DlePostAsAutor objects
+		 * (of type DlePost[]), if this DleUsers object was restored with
+		 * an ExpandAsArray on the dle_post association table.
+		 * @var DlePost[] _objDlePostAsAutorArray;
+		 */
+		private $_objDlePostAsAutorArray = null;
 
 		/**
 		 * Protected array of virtual attributes for this object (e.g. extra/other calculated and/or non-object bound
@@ -728,6 +764,65 @@
 			if (!$objDbRow) {
 				return null;
 			}
+			// See if we're doing an array expansion on the previous item
+			$strAlias = $strAliasPrefix . 'user_id';
+			$strAliasName = array_key_exists($strAlias, $strColumnAliasArray) ? $strColumnAliasArray[$strAlias] : $strAlias;
+			if (($strExpandAsArrayNodes) && is_array($arrPreviousItems) && count($arrPreviousItems)) {
+				foreach ($arrPreviousItems as $objPreviousItem) {
+					if ($objPreviousItem->intUserId == $objDbRow->GetColumn($strAliasName, 'Integer')) {
+						// We are.  Now, prepare to check for ExpandAsArray clauses
+						$blnExpandedViaArray = false;
+						if (!$strAliasPrefix)
+							$strAliasPrefix = 'dle_users__';
+
+
+						// Expanding reverse references: DleCommentsAsUser
+						$strAlias = $strAliasPrefix . 'dlecommentsasuser__id';
+						$strAliasName = array_key_exists($strAlias, $strColumnAliasArray) ? $strColumnAliasArray[$strAlias] : $strAlias;
+						if ((array_key_exists($strAlias, $strExpandAsArrayNodes)) &&
+							(!is_null($objDbRow->GetColumn($strAliasName)))) {
+							if(null === $objPreviousItem->_objDleCommentsAsUserArray)
+								$objPreviousItem->_objDleCommentsAsUserArray = array();
+							if ($intPreviousChildItemCount = count($objPreviousItem->_objDleCommentsAsUserArray)) {
+								$objPreviousChildItems = $objPreviousItem->_objDleCommentsAsUserArray;
+								$objChildItem = DleComments::InstantiateDbRow($objDbRow, $strAliasPrefix . 'dlecommentsasuser__', $strExpandAsArrayNodes, $objPreviousChildItems, $strColumnAliasArray);
+								if ($objChildItem) {
+									$objPreviousItem->_objDleCommentsAsUserArray[] = $objChildItem;
+								}
+							} else {
+								$objPreviousItem->_objDleCommentsAsUserArray[] = DleComments::InstantiateDbRow($objDbRow, $strAliasPrefix . 'dlecommentsasuser__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+							}
+							$blnExpandedViaArray = true;
+						}
+
+						// Expanding reverse references: DlePostAsAutor
+						$strAlias = $strAliasPrefix . 'dlepostasautor__id';
+						$strAliasName = array_key_exists($strAlias, $strColumnAliasArray) ? $strColumnAliasArray[$strAlias] : $strAlias;
+						if ((array_key_exists($strAlias, $strExpandAsArrayNodes)) &&
+							(!is_null($objDbRow->GetColumn($strAliasName)))) {
+							if(null === $objPreviousItem->_objDlePostAsAutorArray)
+								$objPreviousItem->_objDlePostAsAutorArray = array();
+							if ($intPreviousChildItemCount = count($objPreviousItem->_objDlePostAsAutorArray)) {
+								$objPreviousChildItems = $objPreviousItem->_objDlePostAsAutorArray;
+								$objChildItem = DlePost::InstantiateDbRow($objDbRow, $strAliasPrefix . 'dlepostasautor__', $strExpandAsArrayNodes, $objPreviousChildItems, $strColumnAliasArray);
+								if ($objChildItem) {
+									$objPreviousItem->_objDlePostAsAutorArray[] = $objChildItem;
+								}
+							} else {
+								$objPreviousItem->_objDlePostAsAutorArray[] = DlePost::InstantiateDbRow($objDbRow, $strAliasPrefix . 'dlepostasautor__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+							}
+							$blnExpandedViaArray = true;
+						}
+
+						// Either return false to signal array expansion, or check-to-reset the Alias prefix and move on
+						if ($blnExpandedViaArray) {
+							return false;
+						} else if ($strAliasPrefix == 'dle_users__') {
+							$strAliasPrefix = null;
+						}
+					}
+				}
+			}
 
 			// Create a new instance of the DleUsers object
 			$objToReturn = new DleUsers();
@@ -823,6 +918,22 @@
 					if ($objToReturn->UserId != $objPreviousItem->UserId) {
 						continue;
 					}
+					$prevCnt = count($objPreviousItem->_objDleCommentsAsUserArray);
+					$cnt = count($objToReturn->_objDleCommentsAsUserArray);
+					if ($prevCnt != $cnt)
+					    continue;
+					if ($prevCnt == 0 || $cnt == 0 || !array_diff($objPreviousItem->_objDleCommentsAsUserArray, $objToReturn->_objDleCommentsAsUserArray)) {
+						continue;
+					}
+
+					$prevCnt = count($objPreviousItem->_objDlePostAsAutorArray);
+					$cnt = count($objToReturn->_objDlePostAsAutorArray);
+					if ($prevCnt != $cnt)
+					    continue;
+					if ($prevCnt == 0 || $cnt == 0 || !array_diff($objPreviousItem->_objDlePostAsAutorArray, $objToReturn->_objDlePostAsAutorArray)) {
+						continue;
+					}
+
 
 					// complete match - all primary key columns are the same
 					return null;
@@ -843,6 +954,32 @@
 
 
 
+
+			// Check for DleCommentsAsUser Virtual Binding
+			$strAlias = $strAliasPrefix . 'dlecommentsasuser__id';
+			$strAliasName = array_key_exists($strAlias, $strColumnAliasArray) ? $strColumnAliasArray[$strAlias] : $strAlias;
+			$blnExpanded = $strExpandAsArrayNodes && array_key_exists($strAlias, $strExpandAsArrayNodes);
+			if ($blnExpanded && null === $objToReturn->_objDleCommentsAsUserArray)
+				$objToReturn->_objDleCommentsAsUserArray = array();
+			if (!is_null($objDbRow->GetColumn($strAliasName))) {
+				if ($blnExpanded)
+					$objToReturn->_objDleCommentsAsUserArray[] = DleComments::InstantiateDbRow($objDbRow, $strAliasPrefix . 'dlecommentsasuser__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+				else
+					$objToReturn->_objDleCommentsAsUser = DleComments::InstantiateDbRow($objDbRow, $strAliasPrefix . 'dlecommentsasuser__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+			}
+
+			// Check for DlePostAsAutor Virtual Binding
+			$strAlias = $strAliasPrefix . 'dlepostasautor__id';
+			$strAliasName = array_key_exists($strAlias, $strColumnAliasArray) ? $strColumnAliasArray[$strAlias] : $strAlias;
+			$blnExpanded = $strExpandAsArrayNodes && array_key_exists($strAlias, $strExpandAsArrayNodes);
+			if ($blnExpanded && null === $objToReturn->_objDlePostAsAutorArray)
+				$objToReturn->_objDlePostAsAutorArray = array();
+			if (!is_null($objDbRow->GetColumn($strAliasName))) {
+				if ($blnExpanded)
+					$objToReturn->_objDlePostAsAutorArray[] = DlePost::InstantiateDbRow($objDbRow, $strAliasPrefix . 'dlepostasautor__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+				else
+					$objToReturn->_objDlePostAsAutor = DlePost::InstantiateDbRow($objDbRow, $strAliasPrefix . 'dlepostasautor__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+			}
 
 			return $objToReturn;
 		}
@@ -1447,6 +1584,38 @@
 				// (If restored via a "Many-to" expansion)
 				////////////////////////////
 
+				case '_DleCommentsAsUser':
+					/**
+					 * Gets the value for the private _objDleCommentsAsUser (Read-Only)
+					 * if set due to an expansion on the dle_comments.user_id reverse relationship
+					 * @return DleComments
+					 */
+					return $this->_objDleCommentsAsUser;
+
+				case '_DleCommentsAsUserArray':
+					/**
+					 * Gets the value for the private _objDleCommentsAsUserArray (Read-Only)
+					 * if set due to an ExpandAsArray on the dle_comments.user_id reverse relationship
+					 * @return DleComments[]
+					 */
+					return $this->_objDleCommentsAsUserArray;
+
+				case '_DlePostAsAutor':
+					/**
+					 * Gets the value for the private _objDlePostAsAutor (Read-Only)
+					 * if set due to an expansion on the dle_post.autor reverse relationship
+					 * @return DlePost
+					 */
+					return $this->_objDlePostAsAutor;
+
+				case '_DlePostAsAutorArray':
+					/**
+					 * Gets the value for the private _objDlePostAsAutorArray (Read-Only)
+					 * if set due to an ExpandAsArray on the dle_post.autor reverse relationship
+					 * @return DlePost[]
+					 */
+					return $this->_objDlePostAsAutorArray;
+
 
 				case '__Restored':
 					return $this->__blnRestored;
@@ -1858,6 +2027,304 @@
 
 
 
+		// Related Objects' Methods for DleCommentsAsUser
+		//-------------------------------------------------------------------
+
+		/**
+		 * Gets all associated DleCommentsesAsUser as an array of DleComments objects
+		 * @param QQClause[] $objOptionalClauses additional optional QQClause objects for this query
+		 * @return DleComments[]
+		*/
+		public function GetDleCommentsAsUserArray($objOptionalClauses = null) {
+			if ((is_null($this->intUserId)))
+				return array();
+
+			try {
+				return DleComments::LoadArrayByUserId($this->intUserId, $objOptionalClauses);
+			} catch (QCallerException $objExc) {
+				$objExc->IncrementOffset();
+				throw $objExc;
+			}
+		}
+
+		/**
+		 * Counts all associated DleCommentsesAsUser
+		 * @return int
+		*/
+		public function CountDleCommentsesAsUser() {
+			if ((is_null($this->intUserId)))
+				return 0;
+
+			return DleComments::CountByUserId($this->intUserId);
+		}
+
+		/**
+		 * Associates a DleCommentsAsUser
+		 * @param DleComments $objDleComments
+		 * @return void
+		*/
+		public function AssociateDleCommentsAsUser(DleComments $objDleComments) {
+			if ((is_null($this->intUserId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call AssociateDleCommentsAsUser on this unsaved DleUsers.');
+			if ((is_null($objDleComments->Id)))
+				throw new QUndefinedPrimaryKeyException('Unable to call AssociateDleCommentsAsUser on this DleUsers with an unsaved DleComments.');
+
+			// Get the Database Object for this Class
+			$objDatabase = DleUsers::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				UPDATE
+					`dle_comments`
+				SET
+					`user_id` = ' . $objDatabase->SqlVariable($this->intUserId) . '
+				WHERE
+					`id` = ' . $objDatabase->SqlVariable($objDleComments->Id) . ' 
+			');
+		}
+
+		/**
+		 * Unassociates a DleCommentsAsUser
+		 * @param DleComments $objDleComments
+		 * @return void
+		*/
+		public function UnassociateDleCommentsAsUser(DleComments $objDleComments) {
+			if ((is_null($this->intUserId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateDleCommentsAsUser on this unsaved DleUsers.');
+			if ((is_null($objDleComments->Id)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateDleCommentsAsUser on this DleUsers with an unsaved DleComments.');
+
+			// Get the Database Object for this Class
+			$objDatabase = DleUsers::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				UPDATE
+					`dle_comments`
+				SET
+					`user_id` = null
+				WHERE
+					`id` = ' . $objDatabase->SqlVariable($objDleComments->Id) . ' AND
+					`user_id` = ' . $objDatabase->SqlVariable($this->intUserId) . '
+			');
+		}
+
+		/**
+		 * Unassociates all DleCommentsesAsUser
+		 * @return void
+		*/
+		public function UnassociateAllDleCommentsesAsUser() {
+			if ((is_null($this->intUserId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateDleCommentsAsUser on this unsaved DleUsers.');
+
+			// Get the Database Object for this Class
+			$objDatabase = DleUsers::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				UPDATE
+					`dle_comments`
+				SET
+					`user_id` = null
+				WHERE
+					`user_id` = ' . $objDatabase->SqlVariable($this->intUserId) . '
+			');
+		}
+
+		/**
+		 * Deletes an associated DleCommentsAsUser
+		 * @param DleComments $objDleComments
+		 * @return void
+		*/
+		public function DeleteAssociatedDleCommentsAsUser(DleComments $objDleComments) {
+			if ((is_null($this->intUserId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateDleCommentsAsUser on this unsaved DleUsers.');
+			if ((is_null($objDleComments->Id)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateDleCommentsAsUser on this DleUsers with an unsaved DleComments.');
+
+			// Get the Database Object for this Class
+			$objDatabase = DleUsers::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				DELETE FROM
+					`dle_comments`
+				WHERE
+					`id` = ' . $objDatabase->SqlVariable($objDleComments->Id) . ' AND
+					`user_id` = ' . $objDatabase->SqlVariable($this->intUserId) . '
+			');
+		}
+
+		/**
+		 * Deletes all associated DleCommentsesAsUser
+		 * @return void
+		*/
+		public function DeleteAllDleCommentsesAsUser() {
+			if ((is_null($this->intUserId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateDleCommentsAsUser on this unsaved DleUsers.');
+
+			// Get the Database Object for this Class
+			$objDatabase = DleUsers::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				DELETE FROM
+					`dle_comments`
+				WHERE
+					`user_id` = ' . $objDatabase->SqlVariable($this->intUserId) . '
+			');
+		}
+
+
+		// Related Objects' Methods for DlePostAsAutor
+		//-------------------------------------------------------------------
+
+		/**
+		 * Gets all associated DlePostsAsAutor as an array of DlePost objects
+		 * @param QQClause[] $objOptionalClauses additional optional QQClause objects for this query
+		 * @return DlePost[]
+		*/
+		public function GetDlePostAsAutorArray($objOptionalClauses = null) {
+			if ((is_null($this->intUserId)))
+				return array();
+
+			try {
+				return DlePost::LoadArrayByAutor($this->intUserId, $objOptionalClauses);
+			} catch (QCallerException $objExc) {
+				$objExc->IncrementOffset();
+				throw $objExc;
+			}
+		}
+
+		/**
+		 * Counts all associated DlePostsAsAutor
+		 * @return int
+		*/
+		public function CountDlePostsAsAutor() {
+			if ((is_null($this->intUserId)))
+				return 0;
+
+			return DlePost::CountByAutor($this->intUserId);
+		}
+
+		/**
+		 * Associates a DlePostAsAutor
+		 * @param DlePost $objDlePost
+		 * @return void
+		*/
+		public function AssociateDlePostAsAutor(DlePost $objDlePost) {
+			if ((is_null($this->intUserId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call AssociateDlePostAsAutor on this unsaved DleUsers.');
+			if ((is_null($objDlePost->Id)))
+				throw new QUndefinedPrimaryKeyException('Unable to call AssociateDlePostAsAutor on this DleUsers with an unsaved DlePost.');
+
+			// Get the Database Object for this Class
+			$objDatabase = DleUsers::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				UPDATE
+					`dle_post`
+				SET
+					`autor` = ' . $objDatabase->SqlVariable($this->intUserId) . '
+				WHERE
+					`id` = ' . $objDatabase->SqlVariable($objDlePost->Id) . ' 
+			');
+		}
+
+		/**
+		 * Unassociates a DlePostAsAutor
+		 * @param DlePost $objDlePost
+		 * @return void
+		*/
+		public function UnassociateDlePostAsAutor(DlePost $objDlePost) {
+			if ((is_null($this->intUserId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateDlePostAsAutor on this unsaved DleUsers.');
+			if ((is_null($objDlePost->Id)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateDlePostAsAutor on this DleUsers with an unsaved DlePost.');
+
+			// Get the Database Object for this Class
+			$objDatabase = DleUsers::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				UPDATE
+					`dle_post`
+				SET
+					`autor` = null
+				WHERE
+					`id` = ' . $objDatabase->SqlVariable($objDlePost->Id) . ' AND
+					`autor` = ' . $objDatabase->SqlVariable($this->intUserId) . '
+			');
+		}
+
+		/**
+		 * Unassociates all DlePostsAsAutor
+		 * @return void
+		*/
+		public function UnassociateAllDlePostsAsAutor() {
+			if ((is_null($this->intUserId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateDlePostAsAutor on this unsaved DleUsers.');
+
+			// Get the Database Object for this Class
+			$objDatabase = DleUsers::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				UPDATE
+					`dle_post`
+				SET
+					`autor` = null
+				WHERE
+					`autor` = ' . $objDatabase->SqlVariable($this->intUserId) . '
+			');
+		}
+
+		/**
+		 * Deletes an associated DlePostAsAutor
+		 * @param DlePost $objDlePost
+		 * @return void
+		*/
+		public function DeleteAssociatedDlePostAsAutor(DlePost $objDlePost) {
+			if ((is_null($this->intUserId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateDlePostAsAutor on this unsaved DleUsers.');
+			if ((is_null($objDlePost->Id)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateDlePostAsAutor on this DleUsers with an unsaved DlePost.');
+
+			// Get the Database Object for this Class
+			$objDatabase = DleUsers::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				DELETE FROM
+					`dle_post`
+				WHERE
+					`id` = ' . $objDatabase->SqlVariable($objDlePost->Id) . ' AND
+					`autor` = ' . $objDatabase->SqlVariable($this->intUserId) . '
+			');
+		}
+
+		/**
+		 * Deletes all associated DlePostsAsAutor
+		 * @return void
+		*/
+		public function DeleteAllDlePostsAsAutor() {
+			if ((is_null($this->intUserId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateDlePostAsAutor on this unsaved DleUsers.');
+
+			// Get the Database Object for this Class
+			$objDatabase = DleUsers::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				DELETE FROM
+					`dle_post`
+				WHERE
+					`autor` = ' . $objDatabase->SqlVariable($this->intUserId) . '
+			');
+		}
+
+
 		
 		///////////////////////////////
 		// METHODS TO EXTRACT INFO ABOUT THE CLASS
@@ -2129,6 +2596,8 @@
      * @property-read QQNode $RestrictedDate
      *
      *
+     * @property-read QQReverseReferenceNodeDleComments $DleCommentsAsUser
+     * @property-read QQReverseReferenceNodeDlePost $DlePostAsAutor
 
      * @property-read QQNode $_PrimaryKeyNode
      **/
@@ -2194,6 +2663,10 @@
 					return new QQNode('restricted_days', 'RestrictedDays', 'Integer', $this);
 				case 'RestrictedDate':
 					return new QQNode('restricted_date', 'RestrictedDate', 'VarChar', $this);
+				case 'DleCommentsAsUser':
+					return new QQReverseReferenceNodeDleComments($this, 'dlecommentsasuser', 'reverse_reference', 'user_id');
+				case 'DlePostAsAutor':
+					return new QQReverseReferenceNodeDlePost($this, 'dlepostasautor', 'reverse_reference', 'autor');
 
 				case '_PrimaryKeyNode':
 					return new QQNode('user_id', 'UserId', 'Integer', $this);
@@ -2239,6 +2712,8 @@
      * @property-read QQNode $RestrictedDate
      *
      *
+     * @property-read QQReverseReferenceNodeDleComments $DleCommentsAsUser
+     * @property-read QQReverseReferenceNodeDlePost $DlePostAsAutor
 
      * @property-read QQNode $_PrimaryKeyNode
      **/
@@ -2304,6 +2779,10 @@
 					return new QQNode('restricted_days', 'RestrictedDays', 'integer', $this);
 				case 'RestrictedDate':
 					return new QQNode('restricted_date', 'RestrictedDate', 'string', $this);
+				case 'DleCommentsAsUser':
+					return new QQReverseReferenceNodeDleComments($this, 'dlecommentsasuser', 'reverse_reference', 'user_id');
+				case 'DlePostAsAutor':
+					return new QQReverseReferenceNodeDlePost($this, 'dlepostasautor', 'reverse_reference', 'autor');
 
 				case '_PrimaryKeyNode':
 					return new QQNode('user_id', 'UserId', 'integer', $this);

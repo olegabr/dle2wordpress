@@ -30,6 +30,11 @@
 	 * @property string $CommentType the value for strCommentType (Not Null)
 	 * @property integer $CommentParent the value for intCommentParent (Not Null)
 	 * @property integer $UserId the value for intUserId (Not Null)
+	 * @property WpPosts $CommentPostIDObject the value for the WpPosts object referenced by intCommentPostID (Not Null)
+	 * @property WpComments $CommentParentObject the value for the WpComments object referenced by intCommentParent (Not Null)
+	 * @property WpUsers $User the value for the WpUsers object referenced by intUserId (Not Null)
+	 * @property-read WpComments $_WpCommentsAsCommentParent the value for the private _objWpCommentsAsCommentParent (Read-Only) if set due to an expansion on the wp_comments.comment_parent reverse relationship
+	 * @property-read WpComments[] $_WpCommentsAsCommentParentArray the value for the private _objWpCommentsAsCommentParentArray (Read-Only) if set due to an ExpandAsArray on the wp_comments.comment_parent reverse relationship
 	 * @property-read boolean $__Restored whether or not this object was restored from the database (as opposed to created new)
 	 */
 	class WpCommentsGen extends QBaseClass implements IteratorAggregate {
@@ -165,6 +170,22 @@
 
 
 		/**
+		 * Private member variable that stores a reference to a single WpCommentsAsCommentParent object
+		 * (of type WpComments), if this WpComments object was restored with
+		 * an expansion on the wp_comments association table.
+		 * @var WpComments _objWpCommentsAsCommentParent;
+		 */
+		private $_objWpCommentsAsCommentParent;
+
+		/**
+		 * Private member variable that stores a reference to an array of WpCommentsAsCommentParent objects
+		 * (of type WpComments[]), if this WpComments object was restored with
+		 * an ExpandAsArray on the wp_comments association table.
+		 * @var WpComments[] _objWpCommentsAsCommentParentArray;
+		 */
+		private $_objWpCommentsAsCommentParentArray = null;
+
+		/**
 		 * Protected array of virtual attributes for this object (e.g. extra/other calculated and/or non-object bound
 		 * columns from the run-time database query result for this object).  Used by InstantiateDbRow and
 		 * GetVirtualAttribute.
@@ -185,6 +206,36 @@
 		///////////////////////////////
 		// PROTECTED MEMBER OBJECTS
 		///////////////////////////////
+
+		/**
+		 * Protected member variable that contains the object pointed by the reference
+		 * in the database column wp_comments.comment_post_ID.
+		 *
+		 * NOTE: Always use the CommentPostIDObject property getter to correctly retrieve this WpPosts object.
+		 * (Because this class implements late binding, this variable reference MAY be null.)
+		 * @var WpPosts objCommentPostIDObject
+		 */
+		protected $objCommentPostIDObject;
+
+		/**
+		 * Protected member variable that contains the object pointed by the reference
+		 * in the database column wp_comments.comment_parent.
+		 *
+		 * NOTE: Always use the CommentParentObject property getter to correctly retrieve this WpComments object.
+		 * (Because this class implements late binding, this variable reference MAY be null.)
+		 * @var WpComments objCommentParentObject
+		 */
+		protected $objCommentParentObject;
+
+		/**
+		 * Protected member variable that contains the object pointed by the reference
+		 * in the database column wp_comments.user_id.
+		 *
+		 * NOTE: Always use the User property getter to correctly retrieve this WpUsers object.
+		 * (Because this class implements late binding, this variable reference MAY be null.)
+		 * @var WpUsers objUser
+		 */
+		protected $objUser;
 
 
 
@@ -576,6 +627,46 @@
 			if (!$objDbRow) {
 				return null;
 			}
+			// See if we're doing an array expansion on the previous item
+			$strAlias = $strAliasPrefix . 'comment_ID';
+			$strAliasName = array_key_exists($strAlias, $strColumnAliasArray) ? $strColumnAliasArray[$strAlias] : $strAlias;
+			if (($strExpandAsArrayNodes) && is_array($arrPreviousItems) && count($arrPreviousItems)) {
+				foreach ($arrPreviousItems as $objPreviousItem) {
+					if ($objPreviousItem->intCommentID == $objDbRow->GetColumn($strAliasName, 'Integer')) {
+						// We are.  Now, prepare to check for ExpandAsArray clauses
+						$blnExpandedViaArray = false;
+						if (!$strAliasPrefix)
+							$strAliasPrefix = 'wp_comments__';
+
+
+						// Expanding reverse references: WpCommentsAsCommentParent
+						$strAlias = $strAliasPrefix . 'wpcommentsascommentparent__comment_ID';
+						$strAliasName = array_key_exists($strAlias, $strColumnAliasArray) ? $strColumnAliasArray[$strAlias] : $strAlias;
+						if ((array_key_exists($strAlias, $strExpandAsArrayNodes)) &&
+							(!is_null($objDbRow->GetColumn($strAliasName)))) {
+							if(null === $objPreviousItem->_objWpCommentsAsCommentParentArray)
+								$objPreviousItem->_objWpCommentsAsCommentParentArray = array();
+							if ($intPreviousChildItemCount = count($objPreviousItem->_objWpCommentsAsCommentParentArray)) {
+								$objPreviousChildItems = $objPreviousItem->_objWpCommentsAsCommentParentArray;
+								$objChildItem = WpComments::InstantiateDbRow($objDbRow, $strAliasPrefix . 'wpcommentsascommentparent__', $strExpandAsArrayNodes, $objPreviousChildItems, $strColumnAliasArray);
+								if ($objChildItem) {
+									$objPreviousItem->_objWpCommentsAsCommentParentArray[] = $objChildItem;
+								}
+							} else {
+								$objPreviousItem->_objWpCommentsAsCommentParentArray[] = WpComments::InstantiateDbRow($objDbRow, $strAliasPrefix . 'wpcommentsascommentparent__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+							}
+							$blnExpandedViaArray = true;
+						}
+
+						// Either return false to signal array expansion, or check-to-reset the Alias prefix and move on
+						if ($blnExpandedViaArray) {
+							return false;
+						} else if ($strAliasPrefix == 'wp_comments__') {
+							$strAliasPrefix = null;
+						}
+					}
+				}
+			}
 
 			// Create a new instance of the WpComments object
 			$objToReturn = new WpComments();
@@ -632,6 +723,14 @@
 					if ($objToReturn->CommentID != $objPreviousItem->CommentID) {
 						continue;
 					}
+					$prevCnt = count($objPreviousItem->_objWpCommentsAsCommentParentArray);
+					$cnt = count($objToReturn->_objWpCommentsAsCommentParentArray);
+					if ($prevCnt != $cnt)
+					    continue;
+					if ($prevCnt == 0 || $cnt == 0 || !array_diff($objPreviousItem->_objWpCommentsAsCommentParentArray, $objToReturn->_objWpCommentsAsCommentParentArray)) {
+						continue;
+					}
+
 
 					// complete match - all primary key columns are the same
 					return null;
@@ -650,8 +749,39 @@
 			if (!$strAliasPrefix)
 				$strAliasPrefix = 'wp_comments__';
 
+			// Check for CommentPostIDObject Early Binding
+			$strAlias = $strAliasPrefix . 'comment_post_ID__ID';
+			$strAliasName = array_key_exists($strAlias, $strColumnAliasArray) ? $strColumnAliasArray[$strAlias] : $strAlias;
+			if (!is_null($objDbRow->GetColumn($strAliasName)))
+				$objToReturn->objCommentPostIDObject = WpPosts::InstantiateDbRow($objDbRow, $strAliasPrefix . 'comment_post_ID__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+
+			// Check for CommentParentObject Early Binding
+			$strAlias = $strAliasPrefix . 'comment_parent__comment_ID';
+			$strAliasName = array_key_exists($strAlias, $strColumnAliasArray) ? $strColumnAliasArray[$strAlias] : $strAlias;
+			if (!is_null($objDbRow->GetColumn($strAliasName)))
+				$objToReturn->objCommentParentObject = WpComments::InstantiateDbRow($objDbRow, $strAliasPrefix . 'comment_parent__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+
+			// Check for User Early Binding
+			$strAlias = $strAliasPrefix . 'user_id__ID';
+			$strAliasName = array_key_exists($strAlias, $strColumnAliasArray) ? $strColumnAliasArray[$strAlias] : $strAlias;
+			if (!is_null($objDbRow->GetColumn($strAliasName)))
+				$objToReturn->objUser = WpUsers::InstantiateDbRow($objDbRow, $strAliasPrefix . 'user_id__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
 
 
+
+
+			// Check for WpCommentsAsCommentParent Virtual Binding
+			$strAlias = $strAliasPrefix . 'wpcommentsascommentparent__comment_ID';
+			$strAliasName = array_key_exists($strAlias, $strColumnAliasArray) ? $strColumnAliasArray[$strAlias] : $strAlias;
+			$blnExpanded = $strExpandAsArrayNodes && array_key_exists($strAlias, $strExpandAsArrayNodes);
+			if ($blnExpanded && null === $objToReturn->_objWpCommentsAsCommentParentArray)
+				$objToReturn->_objWpCommentsAsCommentParentArray = array();
+			if (!is_null($objDbRow->GetColumn($strAliasName))) {
+				if ($blnExpanded)
+					$objToReturn->_objWpCommentsAsCommentParentArray[] = WpComments::InstantiateDbRow($objDbRow, $strAliasPrefix . 'wpcommentsascommentparent__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+				else
+					$objToReturn->_objWpCommentsAsCommentParent = WpComments::InstantiateDbRow($objDbRow, $strAliasPrefix . 'wpcommentsascommentparent__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+			}
 
 			return $objToReturn;
 		}
@@ -876,6 +1006,38 @@
 			);
 		}
 
+		/**
+		 * Load an array of WpComments objects,
+		 * by UserId Index(es)
+		 * @param integer $intUserId
+		 * @param QQClause[] $objOptionalClauses additional optional QQClause objects for this query
+		 * @return WpComments[]
+		*/
+		public static function LoadArrayByUserId($intUserId, $objOptionalClauses = null) {
+			// Call WpComments::QueryArray to perform the LoadArrayByUserId query
+			try {
+				return WpComments::QueryArray(
+					QQ::Equal(QQN::WpComments()->UserId, $intUserId),
+					$objOptionalClauses);
+			} catch (QCallerException $objExc) {
+				$objExc->IncrementOffset();
+				throw $objExc;
+			}
+		}
+
+		/**
+		 * Count WpCommentses
+		 * by UserId Index(es)
+		 * @param integer $intUserId
+		 * @return int
+		*/
+		public static function CountByUserId($intUserId) {
+			// Call WpComments::QueryCount to perform the CountByUserId query
+			return WpComments::QueryCount(
+				QQ::Equal(QQN::WpComments()->UserId, $intUserId)
+			);
+		}
+
 
 
 		////////////////////////////////////////////////////
@@ -1068,7 +1230,7 @@
 			$objReloaded = WpComments::Load($this->intCommentID);
 
 			// Update $this's local variables to match
-			$this->intCommentPostID = $objReloaded->intCommentPostID;
+			$this->CommentPostID = $objReloaded->CommentPostID;
 			$this->strCommentAuthor = $objReloaded->strCommentAuthor;
 			$this->strCommentAuthorEmail = $objReloaded->strCommentAuthorEmail;
 			$this->strCommentAuthorUrl = $objReloaded->strCommentAuthorUrl;
@@ -1080,8 +1242,8 @@
 			$this->strCommentApproved = $objReloaded->strCommentApproved;
 			$this->strCommentAgent = $objReloaded->strCommentAgent;
 			$this->strCommentType = $objReloaded->strCommentType;
-			$this->intCommentParent = $objReloaded->intCommentParent;
-			$this->intUserId = $objReloaded->intUserId;
+			$this->CommentParent = $objReloaded->CommentParent;
+			$this->UserId = $objReloaded->UserId;
 		}
 
 
@@ -1211,11 +1373,69 @@
 				///////////////////
 				// Member Objects
 				///////////////////
+				case 'CommentPostIDObject':
+					/**
+					 * Gets the value for the WpPosts object referenced by intCommentPostID (Not Null)
+					 * @return WpPosts
+					 */
+					try {
+						if ((!$this->objCommentPostIDObject) && (!is_null($this->intCommentPostID)))
+							$this->objCommentPostIDObject = WpPosts::Load($this->intCommentPostID);
+						return $this->objCommentPostIDObject;
+					} catch (QCallerException $objExc) {
+						$objExc->IncrementOffset();
+						throw $objExc;
+					}
+
+				case 'CommentParentObject':
+					/**
+					 * Gets the value for the WpComments object referenced by intCommentParent (Not Null)
+					 * @return WpComments
+					 */
+					try {
+						if ((!$this->objCommentParentObject) && (!is_null($this->intCommentParent)))
+							$this->objCommentParentObject = WpComments::Load($this->intCommentParent);
+						return $this->objCommentParentObject;
+					} catch (QCallerException $objExc) {
+						$objExc->IncrementOffset();
+						throw $objExc;
+					}
+
+				case 'User':
+					/**
+					 * Gets the value for the WpUsers object referenced by intUserId (Not Null)
+					 * @return WpUsers
+					 */
+					try {
+						if ((!$this->objUser) && (!is_null($this->intUserId)))
+							$this->objUser = WpUsers::Load($this->intUserId);
+						return $this->objUser;
+					} catch (QCallerException $objExc) {
+						$objExc->IncrementOffset();
+						throw $objExc;
+					}
+
 
 				////////////////////////////
 				// Virtual Object References (Many to Many and Reverse References)
 				// (If restored via a "Many-to" expansion)
 				////////////////////////////
+
+				case '_WpCommentsAsCommentParent':
+					/**
+					 * Gets the value for the private _objWpCommentsAsCommentParent (Read-Only)
+					 * if set due to an expansion on the wp_comments.comment_parent reverse relationship
+					 * @return WpComments
+					 */
+					return $this->_objWpCommentsAsCommentParent;
+
+				case '_WpCommentsAsCommentParentArray':
+					/**
+					 * Gets the value for the private _objWpCommentsAsCommentParentArray (Read-Only)
+					 * if set due to an ExpandAsArray on the wp_comments.comment_parent reverse relationship
+					 * @return WpComments[]
+					 */
+					return $this->_objWpCommentsAsCommentParentArray;
 
 
 				case '__Restored':
@@ -1251,6 +1471,7 @@
 					 * @return integer
 					 */
 					try {
+						$this->objCommentPostIDObject = null;
 						return ($this->intCommentPostID = QType::Cast($mixValue, QType::Integer));
 					} catch (QCallerException $objExc) {
 						$objExc->IncrementOffset();
@@ -1407,6 +1628,7 @@
 					 * @return integer
 					 */
 					try {
+						$this->objCommentParentObject = null;
 						return ($this->intCommentParent = QType::Cast($mixValue, QType::Integer));
 					} catch (QCallerException $objExc) {
 						$objExc->IncrementOffset();
@@ -1420,6 +1642,7 @@
 					 * @return integer
 					 */
 					try {
+						$this->objUser = null;
 						return ($this->intUserId = QType::Cast($mixValue, QType::Integer));
 					} catch (QCallerException $objExc) {
 						$objExc->IncrementOffset();
@@ -1430,6 +1653,102 @@
 				///////////////////
 				// Member Objects
 				///////////////////
+				case 'CommentPostIDObject':
+					/**
+					 * Sets the value for the WpPosts object referenced by intCommentPostID (Not Null)
+					 * @param WpPosts $mixValue
+					 * @return WpPosts
+					 */
+					if (is_null($mixValue)) {
+						$this->intCommentPostID = null;
+						$this->objCommentPostIDObject = null;
+						return null;
+					} else {
+						// Make sure $mixValue actually is a WpPosts object
+						try {
+							$mixValue = QType::Cast($mixValue, 'WpPosts');
+						} catch (QInvalidCastException $objExc) {
+							$objExc->IncrementOffset();
+							throw $objExc;
+						}
+
+						// Make sure $mixValue is a SAVED WpPosts object
+						if (is_null($mixValue->Id))
+							throw new QCallerException('Unable to set an unsaved CommentPostIDObject for this WpComments');
+
+						// Update Local Member Variables
+						$this->objCommentPostIDObject = $mixValue;
+						$this->intCommentPostID = $mixValue->Id;
+
+						// Return $mixValue
+						return $mixValue;
+					}
+					break;
+
+				case 'CommentParentObject':
+					/**
+					 * Sets the value for the WpComments object referenced by intCommentParent (Not Null)
+					 * @param WpComments $mixValue
+					 * @return WpComments
+					 */
+					if (is_null($mixValue)) {
+						$this->intCommentParent = null;
+						$this->objCommentParentObject = null;
+						return null;
+					} else {
+						// Make sure $mixValue actually is a WpComments object
+						try {
+							$mixValue = QType::Cast($mixValue, 'WpComments');
+						} catch (QInvalidCastException $objExc) {
+							$objExc->IncrementOffset();
+							throw $objExc;
+						}
+
+						// Make sure $mixValue is a SAVED WpComments object
+						if (is_null($mixValue->CommentID))
+							throw new QCallerException('Unable to set an unsaved CommentParentObject for this WpComments');
+
+						// Update Local Member Variables
+						$this->objCommentParentObject = $mixValue;
+						$this->intCommentParent = $mixValue->CommentID;
+
+						// Return $mixValue
+						return $mixValue;
+					}
+					break;
+
+				case 'User':
+					/**
+					 * Sets the value for the WpUsers object referenced by intUserId (Not Null)
+					 * @param WpUsers $mixValue
+					 * @return WpUsers
+					 */
+					if (is_null($mixValue)) {
+						$this->intUserId = null;
+						$this->objUser = null;
+						return null;
+					} else {
+						// Make sure $mixValue actually is a WpUsers object
+						try {
+							$mixValue = QType::Cast($mixValue, 'WpUsers');
+						} catch (QInvalidCastException $objExc) {
+							$objExc->IncrementOffset();
+							throw $objExc;
+						}
+
+						// Make sure $mixValue is a SAVED WpUsers object
+						if (is_null($mixValue->Id))
+							throw new QCallerException('Unable to set an unsaved User for this WpComments');
+
+						// Update Local Member Variables
+						$this->objUser = $mixValue;
+						$this->intUserId = $mixValue->Id;
+
+						// Return $mixValue
+						return $mixValue;
+					}
+					break;
+
 				default:
 					try {
 						return parent::__set($strName, $mixValue);
@@ -1457,6 +1776,155 @@
 		// ASSOCIATED OBJECTS' METHODS
 		///////////////////////////////
 
+
+
+		// Related Objects' Methods for WpCommentsAsCommentParent
+		//-------------------------------------------------------------------
+
+		/**
+		 * Gets all associated WpCommentsesAsCommentParent as an array of WpComments objects
+		 * @param QQClause[] $objOptionalClauses additional optional QQClause objects for this query
+		 * @return WpComments[]
+		*/
+		public function GetWpCommentsAsCommentParentArray($objOptionalClauses = null) {
+			if ((is_null($this->intCommentID)))
+				return array();
+
+			try {
+				return WpComments::LoadArrayByCommentParent($this->intCommentID, $objOptionalClauses);
+			} catch (QCallerException $objExc) {
+				$objExc->IncrementOffset();
+				throw $objExc;
+			}
+		}
+
+		/**
+		 * Counts all associated WpCommentsesAsCommentParent
+		 * @return int
+		*/
+		public function CountWpCommentsesAsCommentParent() {
+			if ((is_null($this->intCommentID)))
+				return 0;
+
+			return WpComments::CountByCommentParent($this->intCommentID);
+		}
+
+		/**
+		 * Associates a WpCommentsAsCommentParent
+		 * @param WpComments $objWpComments
+		 * @return void
+		*/
+		public function AssociateWpCommentsAsCommentParent(WpComments $objWpComments) {
+			if ((is_null($this->intCommentID)))
+				throw new QUndefinedPrimaryKeyException('Unable to call AssociateWpCommentsAsCommentParent on this unsaved WpComments.');
+			if ((is_null($objWpComments->CommentID)))
+				throw new QUndefinedPrimaryKeyException('Unable to call AssociateWpCommentsAsCommentParent on this WpComments with an unsaved WpComments.');
+
+			// Get the Database Object for this Class
+			$objDatabase = WpComments::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				UPDATE
+					`wp_comments`
+				SET
+					`comment_parent` = ' . $objDatabase->SqlVariable($this->intCommentID) . '
+				WHERE
+					`comment_ID` = ' . $objDatabase->SqlVariable($objWpComments->CommentID) . ' 
+			');
+		}
+
+		/**
+		 * Unassociates a WpCommentsAsCommentParent
+		 * @param WpComments $objWpComments
+		 * @return void
+		*/
+		public function UnassociateWpCommentsAsCommentParent(WpComments $objWpComments) {
+			if ((is_null($this->intCommentID)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateWpCommentsAsCommentParent on this unsaved WpComments.');
+			if ((is_null($objWpComments->CommentID)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateWpCommentsAsCommentParent on this WpComments with an unsaved WpComments.');
+
+			// Get the Database Object for this Class
+			$objDatabase = WpComments::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				UPDATE
+					`wp_comments`
+				SET
+					`comment_parent` = null
+				WHERE
+					`comment_ID` = ' . $objDatabase->SqlVariable($objWpComments->CommentID) . ' AND
+					`comment_parent` = ' . $objDatabase->SqlVariable($this->intCommentID) . '
+			');
+		}
+
+		/**
+		 * Unassociates all WpCommentsesAsCommentParent
+		 * @return void
+		*/
+		public function UnassociateAllWpCommentsesAsCommentParent() {
+			if ((is_null($this->intCommentID)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateWpCommentsAsCommentParent on this unsaved WpComments.');
+
+			// Get the Database Object for this Class
+			$objDatabase = WpComments::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				UPDATE
+					`wp_comments`
+				SET
+					`comment_parent` = null
+				WHERE
+					`comment_parent` = ' . $objDatabase->SqlVariable($this->intCommentID) . '
+			');
+		}
+
+		/**
+		 * Deletes an associated WpCommentsAsCommentParent
+		 * @param WpComments $objWpComments
+		 * @return void
+		*/
+		public function DeleteAssociatedWpCommentsAsCommentParent(WpComments $objWpComments) {
+			if ((is_null($this->intCommentID)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateWpCommentsAsCommentParent on this unsaved WpComments.');
+			if ((is_null($objWpComments->CommentID)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateWpCommentsAsCommentParent on this WpComments with an unsaved WpComments.');
+
+			// Get the Database Object for this Class
+			$objDatabase = WpComments::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				DELETE FROM
+					`wp_comments`
+				WHERE
+					`comment_ID` = ' . $objDatabase->SqlVariable($objWpComments->CommentID) . ' AND
+					`comment_parent` = ' . $objDatabase->SqlVariable($this->intCommentID) . '
+			');
+		}
+
+		/**
+		 * Deletes all associated WpCommentsesAsCommentParent
+		 * @return void
+		*/
+		public function DeleteAllWpCommentsesAsCommentParent() {
+			if ((is_null($this->intCommentID)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateWpCommentsAsCommentParent on this unsaved WpComments.');
+
+			// Get the Database Object for this Class
+			$objDatabase = WpComments::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				DELETE FROM
+					`wp_comments`
+				WHERE
+					`comment_parent` = ' . $objDatabase->SqlVariable($this->intCommentID) . '
+			');
+		}
 
 
 		
@@ -1498,7 +1966,7 @@
 		public static function GetSoapComplexTypeXml() {
 			$strToReturn = '<complexType name="WpComments"><sequence>';
 			$strToReturn .= '<element name="CommentID" type="xsd:int"/>';
-			$strToReturn .= '<element name="CommentPostID" type="xsd:int"/>';
+			$strToReturn .= '<element name="CommentPostIDObject" type="xsd1:WpPosts"/>';
 			$strToReturn .= '<element name="CommentAuthor" type="xsd:string"/>';
 			$strToReturn .= '<element name="CommentAuthorEmail" type="xsd:string"/>';
 			$strToReturn .= '<element name="CommentAuthorUrl" type="xsd:string"/>';
@@ -1510,8 +1978,8 @@
 			$strToReturn .= '<element name="CommentApproved" type="xsd:string"/>';
 			$strToReturn .= '<element name="CommentAgent" type="xsd:string"/>';
 			$strToReturn .= '<element name="CommentType" type="xsd:string"/>';
-			$strToReturn .= '<element name="CommentParent" type="xsd:int"/>';
-			$strToReturn .= '<element name="UserId" type="xsd:int"/>';
+			$strToReturn .= '<element name="CommentParentObject" type="xsd1:WpComments"/>';
+			$strToReturn .= '<element name="User" type="xsd1:WpUsers"/>';
 			$strToReturn .= '<element name="__blnRestored" type="xsd:boolean"/>';
 			$strToReturn .= '</sequence></complexType>';
 			return $strToReturn;
@@ -1520,6 +1988,9 @@
 		public static function AlterSoapComplexTypeArray(&$strComplexTypeArray) {
 			if (!array_key_exists('WpComments', $strComplexTypeArray)) {
 				$strComplexTypeArray['WpComments'] = WpComments::GetSoapComplexTypeXml();
+				WpPosts::AlterSoapComplexTypeArray($strComplexTypeArray);
+				WpComments::AlterSoapComplexTypeArray($strComplexTypeArray);
+				WpUsers::AlterSoapComplexTypeArray($strComplexTypeArray);
 			}
 		}
 
@@ -1536,8 +2007,9 @@
 			$objToReturn = new WpComments();
 			if (property_exists($objSoapObject, 'CommentID'))
 				$objToReturn->intCommentID = $objSoapObject->CommentID;
-			if (property_exists($objSoapObject, 'CommentPostID'))
-				$objToReturn->intCommentPostID = $objSoapObject->CommentPostID;
+			if ((property_exists($objSoapObject, 'CommentPostIDObject')) &&
+				($objSoapObject->CommentPostIDObject))
+				$objToReturn->CommentPostIDObject = WpPosts::GetObjectFromSoapObject($objSoapObject->CommentPostIDObject);
 			if (property_exists($objSoapObject, 'CommentAuthor'))
 				$objToReturn->strCommentAuthor = $objSoapObject->CommentAuthor;
 			if (property_exists($objSoapObject, 'CommentAuthorEmail'))
@@ -1560,10 +2032,12 @@
 				$objToReturn->strCommentAgent = $objSoapObject->CommentAgent;
 			if (property_exists($objSoapObject, 'CommentType'))
 				$objToReturn->strCommentType = $objSoapObject->CommentType;
-			if (property_exists($objSoapObject, 'CommentParent'))
-				$objToReturn->intCommentParent = $objSoapObject->CommentParent;
-			if (property_exists($objSoapObject, 'UserId'))
-				$objToReturn->intUserId = $objSoapObject->UserId;
+			if ((property_exists($objSoapObject, 'CommentParentObject')) &&
+				($objSoapObject->CommentParentObject))
+				$objToReturn->CommentParentObject = WpComments::GetObjectFromSoapObject($objSoapObject->CommentParentObject);
+			if ((property_exists($objSoapObject, 'User')) &&
+				($objSoapObject->User))
+				$objToReturn->User = WpUsers::GetObjectFromSoapObject($objSoapObject->User);
 			if (property_exists($objSoapObject, '__blnRestored'))
 				$objToReturn->__blnRestored = $objSoapObject->__blnRestored;
 			return $objToReturn;
@@ -1582,10 +2056,22 @@
 		}
 
 		public static function GetSoapObjectFromObject($objObject, $blnBindRelatedObjects) {
+			if ($objObject->objCommentPostIDObject)
+				$objObject->objCommentPostIDObject = WpPosts::GetSoapObjectFromObject($objObject->objCommentPostIDObject, false);
+			else if (!$blnBindRelatedObjects)
+				$objObject->intCommentPostID = null;
 			if ($objObject->dttCommentDate)
 				$objObject->dttCommentDate = $objObject->dttCommentDate->qFormat(QDateTime::FormatSoap);
 			if ($objObject->dttCommentDateGmt)
 				$objObject->dttCommentDateGmt = $objObject->dttCommentDateGmt->qFormat(QDateTime::FormatSoap);
+			if ($objObject->objCommentParentObject)
+				$objObject->objCommentParentObject = WpComments::GetSoapObjectFromObject($objObject->objCommentParentObject, false);
+			else if (!$blnBindRelatedObjects)
+				$objObject->intCommentParent = null;
+			if ($objObject->objUser)
+				$objObject->objUser = WpUsers::GetSoapObjectFromObject($objObject->objUser, false);
+			else if (!$blnBindRelatedObjects)
+				$objObject->intUserId = null;
 			return $objObject;
 		}
 
@@ -1654,6 +2140,7 @@
      *
      * @property-read QQNode $CommentID
      * @property-read QQNode $CommentPostID
+     * @property-read QQNodeWpPosts $CommentPostIDObject
      * @property-read QQNode $CommentAuthor
      * @property-read QQNode $CommentAuthorEmail
      * @property-read QQNode $CommentAuthorUrl
@@ -1666,9 +2153,12 @@
      * @property-read QQNode $CommentAgent
      * @property-read QQNode $CommentType
      * @property-read QQNode $CommentParent
+     * @property-read QQNodeWpComments $CommentParentObject
      * @property-read QQNode $UserId
+     * @property-read QQNodeWpUsers $User
      *
      *
+     * @property-read QQReverseReferenceNodeWpComments $WpCommentsAsCommentParent
 
      * @property-read QQNode $_PrimaryKeyNode
      **/
@@ -1682,6 +2172,8 @@
 					return new QQNode('comment_ID', 'CommentID', 'Integer', $this);
 				case 'CommentPostID':
 					return new QQNode('comment_post_ID', 'CommentPostID', 'Integer', $this);
+				case 'CommentPostIDObject':
+					return new QQNodeWpPosts('comment_post_ID', 'CommentPostIDObject', 'Integer', $this);
 				case 'CommentAuthor':
 					return new QQNode('comment_author', 'CommentAuthor', 'Blob', $this);
 				case 'CommentAuthorEmail':
@@ -1706,8 +2198,14 @@
 					return new QQNode('comment_type', 'CommentType', 'VarChar', $this);
 				case 'CommentParent':
 					return new QQNode('comment_parent', 'CommentParent', 'Integer', $this);
+				case 'CommentParentObject':
+					return new QQNodeWpComments('comment_parent', 'CommentParentObject', 'Integer', $this);
 				case 'UserId':
 					return new QQNode('user_id', 'UserId', 'Integer', $this);
+				case 'User':
+					return new QQNodeWpUsers('user_id', 'User', 'Integer', $this);
+				case 'WpCommentsAsCommentParent':
+					return new QQReverseReferenceNodeWpComments($this, 'wpcommentsascommentparent', 'reverse_reference', 'comment_parent');
 
 				case '_PrimaryKeyNode':
 					return new QQNode('comment_ID', 'CommentID', 'Integer', $this);
@@ -1725,6 +2223,7 @@
     /**
      * @property-read QQNode $CommentID
      * @property-read QQNode $CommentPostID
+     * @property-read QQNodeWpPosts $CommentPostIDObject
      * @property-read QQNode $CommentAuthor
      * @property-read QQNode $CommentAuthorEmail
      * @property-read QQNode $CommentAuthorUrl
@@ -1737,9 +2236,12 @@
      * @property-read QQNode $CommentAgent
      * @property-read QQNode $CommentType
      * @property-read QQNode $CommentParent
+     * @property-read QQNodeWpComments $CommentParentObject
      * @property-read QQNode $UserId
+     * @property-read QQNodeWpUsers $User
      *
      *
+     * @property-read QQReverseReferenceNodeWpComments $WpCommentsAsCommentParent
 
      * @property-read QQNode $_PrimaryKeyNode
      **/
@@ -1753,6 +2255,8 @@
 					return new QQNode('comment_ID', 'CommentID', 'integer', $this);
 				case 'CommentPostID':
 					return new QQNode('comment_post_ID', 'CommentPostID', 'integer', $this);
+				case 'CommentPostIDObject':
+					return new QQNodeWpPosts('comment_post_ID', 'CommentPostIDObject', 'integer', $this);
 				case 'CommentAuthor':
 					return new QQNode('comment_author', 'CommentAuthor', 'string', $this);
 				case 'CommentAuthorEmail':
@@ -1777,8 +2281,14 @@
 					return new QQNode('comment_type', 'CommentType', 'string', $this);
 				case 'CommentParent':
 					return new QQNode('comment_parent', 'CommentParent', 'integer', $this);
+				case 'CommentParentObject':
+					return new QQNodeWpComments('comment_parent', 'CommentParentObject', 'integer', $this);
 				case 'UserId':
 					return new QQNode('user_id', 'UserId', 'integer', $this);
+				case 'User':
+					return new QQNodeWpUsers('user_id', 'User', 'integer', $this);
+				case 'WpCommentsAsCommentParent':
+					return new QQReverseReferenceNodeWpComments($this, 'wpcommentsascommentparent', 'reverse_reference', 'comment_parent');
 
 				case '_PrimaryKeyNode':
 					return new QQNode('comment_ID', 'CommentID', 'integer', $this);

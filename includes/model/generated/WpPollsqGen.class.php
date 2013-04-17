@@ -23,6 +23,10 @@
 	 * @property string $PollqExpiry the value for strPollqExpiry (Not Null)
 	 * @property integer $PollqMultiple the value for intPollqMultiple (Not Null)
 	 * @property integer $PollqTotalvoters the value for intPollqTotalvoters (Not Null)
+	 * @property-read WpPollsa $_WpPollsaAsPollaQid the value for the private _objWpPollsaAsPollaQid (Read-Only) if set due to an expansion on the wp_pollsa.polla_qid reverse relationship
+	 * @property-read WpPollsa[] $_WpPollsaAsPollaQidArray the value for the private _objWpPollsaAsPollaQidArray (Read-Only) if set due to an ExpandAsArray on the wp_pollsa.polla_qid reverse relationship
+	 * @property-read WpPollsip $_WpPollsipAsPollipQid the value for the private _objWpPollsipAsPollipQid (Read-Only) if set due to an expansion on the wp_pollsip.pollip_qid reverse relationship
+	 * @property-read WpPollsip[] $_WpPollsipAsPollipQidArray the value for the private _objWpPollsipAsPollipQidArray (Read-Only) if set due to an ExpandAsArray on the wp_pollsip.pollip_qid reverse relationship
 	 * @property-read boolean $__Restored whether or not this object was restored from the database (as opposed to created new)
 	 */
 	class WpPollsqGen extends QBaseClass implements IteratorAggregate {
@@ -97,6 +101,38 @@
 		protected $intPollqTotalvoters;
 		const PollqTotalvotersDefault = null;
 
+
+		/**
+		 * Private member variable that stores a reference to a single WpPollsaAsPollaQid object
+		 * (of type WpPollsa), if this WpPollsq object was restored with
+		 * an expansion on the wp_pollsa association table.
+		 * @var WpPollsa _objWpPollsaAsPollaQid;
+		 */
+		private $_objWpPollsaAsPollaQid;
+
+		/**
+		 * Private member variable that stores a reference to an array of WpPollsaAsPollaQid objects
+		 * (of type WpPollsa[]), if this WpPollsq object was restored with
+		 * an ExpandAsArray on the wp_pollsa association table.
+		 * @var WpPollsa[] _objWpPollsaAsPollaQidArray;
+		 */
+		private $_objWpPollsaAsPollaQidArray = null;
+
+		/**
+		 * Private member variable that stores a reference to a single WpPollsipAsPollipQid object
+		 * (of type WpPollsip), if this WpPollsq object was restored with
+		 * an expansion on the wp_pollsip association table.
+		 * @var WpPollsip _objWpPollsipAsPollipQid;
+		 */
+		private $_objWpPollsipAsPollipQid;
+
+		/**
+		 * Private member variable that stores a reference to an array of WpPollsipAsPollipQid objects
+		 * (of type WpPollsip[]), if this WpPollsq object was restored with
+		 * an ExpandAsArray on the wp_pollsip association table.
+		 * @var WpPollsip[] _objWpPollsipAsPollipQidArray;
+		 */
+		private $_objWpPollsipAsPollipQidArray = null;
 
 		/**
 		 * Protected array of virtual attributes for this object (e.g. extra/other calculated and/or non-object bound
@@ -496,6 +532,65 @@
 			if (!$objDbRow) {
 				return null;
 			}
+			// See if we're doing an array expansion on the previous item
+			$strAlias = $strAliasPrefix . 'pollq_id';
+			$strAliasName = array_key_exists($strAlias, $strColumnAliasArray) ? $strColumnAliasArray[$strAlias] : $strAlias;
+			if (($strExpandAsArrayNodes) && is_array($arrPreviousItems) && count($arrPreviousItems)) {
+				foreach ($arrPreviousItems as $objPreviousItem) {
+					if ($objPreviousItem->intPollqId == $objDbRow->GetColumn($strAliasName, 'Integer')) {
+						// We are.  Now, prepare to check for ExpandAsArray clauses
+						$blnExpandedViaArray = false;
+						if (!$strAliasPrefix)
+							$strAliasPrefix = 'wp_pollsq__';
+
+
+						// Expanding reverse references: WpPollsaAsPollaQid
+						$strAlias = $strAliasPrefix . 'wppollsaaspollaqid__polla_aid';
+						$strAliasName = array_key_exists($strAlias, $strColumnAliasArray) ? $strColumnAliasArray[$strAlias] : $strAlias;
+						if ((array_key_exists($strAlias, $strExpandAsArrayNodes)) &&
+							(!is_null($objDbRow->GetColumn($strAliasName)))) {
+							if(null === $objPreviousItem->_objWpPollsaAsPollaQidArray)
+								$objPreviousItem->_objWpPollsaAsPollaQidArray = array();
+							if ($intPreviousChildItemCount = count($objPreviousItem->_objWpPollsaAsPollaQidArray)) {
+								$objPreviousChildItems = $objPreviousItem->_objWpPollsaAsPollaQidArray;
+								$objChildItem = WpPollsa::InstantiateDbRow($objDbRow, $strAliasPrefix . 'wppollsaaspollaqid__', $strExpandAsArrayNodes, $objPreviousChildItems, $strColumnAliasArray);
+								if ($objChildItem) {
+									$objPreviousItem->_objWpPollsaAsPollaQidArray[] = $objChildItem;
+								}
+							} else {
+								$objPreviousItem->_objWpPollsaAsPollaQidArray[] = WpPollsa::InstantiateDbRow($objDbRow, $strAliasPrefix . 'wppollsaaspollaqid__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+							}
+							$blnExpandedViaArray = true;
+						}
+
+						// Expanding reverse references: WpPollsipAsPollipQid
+						$strAlias = $strAliasPrefix . 'wppollsipaspollipqid__pollip_id';
+						$strAliasName = array_key_exists($strAlias, $strColumnAliasArray) ? $strColumnAliasArray[$strAlias] : $strAlias;
+						if ((array_key_exists($strAlias, $strExpandAsArrayNodes)) &&
+							(!is_null($objDbRow->GetColumn($strAliasName)))) {
+							if(null === $objPreviousItem->_objWpPollsipAsPollipQidArray)
+								$objPreviousItem->_objWpPollsipAsPollipQidArray = array();
+							if ($intPreviousChildItemCount = count($objPreviousItem->_objWpPollsipAsPollipQidArray)) {
+								$objPreviousChildItems = $objPreviousItem->_objWpPollsipAsPollipQidArray;
+								$objChildItem = WpPollsip::InstantiateDbRow($objDbRow, $strAliasPrefix . 'wppollsipaspollipqid__', $strExpandAsArrayNodes, $objPreviousChildItems, $strColumnAliasArray);
+								if ($objChildItem) {
+									$objPreviousItem->_objWpPollsipAsPollipQidArray[] = $objChildItem;
+								}
+							} else {
+								$objPreviousItem->_objWpPollsipAsPollipQidArray[] = WpPollsip::InstantiateDbRow($objDbRow, $strAliasPrefix . 'wppollsipaspollipqid__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+							}
+							$blnExpandedViaArray = true;
+						}
+
+						// Either return false to signal array expansion, or check-to-reset the Alias prefix and move on
+						if ($blnExpandedViaArray) {
+							return false;
+						} else if ($strAliasPrefix == 'wp_pollsq__') {
+							$strAliasPrefix = null;
+						}
+					}
+				}
+			}
 
 			// Create a new instance of the WpPollsq object
 			$objToReturn = new WpPollsq();
@@ -531,6 +626,22 @@
 					if ($objToReturn->PollqId != $objPreviousItem->PollqId) {
 						continue;
 					}
+					$prevCnt = count($objPreviousItem->_objWpPollsaAsPollaQidArray);
+					$cnt = count($objToReturn->_objWpPollsaAsPollaQidArray);
+					if ($prevCnt != $cnt)
+					    continue;
+					if ($prevCnt == 0 || $cnt == 0 || !array_diff($objPreviousItem->_objWpPollsaAsPollaQidArray, $objToReturn->_objWpPollsaAsPollaQidArray)) {
+						continue;
+					}
+
+					$prevCnt = count($objPreviousItem->_objWpPollsipAsPollipQidArray);
+					$cnt = count($objToReturn->_objWpPollsipAsPollipQidArray);
+					if ($prevCnt != $cnt)
+					    continue;
+					if ($prevCnt == 0 || $cnt == 0 || !array_diff($objPreviousItem->_objWpPollsipAsPollipQidArray, $objToReturn->_objWpPollsipAsPollipQidArray)) {
+						continue;
+					}
+
 
 					// complete match - all primary key columns are the same
 					return null;
@@ -551,6 +662,32 @@
 
 
 
+
+			// Check for WpPollsaAsPollaQid Virtual Binding
+			$strAlias = $strAliasPrefix . 'wppollsaaspollaqid__polla_aid';
+			$strAliasName = array_key_exists($strAlias, $strColumnAliasArray) ? $strColumnAliasArray[$strAlias] : $strAlias;
+			$blnExpanded = $strExpandAsArrayNodes && array_key_exists($strAlias, $strExpandAsArrayNodes);
+			if ($blnExpanded && null === $objToReturn->_objWpPollsaAsPollaQidArray)
+				$objToReturn->_objWpPollsaAsPollaQidArray = array();
+			if (!is_null($objDbRow->GetColumn($strAliasName))) {
+				if ($blnExpanded)
+					$objToReturn->_objWpPollsaAsPollaQidArray[] = WpPollsa::InstantiateDbRow($objDbRow, $strAliasPrefix . 'wppollsaaspollaqid__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+				else
+					$objToReturn->_objWpPollsaAsPollaQid = WpPollsa::InstantiateDbRow($objDbRow, $strAliasPrefix . 'wppollsaaspollaqid__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+			}
+
+			// Check for WpPollsipAsPollipQid Virtual Binding
+			$strAlias = $strAliasPrefix . 'wppollsipaspollipqid__pollip_id';
+			$strAliasName = array_key_exists($strAlias, $strColumnAliasArray) ? $strColumnAliasArray[$strAlias] : $strAlias;
+			$blnExpanded = $strExpandAsArrayNodes && array_key_exists($strAlias, $strExpandAsArrayNodes);
+			if ($blnExpanded && null === $objToReturn->_objWpPollsipAsPollipQidArray)
+				$objToReturn->_objWpPollsipAsPollipQidArray = array();
+			if (!is_null($objDbRow->GetColumn($strAliasName))) {
+				if ($blnExpanded)
+					$objToReturn->_objWpPollsipAsPollipQidArray[] = WpPollsip::InstantiateDbRow($objDbRow, $strAliasPrefix . 'wppollsipaspollipqid__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+				else
+					$objToReturn->_objWpPollsipAsPollipQid = WpPollsip::InstantiateDbRow($objDbRow, $strAliasPrefix . 'wppollsipaspollipqid__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+			}
 
 			return $objToReturn;
 		}
@@ -903,6 +1040,38 @@
 				// (If restored via a "Many-to" expansion)
 				////////////////////////////
 
+				case '_WpPollsaAsPollaQid':
+					/**
+					 * Gets the value for the private _objWpPollsaAsPollaQid (Read-Only)
+					 * if set due to an expansion on the wp_pollsa.polla_qid reverse relationship
+					 * @return WpPollsa
+					 */
+					return $this->_objWpPollsaAsPollaQid;
+
+				case '_WpPollsaAsPollaQidArray':
+					/**
+					 * Gets the value for the private _objWpPollsaAsPollaQidArray (Read-Only)
+					 * if set due to an ExpandAsArray on the wp_pollsa.polla_qid reverse relationship
+					 * @return WpPollsa[]
+					 */
+					return $this->_objWpPollsaAsPollaQidArray;
+
+				case '_WpPollsipAsPollipQid':
+					/**
+					 * Gets the value for the private _objWpPollsipAsPollipQid (Read-Only)
+					 * if set due to an expansion on the wp_pollsip.pollip_qid reverse relationship
+					 * @return WpPollsip
+					 */
+					return $this->_objWpPollsipAsPollipQid;
+
+				case '_WpPollsipAsPollipQidArray':
+					/**
+					 * Gets the value for the private _objWpPollsipAsPollipQidArray (Read-Only)
+					 * if set due to an ExpandAsArray on the wp_pollsip.pollip_qid reverse relationship
+					 * @return WpPollsip[]
+					 */
+					return $this->_objWpPollsipAsPollipQidArray;
+
 
 				case '__Restored':
 					return $this->__blnRestored;
@@ -1052,6 +1221,304 @@
 		// ASSOCIATED OBJECTS' METHODS
 		///////////////////////////////
 
+
+
+		// Related Objects' Methods for WpPollsaAsPollaQid
+		//-------------------------------------------------------------------
+
+		/**
+		 * Gets all associated WpPollsasAsPollaQid as an array of WpPollsa objects
+		 * @param QQClause[] $objOptionalClauses additional optional QQClause objects for this query
+		 * @return WpPollsa[]
+		*/
+		public function GetWpPollsaAsPollaQidArray($objOptionalClauses = null) {
+			if ((is_null($this->intPollqId)))
+				return array();
+
+			try {
+				return WpPollsa::LoadArrayByPollaQid($this->intPollqId, $objOptionalClauses);
+			} catch (QCallerException $objExc) {
+				$objExc->IncrementOffset();
+				throw $objExc;
+			}
+		}
+
+		/**
+		 * Counts all associated WpPollsasAsPollaQid
+		 * @return int
+		*/
+		public function CountWpPollsasAsPollaQid() {
+			if ((is_null($this->intPollqId)))
+				return 0;
+
+			return WpPollsa::CountByPollaQid($this->intPollqId);
+		}
+
+		/**
+		 * Associates a WpPollsaAsPollaQid
+		 * @param WpPollsa $objWpPollsa
+		 * @return void
+		*/
+		public function AssociateWpPollsaAsPollaQid(WpPollsa $objWpPollsa) {
+			if ((is_null($this->intPollqId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call AssociateWpPollsaAsPollaQid on this unsaved WpPollsq.');
+			if ((is_null($objWpPollsa->PollaAid)))
+				throw new QUndefinedPrimaryKeyException('Unable to call AssociateWpPollsaAsPollaQid on this WpPollsq with an unsaved WpPollsa.');
+
+			// Get the Database Object for this Class
+			$objDatabase = WpPollsq::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				UPDATE
+					`wp_pollsa`
+				SET
+					`polla_qid` = ' . $objDatabase->SqlVariable($this->intPollqId) . '
+				WHERE
+					`polla_aid` = ' . $objDatabase->SqlVariable($objWpPollsa->PollaAid) . ' 
+			');
+		}
+
+		/**
+		 * Unassociates a WpPollsaAsPollaQid
+		 * @param WpPollsa $objWpPollsa
+		 * @return void
+		*/
+		public function UnassociateWpPollsaAsPollaQid(WpPollsa $objWpPollsa) {
+			if ((is_null($this->intPollqId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateWpPollsaAsPollaQid on this unsaved WpPollsq.');
+			if ((is_null($objWpPollsa->PollaAid)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateWpPollsaAsPollaQid on this WpPollsq with an unsaved WpPollsa.');
+
+			// Get the Database Object for this Class
+			$objDatabase = WpPollsq::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				UPDATE
+					`wp_pollsa`
+				SET
+					`polla_qid` = null
+				WHERE
+					`polla_aid` = ' . $objDatabase->SqlVariable($objWpPollsa->PollaAid) . ' AND
+					`polla_qid` = ' . $objDatabase->SqlVariable($this->intPollqId) . '
+			');
+		}
+
+		/**
+		 * Unassociates all WpPollsasAsPollaQid
+		 * @return void
+		*/
+		public function UnassociateAllWpPollsasAsPollaQid() {
+			if ((is_null($this->intPollqId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateWpPollsaAsPollaQid on this unsaved WpPollsq.');
+
+			// Get the Database Object for this Class
+			$objDatabase = WpPollsq::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				UPDATE
+					`wp_pollsa`
+				SET
+					`polla_qid` = null
+				WHERE
+					`polla_qid` = ' . $objDatabase->SqlVariable($this->intPollqId) . '
+			');
+		}
+
+		/**
+		 * Deletes an associated WpPollsaAsPollaQid
+		 * @param WpPollsa $objWpPollsa
+		 * @return void
+		*/
+		public function DeleteAssociatedWpPollsaAsPollaQid(WpPollsa $objWpPollsa) {
+			if ((is_null($this->intPollqId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateWpPollsaAsPollaQid on this unsaved WpPollsq.');
+			if ((is_null($objWpPollsa->PollaAid)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateWpPollsaAsPollaQid on this WpPollsq with an unsaved WpPollsa.');
+
+			// Get the Database Object for this Class
+			$objDatabase = WpPollsq::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				DELETE FROM
+					`wp_pollsa`
+				WHERE
+					`polla_aid` = ' . $objDatabase->SqlVariable($objWpPollsa->PollaAid) . ' AND
+					`polla_qid` = ' . $objDatabase->SqlVariable($this->intPollqId) . '
+			');
+		}
+
+		/**
+		 * Deletes all associated WpPollsasAsPollaQid
+		 * @return void
+		*/
+		public function DeleteAllWpPollsasAsPollaQid() {
+			if ((is_null($this->intPollqId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateWpPollsaAsPollaQid on this unsaved WpPollsq.');
+
+			// Get the Database Object for this Class
+			$objDatabase = WpPollsq::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				DELETE FROM
+					`wp_pollsa`
+				WHERE
+					`polla_qid` = ' . $objDatabase->SqlVariable($this->intPollqId) . '
+			');
+		}
+
+
+		// Related Objects' Methods for WpPollsipAsPollipQid
+		//-------------------------------------------------------------------
+
+		/**
+		 * Gets all associated WpPollsipsAsPollipQid as an array of WpPollsip objects
+		 * @param QQClause[] $objOptionalClauses additional optional QQClause objects for this query
+		 * @return WpPollsip[]
+		*/
+		public function GetWpPollsipAsPollipQidArray($objOptionalClauses = null) {
+			if ((is_null($this->intPollqId)))
+				return array();
+
+			try {
+				return WpPollsip::LoadArrayByPollipQid($this->intPollqId, $objOptionalClauses);
+			} catch (QCallerException $objExc) {
+				$objExc->IncrementOffset();
+				throw $objExc;
+			}
+		}
+
+		/**
+		 * Counts all associated WpPollsipsAsPollipQid
+		 * @return int
+		*/
+		public function CountWpPollsipsAsPollipQid() {
+			if ((is_null($this->intPollqId)))
+				return 0;
+
+			return WpPollsip::CountByPollipQid($this->intPollqId);
+		}
+
+		/**
+		 * Associates a WpPollsipAsPollipQid
+		 * @param WpPollsip $objWpPollsip
+		 * @return void
+		*/
+		public function AssociateWpPollsipAsPollipQid(WpPollsip $objWpPollsip) {
+			if ((is_null($this->intPollqId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call AssociateWpPollsipAsPollipQid on this unsaved WpPollsq.');
+			if ((is_null($objWpPollsip->PollipId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call AssociateWpPollsipAsPollipQid on this WpPollsq with an unsaved WpPollsip.');
+
+			// Get the Database Object for this Class
+			$objDatabase = WpPollsq::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				UPDATE
+					`wp_pollsip`
+				SET
+					`pollip_qid` = ' . $objDatabase->SqlVariable($this->intPollqId) . '
+				WHERE
+					`pollip_id` = ' . $objDatabase->SqlVariable($objWpPollsip->PollipId) . ' 
+			');
+		}
+
+		/**
+		 * Unassociates a WpPollsipAsPollipQid
+		 * @param WpPollsip $objWpPollsip
+		 * @return void
+		*/
+		public function UnassociateWpPollsipAsPollipQid(WpPollsip $objWpPollsip) {
+			if ((is_null($this->intPollqId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateWpPollsipAsPollipQid on this unsaved WpPollsq.');
+			if ((is_null($objWpPollsip->PollipId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateWpPollsipAsPollipQid on this WpPollsq with an unsaved WpPollsip.');
+
+			// Get the Database Object for this Class
+			$objDatabase = WpPollsq::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				UPDATE
+					`wp_pollsip`
+				SET
+					`pollip_qid` = null
+				WHERE
+					`pollip_id` = ' . $objDatabase->SqlVariable($objWpPollsip->PollipId) . ' AND
+					`pollip_qid` = ' . $objDatabase->SqlVariable($this->intPollqId) . '
+			');
+		}
+
+		/**
+		 * Unassociates all WpPollsipsAsPollipQid
+		 * @return void
+		*/
+		public function UnassociateAllWpPollsipsAsPollipQid() {
+			if ((is_null($this->intPollqId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateWpPollsipAsPollipQid on this unsaved WpPollsq.');
+
+			// Get the Database Object for this Class
+			$objDatabase = WpPollsq::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				UPDATE
+					`wp_pollsip`
+				SET
+					`pollip_qid` = null
+				WHERE
+					`pollip_qid` = ' . $objDatabase->SqlVariable($this->intPollqId) . '
+			');
+		}
+
+		/**
+		 * Deletes an associated WpPollsipAsPollipQid
+		 * @param WpPollsip $objWpPollsip
+		 * @return void
+		*/
+		public function DeleteAssociatedWpPollsipAsPollipQid(WpPollsip $objWpPollsip) {
+			if ((is_null($this->intPollqId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateWpPollsipAsPollipQid on this unsaved WpPollsq.');
+			if ((is_null($objWpPollsip->PollipId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateWpPollsipAsPollipQid on this WpPollsq with an unsaved WpPollsip.');
+
+			// Get the Database Object for this Class
+			$objDatabase = WpPollsq::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				DELETE FROM
+					`wp_pollsip`
+				WHERE
+					`pollip_id` = ' . $objDatabase->SqlVariable($objWpPollsip->PollipId) . ' AND
+					`pollip_qid` = ' . $objDatabase->SqlVariable($this->intPollqId) . '
+			');
+		}
+
+		/**
+		 * Deletes all associated WpPollsipsAsPollipQid
+		 * @return void
+		*/
+		public function DeleteAllWpPollsipsAsPollipQid() {
+			if ((is_null($this->intPollqId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateWpPollsipAsPollipQid on this unsaved WpPollsq.');
+
+			// Get the Database Object for this Class
+			$objDatabase = WpPollsq::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				DELETE FROM
+					`wp_pollsip`
+				WHERE
+					`pollip_qid` = ' . $objDatabase->SqlVariable($this->intPollqId) . '
+			');
+		}
 
 
 		
@@ -1225,6 +1692,8 @@
      * @property-read QQNode $PollqTotalvoters
      *
      *
+     * @property-read QQReverseReferenceNodeWpPollsa $WpPollsaAsPollaQid
+     * @property-read QQReverseReferenceNodeWpPollsip $WpPollsipAsPollipQid
 
      * @property-read QQNode $_PrimaryKeyNode
      **/
@@ -1250,6 +1719,10 @@
 					return new QQNode('pollq_multiple', 'PollqMultiple', 'Integer', $this);
 				case 'PollqTotalvoters':
 					return new QQNode('pollq_totalvoters', 'PollqTotalvoters', 'Integer', $this);
+				case 'WpPollsaAsPollaQid':
+					return new QQReverseReferenceNodeWpPollsa($this, 'wppollsaaspollaqid', 'reverse_reference', 'polla_qid');
+				case 'WpPollsipAsPollipQid':
+					return new QQReverseReferenceNodeWpPollsip($this, 'wppollsipaspollipqid', 'reverse_reference', 'pollip_qid');
 
 				case '_PrimaryKeyNode':
 					return new QQNode('pollq_id', 'PollqId', 'Integer', $this);
@@ -1275,6 +1748,8 @@
      * @property-read QQNode $PollqTotalvoters
      *
      *
+     * @property-read QQReverseReferenceNodeWpPollsa $WpPollsaAsPollaQid
+     * @property-read QQReverseReferenceNodeWpPollsip $WpPollsipAsPollipQid
 
      * @property-read QQNode $_PrimaryKeyNode
      **/
@@ -1300,6 +1775,10 @@
 					return new QQNode('pollq_multiple', 'PollqMultiple', 'integer', $this);
 				case 'PollqTotalvoters':
 					return new QQNode('pollq_totalvoters', 'PollqTotalvoters', 'integer', $this);
+				case 'WpPollsaAsPollaQid':
+					return new QQReverseReferenceNodeWpPollsa($this, 'wppollsaaspollaqid', 'reverse_reference', 'polla_qid');
+				case 'WpPollsipAsPollipQid':
+					return new QQReverseReferenceNodeWpPollsip($this, 'wppollsipaspollipqid', 'reverse_reference', 'pollip_qid');
 
 				case '_PrimaryKeyNode':
 					return new QQNode('pollq_id', 'PollqId', 'integer', $this);

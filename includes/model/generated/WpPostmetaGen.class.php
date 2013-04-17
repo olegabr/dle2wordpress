@@ -19,6 +19,7 @@
 	 * @property integer $PostId the value for intPostId (Not Null)
 	 * @property string $MetaKey the value for strMetaKey 
 	 * @property string $MetaValue the value for strMetaValue 
+	 * @property WpPosts $Post the value for the WpPosts object referenced by intPostId (Not Null)
 	 * @property-read boolean $__Restored whether or not this object was restored from the database (as opposed to created new)
 	 */
 	class WpPostmetaGen extends QBaseClass implements IteratorAggregate {
@@ -81,6 +82,16 @@
 		///////////////////////////////
 		// PROTECTED MEMBER OBJECTS
 		///////////////////////////////
+
+		/**
+		 * Protected member variable that contains the object pointed by the reference
+		 * in the database column wp_postmeta.post_id.
+		 *
+		 * NOTE: Always use the Post property getter to correctly retrieve this WpPosts object.
+		 * (Because this class implements late binding, this variable reference MAY be null.)
+		 * @var WpPosts objPost
+		 */
+		protected $objPost;
 
 
 
@@ -491,6 +502,12 @@
 			if (!$strAliasPrefix)
 				$strAliasPrefix = 'wp_postmeta__';
 
+			// Check for Post Early Binding
+			$strAlias = $strAliasPrefix . 'post_id__ID';
+			$strAliasName = array_key_exists($strAlias, $strColumnAliasArray) ? $strColumnAliasArray[$strAlias] : $strAlias;
+			if (!is_null($objDbRow->GetColumn($strAliasName)))
+				$objToReturn->objPost = WpPosts::InstantiateDbRow($objDbRow, $strAliasPrefix . 'post_id__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+
 
 
 
@@ -804,7 +821,7 @@
 			$objReloaded = WpPostmeta::Load($this->intMetaId);
 
 			// Update $this's local variables to match
-			$this->intPostId = $objReloaded->intPostId;
+			$this->PostId = $objReloaded->PostId;
 			$this->strMetaKey = $objReloaded->strMetaKey;
 			$this->strMetaValue = $objReloaded->strMetaValue;
 		}
@@ -859,6 +876,20 @@
 				///////////////////
 				// Member Objects
 				///////////////////
+				case 'Post':
+					/**
+					 * Gets the value for the WpPosts object referenced by intPostId (Not Null)
+					 * @return WpPosts
+					 */
+					try {
+						if ((!$this->objPost) && (!is_null($this->intPostId)))
+							$this->objPost = WpPosts::Load($this->intPostId);
+						return $this->objPost;
+					} catch (QCallerException $objExc) {
+						$objExc->IncrementOffset();
+						throw $objExc;
+					}
+
 
 				////////////////////////////
 				// Virtual Object References (Many to Many and Reverse References)
@@ -899,6 +930,7 @@
 					 * @return integer
 					 */
 					try {
+						$this->objPost = null;
 						return ($this->intPostId = QType::Cast($mixValue, QType::Integer));
 					} catch (QCallerException $objExc) {
 						$objExc->IncrementOffset();
@@ -935,6 +967,38 @@
 				///////////////////
 				// Member Objects
 				///////////////////
+				case 'Post':
+					/**
+					 * Sets the value for the WpPosts object referenced by intPostId (Not Null)
+					 * @param WpPosts $mixValue
+					 * @return WpPosts
+					 */
+					if (is_null($mixValue)) {
+						$this->intPostId = null;
+						$this->objPost = null;
+						return null;
+					} else {
+						// Make sure $mixValue actually is a WpPosts object
+						try {
+							$mixValue = QType::Cast($mixValue, 'WpPosts');
+						} catch (QInvalidCastException $objExc) {
+							$objExc->IncrementOffset();
+							throw $objExc;
+						}
+
+						// Make sure $mixValue is a SAVED WpPosts object
+						if (is_null($mixValue->Id))
+							throw new QCallerException('Unable to set an unsaved Post for this WpPostmeta');
+
+						// Update Local Member Variables
+						$this->objPost = $mixValue;
+						$this->intPostId = $mixValue->Id;
+
+						// Return $mixValue
+						return $mixValue;
+					}
+					break;
+
 				default:
 					try {
 						return parent::__set($strName, $mixValue);
@@ -1003,7 +1067,7 @@
 		public static function GetSoapComplexTypeXml() {
 			$strToReturn = '<complexType name="WpPostmeta"><sequence>';
 			$strToReturn .= '<element name="MetaId" type="xsd:int"/>';
-			$strToReturn .= '<element name="PostId" type="xsd:int"/>';
+			$strToReturn .= '<element name="Post" type="xsd1:WpPosts"/>';
 			$strToReturn .= '<element name="MetaKey" type="xsd:string"/>';
 			$strToReturn .= '<element name="MetaValue" type="xsd:string"/>';
 			$strToReturn .= '<element name="__blnRestored" type="xsd:boolean"/>';
@@ -1014,6 +1078,7 @@
 		public static function AlterSoapComplexTypeArray(&$strComplexTypeArray) {
 			if (!array_key_exists('WpPostmeta', $strComplexTypeArray)) {
 				$strComplexTypeArray['WpPostmeta'] = WpPostmeta::GetSoapComplexTypeXml();
+				WpPosts::AlterSoapComplexTypeArray($strComplexTypeArray);
 			}
 		}
 
@@ -1030,8 +1095,9 @@
 			$objToReturn = new WpPostmeta();
 			if (property_exists($objSoapObject, 'MetaId'))
 				$objToReturn->intMetaId = $objSoapObject->MetaId;
-			if (property_exists($objSoapObject, 'PostId'))
-				$objToReturn->intPostId = $objSoapObject->PostId;
+			if ((property_exists($objSoapObject, 'Post')) &&
+				($objSoapObject->Post))
+				$objToReturn->Post = WpPosts::GetObjectFromSoapObject($objSoapObject->Post);
 			if (property_exists($objSoapObject, 'MetaKey'))
 				$objToReturn->strMetaKey = $objSoapObject->MetaKey;
 			if (property_exists($objSoapObject, 'MetaValue'))
@@ -1054,6 +1120,10 @@
 		}
 
 		public static function GetSoapObjectFromObject($objObject, $blnBindRelatedObjects) {
+			if ($objObject->objPost)
+				$objObject->objPost = WpPosts::GetSoapObjectFromObject($objObject->objPost, false);
+			else if (!$blnBindRelatedObjects)
+				$objObject->intPostId = null;
 			return $objObject;
 		}
 
@@ -1111,6 +1181,7 @@
      *
      * @property-read QQNode $MetaId
      * @property-read QQNode $PostId
+     * @property-read QQNodeWpPosts $Post
      * @property-read QQNode $MetaKey
      * @property-read QQNode $MetaValue
      *
@@ -1128,6 +1199,8 @@
 					return new QQNode('meta_id', 'MetaId', 'Integer', $this);
 				case 'PostId':
 					return new QQNode('post_id', 'PostId', 'Integer', $this);
+				case 'Post':
+					return new QQNodeWpPosts('post_id', 'Post', 'Integer', $this);
 				case 'MetaKey':
 					return new QQNode('meta_key', 'MetaKey', 'VarChar', $this);
 				case 'MetaValue':
@@ -1149,6 +1222,7 @@
     /**
      * @property-read QQNode $MetaId
      * @property-read QQNode $PostId
+     * @property-read QQNodeWpPosts $Post
      * @property-read QQNode $MetaKey
      * @property-read QQNode $MetaValue
      *
@@ -1166,6 +1240,8 @@
 					return new QQNode('meta_id', 'MetaId', 'integer', $this);
 				case 'PostId':
 					return new QQNode('post_id', 'PostId', 'integer', $this);
+				case 'Post':
+					return new QQNodeWpPosts('post_id', 'Post', 'integer', $this);
 				case 'MetaKey':
 					return new QQNode('meta_key', 'MetaKey', 'string', $this);
 				case 'MetaValue':

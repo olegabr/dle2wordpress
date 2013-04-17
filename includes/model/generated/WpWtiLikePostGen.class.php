@@ -21,6 +21,8 @@
 	 * @property QDateTime $DateTime the value for dttDateTime (Not Null)
 	 * @property string $Ip the value for strIp (Not Null)
 	 * @property integer $UserId the value for intUserId (Not Null)
+	 * @property WpPosts $Post the value for the WpPosts object referenced by intPostId (Not Null)
+	 * @property WpUsers $User the value for the WpUsers object referenced by intUserId (Not Null)
 	 * @property-read boolean $__Restored whether or not this object was restored from the database (as opposed to created new)
 	 */
 	class WpWtiLikePostGen extends QBaseClass implements IteratorAggregate {
@@ -99,6 +101,26 @@
 		///////////////////////////////
 		// PROTECTED MEMBER OBJECTS
 		///////////////////////////////
+
+		/**
+		 * Protected member variable that contains the object pointed by the reference
+		 * in the database column wp_wti_like_post.post_id.
+		 *
+		 * NOTE: Always use the Post property getter to correctly retrieve this WpPosts object.
+		 * (Because this class implements late binding, this variable reference MAY be null.)
+		 * @var WpPosts objPost
+		 */
+		protected $objPost;
+
+		/**
+		 * Protected member variable that contains the object pointed by the reference
+		 * in the database column wp_wti_like_post.user_id.
+		 *
+		 * NOTE: Always use the User property getter to correctly retrieve this WpUsers object.
+		 * (Because this class implements late binding, this variable reference MAY be null.)
+		 * @var WpUsers objUser
+		 */
+		protected $objUser;
 
 
 
@@ -519,6 +541,18 @@
 			if (!$strAliasPrefix)
 				$strAliasPrefix = 'wp_wti_like_post__';
 
+			// Check for Post Early Binding
+			$strAlias = $strAliasPrefix . 'post_id__ID';
+			$strAliasName = array_key_exists($strAlias, $strColumnAliasArray) ? $strColumnAliasArray[$strAlias] : $strAlias;
+			if (!is_null($objDbRow->GetColumn($strAliasName)))
+				$objToReturn->objPost = WpPosts::InstantiateDbRow($objDbRow, $strAliasPrefix . 'post_id__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+
+			// Check for User Early Binding
+			$strAlias = $strAliasPrefix . 'user_id__ID';
+			$strAliasName = array_key_exists($strAlias, $strColumnAliasArray) ? $strColumnAliasArray[$strAlias] : $strAlias;
+			if (!is_null($objDbRow->GetColumn($strAliasName)))
+				$objToReturn->objUser = WpUsers::InstantiateDbRow($objDbRow, $strAliasPrefix . 'user_id__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+
 
 
 
@@ -606,6 +640,70 @@
 					QQ::Equal(QQN::WpWtiLikePost()->Id, $intId)
 				),
 				$objOptionalClauses
+			);
+		}
+
+		/**
+		 * Load an array of WpWtiLikePost objects,
+		 * by PostId Index(es)
+		 * @param integer $intPostId
+		 * @param QQClause[] $objOptionalClauses additional optional QQClause objects for this query
+		 * @return WpWtiLikePost[]
+		*/
+		public static function LoadArrayByPostId($intPostId, $objOptionalClauses = null) {
+			// Call WpWtiLikePost::QueryArray to perform the LoadArrayByPostId query
+			try {
+				return WpWtiLikePost::QueryArray(
+					QQ::Equal(QQN::WpWtiLikePost()->PostId, $intPostId),
+					$objOptionalClauses);
+			} catch (QCallerException $objExc) {
+				$objExc->IncrementOffset();
+				throw $objExc;
+			}
+		}
+
+		/**
+		 * Count WpWtiLikePosts
+		 * by PostId Index(es)
+		 * @param integer $intPostId
+		 * @return int
+		*/
+		public static function CountByPostId($intPostId) {
+			// Call WpWtiLikePost::QueryCount to perform the CountByPostId query
+			return WpWtiLikePost::QueryCount(
+				QQ::Equal(QQN::WpWtiLikePost()->PostId, $intPostId)
+			);
+		}
+
+		/**
+		 * Load an array of WpWtiLikePost objects,
+		 * by UserId Index(es)
+		 * @param integer $intUserId
+		 * @param QQClause[] $objOptionalClauses additional optional QQClause objects for this query
+		 * @return WpWtiLikePost[]
+		*/
+		public static function LoadArrayByUserId($intUserId, $objOptionalClauses = null) {
+			// Call WpWtiLikePost::QueryArray to perform the LoadArrayByUserId query
+			try {
+				return WpWtiLikePost::QueryArray(
+					QQ::Equal(QQN::WpWtiLikePost()->UserId, $intUserId),
+					$objOptionalClauses);
+			} catch (QCallerException $objExc) {
+				$objExc->IncrementOffset();
+				throw $objExc;
+			}
+		}
+
+		/**
+		 * Count WpWtiLikePosts
+		 * by UserId Index(es)
+		 * @param integer $intUserId
+		 * @return int
+		*/
+		public static function CountByUserId($intUserId) {
+			// Call WpWtiLikePost::QueryCount to perform the CountByUserId query
+			return WpWtiLikePost::QueryCount(
+				QQ::Equal(QQN::WpWtiLikePost()->UserId, $intUserId)
 			);
 		}
 
@@ -774,11 +872,11 @@
 			$objReloaded = WpWtiLikePost::Load($this->intId);
 
 			// Update $this's local variables to match
-			$this->intPostId = $objReloaded->intPostId;
+			$this->PostId = $objReloaded->PostId;
 			$this->intValue = $objReloaded->intValue;
 			$this->dttDateTime = $objReloaded->dttDateTime;
 			$this->strIp = $objReloaded->strIp;
-			$this->intUserId = $objReloaded->intUserId;
+			$this->UserId = $objReloaded->UserId;
 		}
 
 
@@ -845,6 +943,34 @@
 				///////////////////
 				// Member Objects
 				///////////////////
+				case 'Post':
+					/**
+					 * Gets the value for the WpPosts object referenced by intPostId (Not Null)
+					 * @return WpPosts
+					 */
+					try {
+						if ((!$this->objPost) && (!is_null($this->intPostId)))
+							$this->objPost = WpPosts::Load($this->intPostId);
+						return $this->objPost;
+					} catch (QCallerException $objExc) {
+						$objExc->IncrementOffset();
+						throw $objExc;
+					}
+
+				case 'User':
+					/**
+					 * Gets the value for the WpUsers object referenced by intUserId (Not Null)
+					 * @return WpUsers
+					 */
+					try {
+						if ((!$this->objUser) && (!is_null($this->intUserId)))
+							$this->objUser = WpUsers::Load($this->intUserId);
+						return $this->objUser;
+					} catch (QCallerException $objExc) {
+						$objExc->IncrementOffset();
+						throw $objExc;
+					}
+
 
 				////////////////////////////
 				// Virtual Object References (Many to Many and Reverse References)
@@ -885,6 +1011,7 @@
 					 * @return integer
 					 */
 					try {
+						$this->objPost = null;
 						return ($this->intPostId = QType::Cast($mixValue, QType::Integer));
 					} catch (QCallerException $objExc) {
 						$objExc->IncrementOffset();
@@ -937,6 +1064,7 @@
 					 * @return integer
 					 */
 					try {
+						$this->objUser = null;
 						return ($this->intUserId = QType::Cast($mixValue, QType::Integer));
 					} catch (QCallerException $objExc) {
 						$objExc->IncrementOffset();
@@ -947,6 +1075,70 @@
 				///////////////////
 				// Member Objects
 				///////////////////
+				case 'Post':
+					/**
+					 * Sets the value for the WpPosts object referenced by intPostId (Not Null)
+					 * @param WpPosts $mixValue
+					 * @return WpPosts
+					 */
+					if (is_null($mixValue)) {
+						$this->intPostId = null;
+						$this->objPost = null;
+						return null;
+					} else {
+						// Make sure $mixValue actually is a WpPosts object
+						try {
+							$mixValue = QType::Cast($mixValue, 'WpPosts');
+						} catch (QInvalidCastException $objExc) {
+							$objExc->IncrementOffset();
+							throw $objExc;
+						}
+
+						// Make sure $mixValue is a SAVED WpPosts object
+						if (is_null($mixValue->Id))
+							throw new QCallerException('Unable to set an unsaved Post for this WpWtiLikePost');
+
+						// Update Local Member Variables
+						$this->objPost = $mixValue;
+						$this->intPostId = $mixValue->Id;
+
+						// Return $mixValue
+						return $mixValue;
+					}
+					break;
+
+				case 'User':
+					/**
+					 * Sets the value for the WpUsers object referenced by intUserId (Not Null)
+					 * @param WpUsers $mixValue
+					 * @return WpUsers
+					 */
+					if (is_null($mixValue)) {
+						$this->intUserId = null;
+						$this->objUser = null;
+						return null;
+					} else {
+						// Make sure $mixValue actually is a WpUsers object
+						try {
+							$mixValue = QType::Cast($mixValue, 'WpUsers');
+						} catch (QInvalidCastException $objExc) {
+							$objExc->IncrementOffset();
+							throw $objExc;
+						}
+
+						// Make sure $mixValue is a SAVED WpUsers object
+						if (is_null($mixValue->Id))
+							throw new QCallerException('Unable to set an unsaved User for this WpWtiLikePost');
+
+						// Update Local Member Variables
+						$this->objUser = $mixValue;
+						$this->intUserId = $mixValue->Id;
+
+						// Return $mixValue
+						return $mixValue;
+					}
+					break;
+
 				default:
 					try {
 						return parent::__set($strName, $mixValue);
@@ -1015,11 +1207,11 @@
 		public static function GetSoapComplexTypeXml() {
 			$strToReturn = '<complexType name="WpWtiLikePost"><sequence>';
 			$strToReturn .= '<element name="Id" type="xsd:int"/>';
-			$strToReturn .= '<element name="PostId" type="xsd:int"/>';
+			$strToReturn .= '<element name="Post" type="xsd1:WpPosts"/>';
 			$strToReturn .= '<element name="Value" type="xsd:int"/>';
 			$strToReturn .= '<element name="DateTime" type="xsd:dateTime"/>';
 			$strToReturn .= '<element name="Ip" type="xsd:string"/>';
-			$strToReturn .= '<element name="UserId" type="xsd:int"/>';
+			$strToReturn .= '<element name="User" type="xsd1:WpUsers"/>';
 			$strToReturn .= '<element name="__blnRestored" type="xsd:boolean"/>';
 			$strToReturn .= '</sequence></complexType>';
 			return $strToReturn;
@@ -1028,6 +1220,8 @@
 		public static function AlterSoapComplexTypeArray(&$strComplexTypeArray) {
 			if (!array_key_exists('WpWtiLikePost', $strComplexTypeArray)) {
 				$strComplexTypeArray['WpWtiLikePost'] = WpWtiLikePost::GetSoapComplexTypeXml();
+				WpPosts::AlterSoapComplexTypeArray($strComplexTypeArray);
+				WpUsers::AlterSoapComplexTypeArray($strComplexTypeArray);
 			}
 		}
 
@@ -1044,16 +1238,18 @@
 			$objToReturn = new WpWtiLikePost();
 			if (property_exists($objSoapObject, 'Id'))
 				$objToReturn->intId = $objSoapObject->Id;
-			if (property_exists($objSoapObject, 'PostId'))
-				$objToReturn->intPostId = $objSoapObject->PostId;
+			if ((property_exists($objSoapObject, 'Post')) &&
+				($objSoapObject->Post))
+				$objToReturn->Post = WpPosts::GetObjectFromSoapObject($objSoapObject->Post);
 			if (property_exists($objSoapObject, 'Value'))
 				$objToReturn->intValue = $objSoapObject->Value;
 			if (property_exists($objSoapObject, 'DateTime'))
 				$objToReturn->dttDateTime = new QDateTime($objSoapObject->DateTime);
 			if (property_exists($objSoapObject, 'Ip'))
 				$objToReturn->strIp = $objSoapObject->Ip;
-			if (property_exists($objSoapObject, 'UserId'))
-				$objToReturn->intUserId = $objSoapObject->UserId;
+			if ((property_exists($objSoapObject, 'User')) &&
+				($objSoapObject->User))
+				$objToReturn->User = WpUsers::GetObjectFromSoapObject($objSoapObject->User);
 			if (property_exists($objSoapObject, '__blnRestored'))
 				$objToReturn->__blnRestored = $objSoapObject->__blnRestored;
 			return $objToReturn;
@@ -1072,8 +1268,16 @@
 		}
 
 		public static function GetSoapObjectFromObject($objObject, $blnBindRelatedObjects) {
+			if ($objObject->objPost)
+				$objObject->objPost = WpPosts::GetSoapObjectFromObject($objObject->objPost, false);
+			else if (!$blnBindRelatedObjects)
+				$objObject->intPostId = null;
 			if ($objObject->dttDateTime)
 				$objObject->dttDateTime = $objObject->dttDateTime->qFormat(QDateTime::FormatSoap);
+			if ($objObject->objUser)
+				$objObject->objUser = WpUsers::GetSoapObjectFromObject($objObject->objUser, false);
+			else if (!$blnBindRelatedObjects)
+				$objObject->intUserId = null;
 			return $objObject;
 		}
 
@@ -1133,10 +1337,12 @@
      *
      * @property-read QQNode $Id
      * @property-read QQNode $PostId
+     * @property-read QQNodeWpPosts $Post
      * @property-read QQNode $Value
      * @property-read QQNode $DateTime
      * @property-read QQNode $Ip
      * @property-read QQNode $UserId
+     * @property-read QQNodeWpUsers $User
      *
      *
 
@@ -1152,6 +1358,8 @@
 					return new QQNode('id', 'Id', 'Integer', $this);
 				case 'PostId':
 					return new QQNode('post_id', 'PostId', 'Integer', $this);
+				case 'Post':
+					return new QQNodeWpPosts('post_id', 'Post', 'Integer', $this);
 				case 'Value':
 					return new QQNode('value', 'Value', 'Integer', $this);
 				case 'DateTime':
@@ -1160,6 +1368,8 @@
 					return new QQNode('ip', 'Ip', 'VarChar', $this);
 				case 'UserId':
 					return new QQNode('user_id', 'UserId', 'Integer', $this);
+				case 'User':
+					return new QQNodeWpUsers('user_id', 'User', 'Integer', $this);
 
 				case '_PrimaryKeyNode':
 					return new QQNode('id', 'Id', 'Integer', $this);
@@ -1177,10 +1387,12 @@
     /**
      * @property-read QQNode $Id
      * @property-read QQNode $PostId
+     * @property-read QQNodeWpPosts $Post
      * @property-read QQNode $Value
      * @property-read QQNode $DateTime
      * @property-read QQNode $Ip
      * @property-read QQNode $UserId
+     * @property-read QQNodeWpUsers $User
      *
      *
 
@@ -1196,6 +1408,8 @@
 					return new QQNode('id', 'Id', 'integer', $this);
 				case 'PostId':
 					return new QQNode('post_id', 'PostId', 'integer', $this);
+				case 'Post':
+					return new QQNodeWpPosts('post_id', 'Post', 'integer', $this);
 				case 'Value':
 					return new QQNode('value', 'Value', 'integer', $this);
 				case 'DateTime':
@@ -1204,6 +1418,8 @@
 					return new QQNode('ip', 'Ip', 'string', $this);
 				case 'UserId':
 					return new QQNode('user_id', 'UserId', 'integer', $this);
+				case 'User':
+					return new QQNodeWpUsers('user_id', 'User', 'integer', $this);
 
 				case '_PrimaryKeyNode':
 					return new QQNode('id', 'Id', 'integer', $this);

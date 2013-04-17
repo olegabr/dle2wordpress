@@ -25,6 +25,8 @@
 	 * @property string $Ip the value for strIp (Not Null)
 	 * @property boolean $IsRegister the value for blnIsRegister (Not Null)
 	 * @property boolean $Approve the value for blnApprove (Not Null)
+	 * @property DlePost $Post the value for the DlePost object referenced by intPostId (Not Null)
+	 * @property DleUsers $User the value for the DleUsers object referenced by intUserId (Not Null)
 	 * @property-read boolean $__Restored whether or not this object was restored from the database (as opposed to created new)
 	 */
 	class DleCommentsGen extends QBaseClass implements IteratorAggregate {
@@ -137,6 +139,26 @@
 		///////////////////////////////
 		// PROTECTED MEMBER OBJECTS
 		///////////////////////////////
+
+		/**
+		 * Protected member variable that contains the object pointed by the reference
+		 * in the database column dle_comments.post_id.
+		 *
+		 * NOTE: Always use the Post property getter to correctly retrieve this DlePost object.
+		 * (Because this class implements late binding, this variable reference MAY be null.)
+		 * @var DlePost objPost
+		 */
+		protected $objPost;
+
+		/**
+		 * Protected member variable that contains the object pointed by the reference
+		 * in the database column dle_comments.user_id.
+		 *
+		 * NOTE: Always use the User property getter to correctly retrieve this DleUsers object.
+		 * (Because this class implements late binding, this variable reference MAY be null.)
+		 * @var DleUsers objUser
+		 */
+		protected $objUser;
 
 
 
@@ -577,6 +599,18 @@
 			if (!$strAliasPrefix)
 				$strAliasPrefix = 'dle_comments__';
 
+			// Check for Post Early Binding
+			$strAlias = $strAliasPrefix . 'post_id__id';
+			$strAliasName = array_key_exists($strAlias, $strColumnAliasArray) ? $strColumnAliasArray[$strAlias] : $strAlias;
+			if (!is_null($objDbRow->GetColumn($strAliasName)))
+				$objToReturn->objPost = DlePost::InstantiateDbRow($objDbRow, $strAliasPrefix . 'post_id__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+
+			// Check for User Early Binding
+			$strAlias = $strAliasPrefix . 'user_id__user_id';
+			$strAliasName = array_key_exists($strAlias, $strColumnAliasArray) ? $strColumnAliasArray[$strAlias] : $strAlias;
+			if (!is_null($objDbRow->GetColumn($strAliasName)))
+				$objToReturn->objUser = DleUsers::InstantiateDbRow($objDbRow, $strAliasPrefix . 'user_id__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+
 
 
 
@@ -940,8 +974,8 @@
 			$objReloaded = DleComments::Load($this->intId);
 
 			// Update $this's local variables to match
-			$this->intPostId = $objReloaded->intPostId;
-			$this->intUserId = $objReloaded->intUserId;
+			$this->PostId = $objReloaded->PostId;
+			$this->UserId = $objReloaded->UserId;
 			$this->dttDate = $objReloaded->dttDate;
 			$this->strAutor = $objReloaded->strAutor;
 			$this->strEmail = $objReloaded->strEmail;
@@ -1043,6 +1077,34 @@
 				///////////////////
 				// Member Objects
 				///////////////////
+				case 'Post':
+					/**
+					 * Gets the value for the DlePost object referenced by intPostId (Not Null)
+					 * @return DlePost
+					 */
+					try {
+						if ((!$this->objPost) && (!is_null($this->intPostId)))
+							$this->objPost = DlePost::Load($this->intPostId);
+						return $this->objPost;
+					} catch (QCallerException $objExc) {
+						$objExc->IncrementOffset();
+						throw $objExc;
+					}
+
+				case 'User':
+					/**
+					 * Gets the value for the DleUsers object referenced by intUserId (Not Null)
+					 * @return DleUsers
+					 */
+					try {
+						if ((!$this->objUser) && (!is_null($this->intUserId)))
+							$this->objUser = DleUsers::Load($this->intUserId);
+						return $this->objUser;
+					} catch (QCallerException $objExc) {
+						$objExc->IncrementOffset();
+						throw $objExc;
+					}
+
 
 				////////////////////////////
 				// Virtual Object References (Many to Many and Reverse References)
@@ -1083,6 +1145,7 @@
 					 * @return integer
 					 */
 					try {
+						$this->objPost = null;
 						return ($this->intPostId = QType::Cast($mixValue, QType::Integer));
 					} catch (QCallerException $objExc) {
 						$objExc->IncrementOffset();
@@ -1096,6 +1159,7 @@
 					 * @return integer
 					 */
 					try {
+						$this->objUser = null;
 						return ($this->intUserId = QType::Cast($mixValue, QType::Integer));
 					} catch (QCallerException $objExc) {
 						$objExc->IncrementOffset();
@@ -1197,6 +1261,70 @@
 				///////////////////
 				// Member Objects
 				///////////////////
+				case 'Post':
+					/**
+					 * Sets the value for the DlePost object referenced by intPostId (Not Null)
+					 * @param DlePost $mixValue
+					 * @return DlePost
+					 */
+					if (is_null($mixValue)) {
+						$this->intPostId = null;
+						$this->objPost = null;
+						return null;
+					} else {
+						// Make sure $mixValue actually is a DlePost object
+						try {
+							$mixValue = QType::Cast($mixValue, 'DlePost');
+						} catch (QInvalidCastException $objExc) {
+							$objExc->IncrementOffset();
+							throw $objExc;
+						}
+
+						// Make sure $mixValue is a SAVED DlePost object
+						if (is_null($mixValue->Id))
+							throw new QCallerException('Unable to set an unsaved Post for this DleComments');
+
+						// Update Local Member Variables
+						$this->objPost = $mixValue;
+						$this->intPostId = $mixValue->Id;
+
+						// Return $mixValue
+						return $mixValue;
+					}
+					break;
+
+				case 'User':
+					/**
+					 * Sets the value for the DleUsers object referenced by intUserId (Not Null)
+					 * @param DleUsers $mixValue
+					 * @return DleUsers
+					 */
+					if (is_null($mixValue)) {
+						$this->intUserId = null;
+						$this->objUser = null;
+						return null;
+					} else {
+						// Make sure $mixValue actually is a DleUsers object
+						try {
+							$mixValue = QType::Cast($mixValue, 'DleUsers');
+						} catch (QInvalidCastException $objExc) {
+							$objExc->IncrementOffset();
+							throw $objExc;
+						}
+
+						// Make sure $mixValue is a SAVED DleUsers object
+						if (is_null($mixValue->UserId))
+							throw new QCallerException('Unable to set an unsaved User for this DleComments');
+
+						// Update Local Member Variables
+						$this->objUser = $mixValue;
+						$this->intUserId = $mixValue->UserId;
+
+						// Return $mixValue
+						return $mixValue;
+					}
+					break;
+
 				default:
 					try {
 						return parent::__set($strName, $mixValue);
@@ -1265,8 +1393,8 @@
 		public static function GetSoapComplexTypeXml() {
 			$strToReturn = '<complexType name="DleComments"><sequence>';
 			$strToReturn .= '<element name="Id" type="xsd:int"/>';
-			$strToReturn .= '<element name="PostId" type="xsd:int"/>';
-			$strToReturn .= '<element name="UserId" type="xsd:int"/>';
+			$strToReturn .= '<element name="Post" type="xsd1:DlePost"/>';
+			$strToReturn .= '<element name="User" type="xsd1:DleUsers"/>';
 			$strToReturn .= '<element name="Date" type="xsd:dateTime"/>';
 			$strToReturn .= '<element name="Autor" type="xsd:string"/>';
 			$strToReturn .= '<element name="Email" type="xsd:string"/>';
@@ -1282,6 +1410,8 @@
 		public static function AlterSoapComplexTypeArray(&$strComplexTypeArray) {
 			if (!array_key_exists('DleComments', $strComplexTypeArray)) {
 				$strComplexTypeArray['DleComments'] = DleComments::GetSoapComplexTypeXml();
+				DlePost::AlterSoapComplexTypeArray($strComplexTypeArray);
+				DleUsers::AlterSoapComplexTypeArray($strComplexTypeArray);
 			}
 		}
 
@@ -1298,10 +1428,12 @@
 			$objToReturn = new DleComments();
 			if (property_exists($objSoapObject, 'Id'))
 				$objToReturn->intId = $objSoapObject->Id;
-			if (property_exists($objSoapObject, 'PostId'))
-				$objToReturn->intPostId = $objSoapObject->PostId;
-			if (property_exists($objSoapObject, 'UserId'))
-				$objToReturn->intUserId = $objSoapObject->UserId;
+			if ((property_exists($objSoapObject, 'Post')) &&
+				($objSoapObject->Post))
+				$objToReturn->Post = DlePost::GetObjectFromSoapObject($objSoapObject->Post);
+			if ((property_exists($objSoapObject, 'User')) &&
+				($objSoapObject->User))
+				$objToReturn->User = DleUsers::GetObjectFromSoapObject($objSoapObject->User);
 			if (property_exists($objSoapObject, 'Date'))
 				$objToReturn->dttDate = new QDateTime($objSoapObject->Date);
 			if (property_exists($objSoapObject, 'Autor'))
@@ -1334,6 +1466,14 @@
 		}
 
 		public static function GetSoapObjectFromObject($objObject, $blnBindRelatedObjects) {
+			if ($objObject->objPost)
+				$objObject->objPost = DlePost::GetSoapObjectFromObject($objObject->objPost, false);
+			else if (!$blnBindRelatedObjects)
+				$objObject->intPostId = null;
+			if ($objObject->objUser)
+				$objObject->objUser = DleUsers::GetSoapObjectFromObject($objObject->objUser, false);
+			else if (!$blnBindRelatedObjects)
+				$objObject->intUserId = null;
 			if ($objObject->dttDate)
 				$objObject->dttDate = $objObject->dttDate->qFormat(QDateTime::FormatSoap);
 			return $objObject;
@@ -1399,7 +1539,9 @@
      *
      * @property-read QQNode $Id
      * @property-read QQNode $PostId
+     * @property-read QQNodeDlePost $Post
      * @property-read QQNode $UserId
+     * @property-read QQNodeDleUsers $User
      * @property-read QQNode $Date
      * @property-read QQNode $Autor
      * @property-read QQNode $Email
@@ -1422,8 +1564,12 @@
 					return new QQNode('id', 'Id', 'Integer', $this);
 				case 'PostId':
 					return new QQNode('post_id', 'PostId', 'Integer', $this);
+				case 'Post':
+					return new QQNodeDlePost('post_id', 'Post', 'Integer', $this);
 				case 'UserId':
 					return new QQNode('user_id', 'UserId', 'Integer', $this);
+				case 'User':
+					return new QQNodeDleUsers('user_id', 'User', 'Integer', $this);
 				case 'Date':
 					return new QQNode('date', 'Date', 'DateTime', $this);
 				case 'Autor':
@@ -1455,7 +1601,9 @@
     /**
      * @property-read QQNode $Id
      * @property-read QQNode $PostId
+     * @property-read QQNodeDlePost $Post
      * @property-read QQNode $UserId
+     * @property-read QQNodeDleUsers $User
      * @property-read QQNode $Date
      * @property-read QQNode $Autor
      * @property-read QQNode $Email
@@ -1478,8 +1626,12 @@
 					return new QQNode('id', 'Id', 'integer', $this);
 				case 'PostId':
 					return new QQNode('post_id', 'PostId', 'integer', $this);
+				case 'Post':
+					return new QQNodeDlePost('post_id', 'Post', 'integer', $this);
 				case 'UserId':
 					return new QQNode('user_id', 'UserId', 'integer', $this);
+				case 'User':
+					return new QQNodeDleUsers('user_id', 'User', 'integer', $this);
 				case 'Date':
 					return new QQNode('date', 'Date', 'QDateTime', $this);
 				case 'Autor':

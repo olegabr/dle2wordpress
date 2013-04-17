@@ -18,6 +18,7 @@
 	 * @property integer $ObjectId the value for intObjectId (PK)
 	 * @property integer $TermTaxonomyId the value for intTermTaxonomyId (PK)
 	 * @property integer $TermOrder the value for intTermOrder (Not Null)
+	 * @property WpTermTaxonomy $TermTaxonomy the value for the WpTermTaxonomy object referenced by intTermTaxonomyId (PK)
 	 * @property-read boolean $__Restored whether or not this object was restored from the database (as opposed to created new)
 	 */
 	class WpTermRelationshipsGen extends QBaseClass implements IteratorAggregate {
@@ -85,6 +86,16 @@
 		///////////////////////////////
 		// PROTECTED MEMBER OBJECTS
 		///////////////////////////////
+
+		/**
+		 * Protected member variable that contains the object pointed by the reference
+		 * in the database column wp_term_relationships.term_taxonomy_id.
+		 *
+		 * NOTE: Always use the TermTaxonomy property getter to correctly retrieve this WpTermTaxonomy object.
+		 * (Because this class implements late binding, this variable reference MAY be null.)
+		 * @var WpTermTaxonomy objTermTaxonomy
+		 */
+		protected $objTermTaxonomy;
 
 
 
@@ -497,6 +508,12 @@
 			if (!$strAliasPrefix)
 				$strAliasPrefix = 'wp_term_relationships__';
 
+			// Check for TermTaxonomy Early Binding
+			$strAlias = $strAliasPrefix . 'term_taxonomy_id__term_taxonomy_id';
+			$strAliasName = array_key_exists($strAlias, $strColumnAliasArray) ? $strColumnAliasArray[$strAlias] : $strAlias;
+			if (!is_null($objDbRow->GetColumn($strAliasName)))
+				$objToReturn->objTermTaxonomy = WpTermTaxonomy::InstantiateDbRow($objDbRow, $strAliasPrefix . 'term_taxonomy_id__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+
 
 
 
@@ -785,7 +802,7 @@
 			// Update $this's local variables to match
 			$this->intObjectId = $objReloaded->intObjectId;
 			$this->__intObjectId = $this->intObjectId;
-			$this->intTermTaxonomyId = $objReloaded->intTermTaxonomyId;
+			$this->TermTaxonomyId = $objReloaded->TermTaxonomyId;
 			$this->__intTermTaxonomyId = $this->intTermTaxonomyId;
 			$this->intTermOrder = $objReloaded->intTermOrder;
 		}
@@ -833,6 +850,20 @@
 				///////////////////
 				// Member Objects
 				///////////////////
+				case 'TermTaxonomy':
+					/**
+					 * Gets the value for the WpTermTaxonomy object referenced by intTermTaxonomyId (PK)
+					 * @return WpTermTaxonomy
+					 */
+					try {
+						if ((!$this->objTermTaxonomy) && (!is_null($this->intTermTaxonomyId)))
+							$this->objTermTaxonomy = WpTermTaxonomy::Load($this->intTermTaxonomyId);
+						return $this->objTermTaxonomy;
+					} catch (QCallerException $objExc) {
+						$objExc->IncrementOffset();
+						throw $objExc;
+					}
+
 
 				////////////////////////////
 				// Virtual Object References (Many to Many and Reverse References)
@@ -886,6 +917,7 @@
 					 * @return integer
 					 */
 					try {
+						$this->objTermTaxonomy = null;
 						return ($this->intTermTaxonomyId = QType::Cast($mixValue, QType::Integer));
 					} catch (QCallerException $objExc) {
 						$objExc->IncrementOffset();
@@ -909,6 +941,38 @@
 				///////////////////
 				// Member Objects
 				///////////////////
+				case 'TermTaxonomy':
+					/**
+					 * Sets the value for the WpTermTaxonomy object referenced by intTermTaxonomyId (PK)
+					 * @param WpTermTaxonomy $mixValue
+					 * @return WpTermTaxonomy
+					 */
+					if (is_null($mixValue)) {
+						$this->intTermTaxonomyId = null;
+						$this->objTermTaxonomy = null;
+						return null;
+					} else {
+						// Make sure $mixValue actually is a WpTermTaxonomy object
+						try {
+							$mixValue = QType::Cast($mixValue, 'WpTermTaxonomy');
+						} catch (QInvalidCastException $objExc) {
+							$objExc->IncrementOffset();
+							throw $objExc;
+						}
+
+						// Make sure $mixValue is a SAVED WpTermTaxonomy object
+						if (is_null($mixValue->TermTaxonomyId))
+							throw new QCallerException('Unable to set an unsaved TermTaxonomy for this WpTermRelationships');
+
+						// Update Local Member Variables
+						$this->objTermTaxonomy = $mixValue;
+						$this->intTermTaxonomyId = $mixValue->TermTaxonomyId;
+
+						// Return $mixValue
+						return $mixValue;
+					}
+					break;
+
 				default:
 					try {
 						return parent::__set($strName, $mixValue);
@@ -977,7 +1041,7 @@
 		public static function GetSoapComplexTypeXml() {
 			$strToReturn = '<complexType name="WpTermRelationships"><sequence>';
 			$strToReturn .= '<element name="ObjectId" type="xsd:int"/>';
-			$strToReturn .= '<element name="TermTaxonomyId" type="xsd:int"/>';
+			$strToReturn .= '<element name="TermTaxonomy" type="xsd1:WpTermTaxonomy"/>';
 			$strToReturn .= '<element name="TermOrder" type="xsd:int"/>';
 			$strToReturn .= '<element name="__blnRestored" type="xsd:boolean"/>';
 			$strToReturn .= '</sequence></complexType>';
@@ -987,6 +1051,7 @@
 		public static function AlterSoapComplexTypeArray(&$strComplexTypeArray) {
 			if (!array_key_exists('WpTermRelationships', $strComplexTypeArray)) {
 				$strComplexTypeArray['WpTermRelationships'] = WpTermRelationships::GetSoapComplexTypeXml();
+				WpTermTaxonomy::AlterSoapComplexTypeArray($strComplexTypeArray);
 			}
 		}
 
@@ -1003,8 +1068,9 @@
 			$objToReturn = new WpTermRelationships();
 			if (property_exists($objSoapObject, 'ObjectId'))
 				$objToReturn->intObjectId = $objSoapObject->ObjectId;
-			if (property_exists($objSoapObject, 'TermTaxonomyId'))
-				$objToReturn->intTermTaxonomyId = $objSoapObject->TermTaxonomyId;
+			if ((property_exists($objSoapObject, 'TermTaxonomy')) &&
+				($objSoapObject->TermTaxonomy))
+				$objToReturn->TermTaxonomy = WpTermTaxonomy::GetObjectFromSoapObject($objSoapObject->TermTaxonomy);
 			if (property_exists($objSoapObject, 'TermOrder'))
 				$objToReturn->intTermOrder = $objSoapObject->TermOrder;
 			if (property_exists($objSoapObject, '__blnRestored'))
@@ -1025,6 +1091,10 @@
 		}
 
 		public static function GetSoapObjectFromObject($objObject, $blnBindRelatedObjects) {
+			if ($objObject->objTermTaxonomy)
+				$objObject->objTermTaxonomy = WpTermTaxonomy::GetSoapObjectFromObject($objObject->objTermTaxonomy, false);
+			else if (!$blnBindRelatedObjects)
+				$objObject->intTermTaxonomyId = null;
 			return $objObject;
 		}
 
@@ -1081,6 +1151,7 @@
      *
      * @property-read QQNode $ObjectId
      * @property-read QQNode $TermTaxonomyId
+     * @property-read QQNodeWpTermTaxonomy $TermTaxonomy
      * @property-read QQNode $TermOrder
      *
      *
@@ -1097,6 +1168,8 @@
 					return new QQNode('object_id', 'ObjectId', 'Integer', $this);
 				case 'TermTaxonomyId':
 					return new QQNode('term_taxonomy_id', 'TermTaxonomyId', 'Integer', $this);
+				case 'TermTaxonomy':
+					return new QQNodeWpTermTaxonomy('term_taxonomy_id', 'TermTaxonomy', 'Integer', $this);
 				case 'TermOrder':
 					return new QQNode('term_order', 'TermOrder', 'Integer', $this);
 
@@ -1116,6 +1189,7 @@
     /**
      * @property-read QQNode $ObjectId
      * @property-read QQNode $TermTaxonomyId
+     * @property-read QQNodeWpTermTaxonomy $TermTaxonomy
      * @property-read QQNode $TermOrder
      *
      *
@@ -1132,6 +1206,8 @@
 					return new QQNode('object_id', 'ObjectId', 'integer', $this);
 				case 'TermTaxonomyId':
 					return new QQNode('term_taxonomy_id', 'TermTaxonomyId', 'integer', $this);
+				case 'TermTaxonomy':
+					return new QQNodeWpTermTaxonomy('term_taxonomy_id', 'TermTaxonomy', 'integer', $this);
 				case 'TermOrder':
 					return new QQNode('term_order', 'TermOrder', 'integer', $this);
 

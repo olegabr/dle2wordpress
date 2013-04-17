@@ -30,6 +30,9 @@
 	 * @property string $ShortTpl the value for strShortTpl (Not Null)
 	 * @property string $FullTpl the value for strFullTpl (Not Null)
 	 * @property string $Metatitle the value for strMetatitle (Not Null)
+	 * @property DleCategory $ParentidObject the value for the DleCategory object referenced by intParentid (Not Null)
+	 * @property-read DleCategory $_DleCategoryAsParentid the value for the private _objDleCategoryAsParentid (Read-Only) if set due to an expansion on the dle_category.parentid reverse relationship
+	 * @property-read DleCategory[] $_DleCategoryAsParentidArray the value for the private _objDleCategoryAsParentidArray (Read-Only) if set due to an ExpandAsArray on the dle_category.parentid reverse relationship
 	 * @property-read boolean $__Restored whether or not this object was restored from the database (as opposed to created new)
 	 */
 	class DleCategoryGen extends QBaseClass implements IteratorAggregate {
@@ -169,6 +172,22 @@
 
 
 		/**
+		 * Private member variable that stores a reference to a single DleCategoryAsParentid object
+		 * (of type DleCategory), if this DleCategory object was restored with
+		 * an expansion on the dle_category association table.
+		 * @var DleCategory _objDleCategoryAsParentid;
+		 */
+		private $_objDleCategoryAsParentid;
+
+		/**
+		 * Private member variable that stores a reference to an array of DleCategoryAsParentid objects
+		 * (of type DleCategory[]), if this DleCategory object was restored with
+		 * an ExpandAsArray on the dle_category association table.
+		 * @var DleCategory[] _objDleCategoryAsParentidArray;
+		 */
+		private $_objDleCategoryAsParentidArray = null;
+
+		/**
 		 * Protected array of virtual attributes for this object (e.g. extra/other calculated and/or non-object bound
 		 * columns from the run-time database query result for this object).  Used by InstantiateDbRow and
 		 * GetVirtualAttribute.
@@ -189,6 +208,16 @@
 		///////////////////////////////
 		// PROTECTED MEMBER OBJECTS
 		///////////////////////////////
+
+		/**
+		 * Protected member variable that contains the object pointed by the reference
+		 * in the database column dle_category.parentid.
+		 *
+		 * NOTE: Always use the ParentidObject property getter to correctly retrieve this DleCategory object.
+		 * (Because this class implements late binding, this variable reference MAY be null.)
+		 * @var DleCategory objParentidObject
+		 */
+		protected $objParentidObject;
 
 
 
@@ -580,6 +609,46 @@
 			if (!$objDbRow) {
 				return null;
 			}
+			// See if we're doing an array expansion on the previous item
+			$strAlias = $strAliasPrefix . 'id';
+			$strAliasName = array_key_exists($strAlias, $strColumnAliasArray) ? $strColumnAliasArray[$strAlias] : $strAlias;
+			if (($strExpandAsArrayNodes) && is_array($arrPreviousItems) && count($arrPreviousItems)) {
+				foreach ($arrPreviousItems as $objPreviousItem) {
+					if ($objPreviousItem->intId == $objDbRow->GetColumn($strAliasName, 'Integer')) {
+						// We are.  Now, prepare to check for ExpandAsArray clauses
+						$blnExpandedViaArray = false;
+						if (!$strAliasPrefix)
+							$strAliasPrefix = 'dle_category__';
+
+
+						// Expanding reverse references: DleCategoryAsParentid
+						$strAlias = $strAliasPrefix . 'dlecategoryasparentid__id';
+						$strAliasName = array_key_exists($strAlias, $strColumnAliasArray) ? $strColumnAliasArray[$strAlias] : $strAlias;
+						if ((array_key_exists($strAlias, $strExpandAsArrayNodes)) &&
+							(!is_null($objDbRow->GetColumn($strAliasName)))) {
+							if(null === $objPreviousItem->_objDleCategoryAsParentidArray)
+								$objPreviousItem->_objDleCategoryAsParentidArray = array();
+							if ($intPreviousChildItemCount = count($objPreviousItem->_objDleCategoryAsParentidArray)) {
+								$objPreviousChildItems = $objPreviousItem->_objDleCategoryAsParentidArray;
+								$objChildItem = DleCategory::InstantiateDbRow($objDbRow, $strAliasPrefix . 'dlecategoryasparentid__', $strExpandAsArrayNodes, $objPreviousChildItems, $strColumnAliasArray);
+								if ($objChildItem) {
+									$objPreviousItem->_objDleCategoryAsParentidArray[] = $objChildItem;
+								}
+							} else {
+								$objPreviousItem->_objDleCategoryAsParentidArray[] = DleCategory::InstantiateDbRow($objDbRow, $strAliasPrefix . 'dlecategoryasparentid__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+							}
+							$blnExpandedViaArray = true;
+						}
+
+						// Either return false to signal array expansion, or check-to-reset the Alias prefix and move on
+						if ($blnExpandedViaArray) {
+							return false;
+						} else if ($strAliasPrefix == 'dle_category__') {
+							$strAliasPrefix = null;
+						}
+					}
+				}
+			}
 
 			// Create a new instance of the DleCategory object
 			$objToReturn = new DleCategory();
@@ -636,6 +705,14 @@
 					if ($objToReturn->Id != $objPreviousItem->Id) {
 						continue;
 					}
+					$prevCnt = count($objPreviousItem->_objDleCategoryAsParentidArray);
+					$cnt = count($objToReturn->_objDleCategoryAsParentidArray);
+					if ($prevCnt != $cnt)
+					    continue;
+					if ($prevCnt == 0 || $cnt == 0 || !array_diff($objPreviousItem->_objDleCategoryAsParentidArray, $objToReturn->_objDleCategoryAsParentidArray)) {
+						continue;
+					}
+
 
 					// complete match - all primary key columns are the same
 					return null;
@@ -654,8 +731,27 @@
 			if (!$strAliasPrefix)
 				$strAliasPrefix = 'dle_category__';
 
+			// Check for ParentidObject Early Binding
+			$strAlias = $strAliasPrefix . 'parentid__id';
+			$strAliasName = array_key_exists($strAlias, $strColumnAliasArray) ? $strColumnAliasArray[$strAlias] : $strAlias;
+			if (!is_null($objDbRow->GetColumn($strAliasName)))
+				$objToReturn->objParentidObject = DleCategory::InstantiateDbRow($objDbRow, $strAliasPrefix . 'parentid__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
 
 
+
+
+			// Check for DleCategoryAsParentid Virtual Binding
+			$strAlias = $strAliasPrefix . 'dlecategoryasparentid__id';
+			$strAliasName = array_key_exists($strAlias, $strColumnAliasArray) ? $strColumnAliasArray[$strAlias] : $strAlias;
+			$blnExpanded = $strExpandAsArrayNodes && array_key_exists($strAlias, $strExpandAsArrayNodes);
+			if ($blnExpanded && null === $objToReturn->_objDleCategoryAsParentidArray)
+				$objToReturn->_objDleCategoryAsParentidArray = array();
+			if (!is_null($objDbRow->GetColumn($strAliasName))) {
+				if ($blnExpanded)
+					$objToReturn->_objDleCategoryAsParentidArray[] = DleCategory::InstantiateDbRow($objDbRow, $strAliasPrefix . 'dlecategoryasparentid__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+				else
+					$objToReturn->_objDleCategoryAsParentid = DleCategory::InstantiateDbRow($objDbRow, $strAliasPrefix . 'dlecategoryasparentid__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+			}
 
 			return $objToReturn;
 		}
@@ -741,6 +837,38 @@
 					QQ::Equal(QQN::DleCategory()->Id, $intId)
 				),
 				$objOptionalClauses
+			);
+		}
+
+		/**
+		 * Load an array of DleCategory objects,
+		 * by Parentid Index(es)
+		 * @param integer $intParentid
+		 * @param QQClause[] $objOptionalClauses additional optional QQClause objects for this query
+		 * @return DleCategory[]
+		*/
+		public static function LoadArrayByParentid($intParentid, $objOptionalClauses = null) {
+			// Call DleCategory::QueryArray to perform the LoadArrayByParentid query
+			try {
+				return DleCategory::QueryArray(
+					QQ::Equal(QQN::DleCategory()->Parentid, $intParentid),
+					$objOptionalClauses);
+			} catch (QCallerException $objExc) {
+				$objExc->IncrementOffset();
+				throw $objExc;
+			}
+		}
+
+		/**
+		 * Count DleCategories
+		 * by Parentid Index(es)
+		 * @param integer $intParentid
+		 * @return int
+		*/
+		public static function CountByParentid($intParentid) {
+			// Call DleCategory::QueryCount to perform the CountByParentid query
+			return DleCategory::QueryCount(
+				QQ::Equal(QQN::DleCategory()->Parentid, $intParentid)
 			);
 		}
 
@@ -936,7 +1064,7 @@
 			$objReloaded = DleCategory::Load($this->intId);
 
 			// Update $this's local variables to match
-			$this->intParentid = $objReloaded->intParentid;
+			$this->Parentid = $objReloaded->Parentid;
 			$this->intPosi = $objReloaded->intPosi;
 			$this->strName = $objReloaded->strName;
 			$this->strAltName = $objReloaded->strAltName;
@@ -1079,11 +1207,41 @@
 				///////////////////
 				// Member Objects
 				///////////////////
+				case 'ParentidObject':
+					/**
+					 * Gets the value for the DleCategory object referenced by intParentid (Not Null)
+					 * @return DleCategory
+					 */
+					try {
+						if ((!$this->objParentidObject) && (!is_null($this->intParentid)))
+							$this->objParentidObject = DleCategory::Load($this->intParentid);
+						return $this->objParentidObject;
+					} catch (QCallerException $objExc) {
+						$objExc->IncrementOffset();
+						throw $objExc;
+					}
+
 
 				////////////////////////////
 				// Virtual Object References (Many to Many and Reverse References)
 				// (If restored via a "Many-to" expansion)
 				////////////////////////////
+
+				case '_DleCategoryAsParentid':
+					/**
+					 * Gets the value for the private _objDleCategoryAsParentid (Read-Only)
+					 * if set due to an expansion on the dle_category.parentid reverse relationship
+					 * @return DleCategory
+					 */
+					return $this->_objDleCategoryAsParentid;
+
+				case '_DleCategoryAsParentidArray':
+					/**
+					 * Gets the value for the private _objDleCategoryAsParentidArray (Read-Only)
+					 * if set due to an ExpandAsArray on the dle_category.parentid reverse relationship
+					 * @return DleCategory[]
+					 */
+					return $this->_objDleCategoryAsParentidArray;
 
 
 				case '__Restored':
@@ -1119,6 +1277,7 @@
 					 * @return integer
 					 */
 					try {
+						$this->objParentidObject = null;
 						return ($this->intParentid = QType::Cast($mixValue, QType::Integer));
 					} catch (QCallerException $objExc) {
 						$objExc->IncrementOffset();
@@ -1298,6 +1457,38 @@
 				///////////////////
 				// Member Objects
 				///////////////////
+				case 'ParentidObject':
+					/**
+					 * Sets the value for the DleCategory object referenced by intParentid (Not Null)
+					 * @param DleCategory $mixValue
+					 * @return DleCategory
+					 */
+					if (is_null($mixValue)) {
+						$this->intParentid = null;
+						$this->objParentidObject = null;
+						return null;
+					} else {
+						// Make sure $mixValue actually is a DleCategory object
+						try {
+							$mixValue = QType::Cast($mixValue, 'DleCategory');
+						} catch (QInvalidCastException $objExc) {
+							$objExc->IncrementOffset();
+							throw $objExc;
+						}
+
+						// Make sure $mixValue is a SAVED DleCategory object
+						if (is_null($mixValue->Id))
+							throw new QCallerException('Unable to set an unsaved ParentidObject for this DleCategory');
+
+						// Update Local Member Variables
+						$this->objParentidObject = $mixValue;
+						$this->intParentid = $mixValue->Id;
+
+						// Return $mixValue
+						return $mixValue;
+					}
+					break;
+
 				default:
 					try {
 						return parent::__set($strName, $mixValue);
@@ -1325,6 +1516,155 @@
 		// ASSOCIATED OBJECTS' METHODS
 		///////////////////////////////
 
+
+
+		// Related Objects' Methods for DleCategoryAsParentid
+		//-------------------------------------------------------------------
+
+		/**
+		 * Gets all associated DleCategoriesAsParentid as an array of DleCategory objects
+		 * @param QQClause[] $objOptionalClauses additional optional QQClause objects for this query
+		 * @return DleCategory[]
+		*/
+		public function GetDleCategoryAsParentidArray($objOptionalClauses = null) {
+			if ((is_null($this->intId)))
+				return array();
+
+			try {
+				return DleCategory::LoadArrayByParentid($this->intId, $objOptionalClauses);
+			} catch (QCallerException $objExc) {
+				$objExc->IncrementOffset();
+				throw $objExc;
+			}
+		}
+
+		/**
+		 * Counts all associated DleCategoriesAsParentid
+		 * @return int
+		*/
+		public function CountDleCategoriesAsParentid() {
+			if ((is_null($this->intId)))
+				return 0;
+
+			return DleCategory::CountByParentid($this->intId);
+		}
+
+		/**
+		 * Associates a DleCategoryAsParentid
+		 * @param DleCategory $objDleCategory
+		 * @return void
+		*/
+		public function AssociateDleCategoryAsParentid(DleCategory $objDleCategory) {
+			if ((is_null($this->intId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call AssociateDleCategoryAsParentid on this unsaved DleCategory.');
+			if ((is_null($objDleCategory->Id)))
+				throw new QUndefinedPrimaryKeyException('Unable to call AssociateDleCategoryAsParentid on this DleCategory with an unsaved DleCategory.');
+
+			// Get the Database Object for this Class
+			$objDatabase = DleCategory::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				UPDATE
+					`dle_category`
+				SET
+					`parentid` = ' . $objDatabase->SqlVariable($this->intId) . '
+				WHERE
+					`id` = ' . $objDatabase->SqlVariable($objDleCategory->Id) . ' 
+			');
+		}
+
+		/**
+		 * Unassociates a DleCategoryAsParentid
+		 * @param DleCategory $objDleCategory
+		 * @return void
+		*/
+		public function UnassociateDleCategoryAsParentid(DleCategory $objDleCategory) {
+			if ((is_null($this->intId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateDleCategoryAsParentid on this unsaved DleCategory.');
+			if ((is_null($objDleCategory->Id)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateDleCategoryAsParentid on this DleCategory with an unsaved DleCategory.');
+
+			// Get the Database Object for this Class
+			$objDatabase = DleCategory::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				UPDATE
+					`dle_category`
+				SET
+					`parentid` = null
+				WHERE
+					`id` = ' . $objDatabase->SqlVariable($objDleCategory->Id) . ' AND
+					`parentid` = ' . $objDatabase->SqlVariable($this->intId) . '
+			');
+		}
+
+		/**
+		 * Unassociates all DleCategoriesAsParentid
+		 * @return void
+		*/
+		public function UnassociateAllDleCategoriesAsParentid() {
+			if ((is_null($this->intId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateDleCategoryAsParentid on this unsaved DleCategory.');
+
+			// Get the Database Object for this Class
+			$objDatabase = DleCategory::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				UPDATE
+					`dle_category`
+				SET
+					`parentid` = null
+				WHERE
+					`parentid` = ' . $objDatabase->SqlVariable($this->intId) . '
+			');
+		}
+
+		/**
+		 * Deletes an associated DleCategoryAsParentid
+		 * @param DleCategory $objDleCategory
+		 * @return void
+		*/
+		public function DeleteAssociatedDleCategoryAsParentid(DleCategory $objDleCategory) {
+			if ((is_null($this->intId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateDleCategoryAsParentid on this unsaved DleCategory.');
+			if ((is_null($objDleCategory->Id)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateDleCategoryAsParentid on this DleCategory with an unsaved DleCategory.');
+
+			// Get the Database Object for this Class
+			$objDatabase = DleCategory::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				DELETE FROM
+					`dle_category`
+				WHERE
+					`id` = ' . $objDatabase->SqlVariable($objDleCategory->Id) . ' AND
+					`parentid` = ' . $objDatabase->SqlVariable($this->intId) . '
+			');
+		}
+
+		/**
+		 * Deletes all associated DleCategoriesAsParentid
+		 * @return void
+		*/
+		public function DeleteAllDleCategoriesAsParentid() {
+			if ((is_null($this->intId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateDleCategoryAsParentid on this unsaved DleCategory.');
+
+			// Get the Database Object for this Class
+			$objDatabase = DleCategory::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				DELETE FROM
+					`dle_category`
+				WHERE
+					`parentid` = ' . $objDatabase->SqlVariable($this->intId) . '
+			');
+		}
 
 
 		
@@ -1366,7 +1706,7 @@
 		public static function GetSoapComplexTypeXml() {
 			$strToReturn = '<complexType name="DleCategory"><sequence>';
 			$strToReturn .= '<element name="Id" type="xsd:int"/>';
-			$strToReturn .= '<element name="Parentid" type="xsd:int"/>';
+			$strToReturn .= '<element name="ParentidObject" type="xsd1:DleCategory"/>';
 			$strToReturn .= '<element name="Posi" type="xsd:int"/>';
 			$strToReturn .= '<element name="Name" type="xsd:string"/>';
 			$strToReturn .= '<element name="AltName" type="xsd:string"/>';
@@ -1388,6 +1728,7 @@
 		public static function AlterSoapComplexTypeArray(&$strComplexTypeArray) {
 			if (!array_key_exists('DleCategory', $strComplexTypeArray)) {
 				$strComplexTypeArray['DleCategory'] = DleCategory::GetSoapComplexTypeXml();
+				DleCategory::AlterSoapComplexTypeArray($strComplexTypeArray);
 			}
 		}
 
@@ -1404,8 +1745,9 @@
 			$objToReturn = new DleCategory();
 			if (property_exists($objSoapObject, 'Id'))
 				$objToReturn->intId = $objSoapObject->Id;
-			if (property_exists($objSoapObject, 'Parentid'))
-				$objToReturn->intParentid = $objSoapObject->Parentid;
+			if ((property_exists($objSoapObject, 'ParentidObject')) &&
+				($objSoapObject->ParentidObject))
+				$objToReturn->ParentidObject = DleCategory::GetObjectFromSoapObject($objSoapObject->ParentidObject);
 			if (property_exists($objSoapObject, 'Posi'))
 				$objToReturn->intPosi = $objSoapObject->Posi;
 			if (property_exists($objSoapObject, 'Name'))
@@ -1450,6 +1792,10 @@
 		}
 
 		public static function GetSoapObjectFromObject($objObject, $blnBindRelatedObjects) {
+			if ($objObject->objParentidObject)
+				$objObject->objParentidObject = DleCategory::GetSoapObjectFromObject($objObject->objParentidObject, false);
+			else if (!$blnBindRelatedObjects)
+				$objObject->intParentid = null;
 			return $objObject;
 		}
 
@@ -1518,6 +1864,7 @@
      *
      * @property-read QQNode $Id
      * @property-read QQNode $Parentid
+     * @property-read QQNodeDleCategory $ParentidObject
      * @property-read QQNode $Posi
      * @property-read QQNode $Name
      * @property-read QQNode $AltName
@@ -1533,6 +1880,7 @@
      * @property-read QQNode $Metatitle
      *
      *
+     * @property-read QQReverseReferenceNodeDleCategory $DleCategoryAsParentid
 
      * @property-read QQNode $_PrimaryKeyNode
      **/
@@ -1546,6 +1894,8 @@
 					return new QQNode('id', 'Id', 'Integer', $this);
 				case 'Parentid':
 					return new QQNode('parentid', 'Parentid', 'Integer', $this);
+				case 'ParentidObject':
+					return new QQNodeDleCategory('parentid', 'ParentidObject', 'Integer', $this);
 				case 'Posi':
 					return new QQNode('posi', 'Posi', 'Integer', $this);
 				case 'Name':
@@ -1572,6 +1922,8 @@
 					return new QQNode('full_tpl', 'FullTpl', 'VarChar', $this);
 				case 'Metatitle':
 					return new QQNode('metatitle', 'Metatitle', 'VarChar', $this);
+				case 'DleCategoryAsParentid':
+					return new QQReverseReferenceNodeDleCategory($this, 'dlecategoryasparentid', 'reverse_reference', 'parentid');
 
 				case '_PrimaryKeyNode':
 					return new QQNode('id', 'Id', 'Integer', $this);
@@ -1589,6 +1941,7 @@
     /**
      * @property-read QQNode $Id
      * @property-read QQNode $Parentid
+     * @property-read QQNodeDleCategory $ParentidObject
      * @property-read QQNode $Posi
      * @property-read QQNode $Name
      * @property-read QQNode $AltName
@@ -1604,6 +1957,7 @@
      * @property-read QQNode $Metatitle
      *
      *
+     * @property-read QQReverseReferenceNodeDleCategory $DleCategoryAsParentid
 
      * @property-read QQNode $_PrimaryKeyNode
      **/
@@ -1617,6 +1971,8 @@
 					return new QQNode('id', 'Id', 'integer', $this);
 				case 'Parentid':
 					return new QQNode('parentid', 'Parentid', 'integer', $this);
+				case 'ParentidObject':
+					return new QQNodeDleCategory('parentid', 'ParentidObject', 'integer', $this);
 				case 'Posi':
 					return new QQNode('posi', 'Posi', 'integer', $this);
 				case 'Name':
@@ -1643,6 +1999,8 @@
 					return new QQNode('full_tpl', 'FullTpl', 'string', $this);
 				case 'Metatitle':
 					return new QQNode('metatitle', 'Metatitle', 'string', $this);
+				case 'DleCategoryAsParentid':
+					return new QQReverseReferenceNodeDleCategory($this, 'dlecategoryasparentid', 'reverse_reference', 'parentid');
 
 				case '_PrimaryKeyNode':
 					return new QQNode('id', 'Id', 'integer', $this);

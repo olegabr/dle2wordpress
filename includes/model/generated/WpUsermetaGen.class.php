@@ -19,6 +19,7 @@
 	 * @property integer $UserId the value for intUserId (Not Null)
 	 * @property string $MetaKey the value for strMetaKey 
 	 * @property string $MetaValue the value for strMetaValue 
+	 * @property WpUsers $User the value for the WpUsers object referenced by intUserId (Not Null)
 	 * @property-read boolean $__Restored whether or not this object was restored from the database (as opposed to created new)
 	 */
 	class WpUsermetaGen extends QBaseClass implements IteratorAggregate {
@@ -81,6 +82,16 @@
 		///////////////////////////////
 		// PROTECTED MEMBER OBJECTS
 		///////////////////////////////
+
+		/**
+		 * Protected member variable that contains the object pointed by the reference
+		 * in the database column wp_usermeta.user_id.
+		 *
+		 * NOTE: Always use the User property getter to correctly retrieve this WpUsers object.
+		 * (Because this class implements late binding, this variable reference MAY be null.)
+		 * @var WpUsers objUser
+		 */
+		protected $objUser;
 
 
 
@@ -491,6 +502,12 @@
 			if (!$strAliasPrefix)
 				$strAliasPrefix = 'wp_usermeta__';
 
+			// Check for User Early Binding
+			$strAlias = $strAliasPrefix . 'user_id__ID';
+			$strAliasName = array_key_exists($strAlias, $strColumnAliasArray) ? $strColumnAliasArray[$strAlias] : $strAlias;
+			if (!is_null($objDbRow->GetColumn($strAliasName)))
+				$objToReturn->objUser = WpUsers::InstantiateDbRow($objDbRow, $strAliasPrefix . 'user_id__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+
 
 
 
@@ -804,7 +821,7 @@
 			$objReloaded = WpUsermeta::Load($this->intUmetaId);
 
 			// Update $this's local variables to match
-			$this->intUserId = $objReloaded->intUserId;
+			$this->UserId = $objReloaded->UserId;
 			$this->strMetaKey = $objReloaded->strMetaKey;
 			$this->strMetaValue = $objReloaded->strMetaValue;
 		}
@@ -859,6 +876,20 @@
 				///////////////////
 				// Member Objects
 				///////////////////
+				case 'User':
+					/**
+					 * Gets the value for the WpUsers object referenced by intUserId (Not Null)
+					 * @return WpUsers
+					 */
+					try {
+						if ((!$this->objUser) && (!is_null($this->intUserId)))
+							$this->objUser = WpUsers::Load($this->intUserId);
+						return $this->objUser;
+					} catch (QCallerException $objExc) {
+						$objExc->IncrementOffset();
+						throw $objExc;
+					}
+
 
 				////////////////////////////
 				// Virtual Object References (Many to Many and Reverse References)
@@ -899,6 +930,7 @@
 					 * @return integer
 					 */
 					try {
+						$this->objUser = null;
 						return ($this->intUserId = QType::Cast($mixValue, QType::Integer));
 					} catch (QCallerException $objExc) {
 						$objExc->IncrementOffset();
@@ -935,6 +967,38 @@
 				///////////////////
 				// Member Objects
 				///////////////////
+				case 'User':
+					/**
+					 * Sets the value for the WpUsers object referenced by intUserId (Not Null)
+					 * @param WpUsers $mixValue
+					 * @return WpUsers
+					 */
+					if (is_null($mixValue)) {
+						$this->intUserId = null;
+						$this->objUser = null;
+						return null;
+					} else {
+						// Make sure $mixValue actually is a WpUsers object
+						try {
+							$mixValue = QType::Cast($mixValue, 'WpUsers');
+						} catch (QInvalidCastException $objExc) {
+							$objExc->IncrementOffset();
+							throw $objExc;
+						}
+
+						// Make sure $mixValue is a SAVED WpUsers object
+						if (is_null($mixValue->Id))
+							throw new QCallerException('Unable to set an unsaved User for this WpUsermeta');
+
+						// Update Local Member Variables
+						$this->objUser = $mixValue;
+						$this->intUserId = $mixValue->Id;
+
+						// Return $mixValue
+						return $mixValue;
+					}
+					break;
+
 				default:
 					try {
 						return parent::__set($strName, $mixValue);
@@ -1003,7 +1067,7 @@
 		public static function GetSoapComplexTypeXml() {
 			$strToReturn = '<complexType name="WpUsermeta"><sequence>';
 			$strToReturn .= '<element name="UmetaId" type="xsd:int"/>';
-			$strToReturn .= '<element name="UserId" type="xsd:int"/>';
+			$strToReturn .= '<element name="User" type="xsd1:WpUsers"/>';
 			$strToReturn .= '<element name="MetaKey" type="xsd:string"/>';
 			$strToReturn .= '<element name="MetaValue" type="xsd:string"/>';
 			$strToReturn .= '<element name="__blnRestored" type="xsd:boolean"/>';
@@ -1014,6 +1078,7 @@
 		public static function AlterSoapComplexTypeArray(&$strComplexTypeArray) {
 			if (!array_key_exists('WpUsermeta', $strComplexTypeArray)) {
 				$strComplexTypeArray['WpUsermeta'] = WpUsermeta::GetSoapComplexTypeXml();
+				WpUsers::AlterSoapComplexTypeArray($strComplexTypeArray);
 			}
 		}
 
@@ -1030,8 +1095,9 @@
 			$objToReturn = new WpUsermeta();
 			if (property_exists($objSoapObject, 'UmetaId'))
 				$objToReturn->intUmetaId = $objSoapObject->UmetaId;
-			if (property_exists($objSoapObject, 'UserId'))
-				$objToReturn->intUserId = $objSoapObject->UserId;
+			if ((property_exists($objSoapObject, 'User')) &&
+				($objSoapObject->User))
+				$objToReturn->User = WpUsers::GetObjectFromSoapObject($objSoapObject->User);
 			if (property_exists($objSoapObject, 'MetaKey'))
 				$objToReturn->strMetaKey = $objSoapObject->MetaKey;
 			if (property_exists($objSoapObject, 'MetaValue'))
@@ -1054,6 +1120,10 @@
 		}
 
 		public static function GetSoapObjectFromObject($objObject, $blnBindRelatedObjects) {
+			if ($objObject->objUser)
+				$objObject->objUser = WpUsers::GetSoapObjectFromObject($objObject->objUser, false);
+			else if (!$blnBindRelatedObjects)
+				$objObject->intUserId = null;
 			return $objObject;
 		}
 
@@ -1111,6 +1181,7 @@
      *
      * @property-read QQNode $UmetaId
      * @property-read QQNode $UserId
+     * @property-read QQNodeWpUsers $User
      * @property-read QQNode $MetaKey
      * @property-read QQNode $MetaValue
      *
@@ -1128,6 +1199,8 @@
 					return new QQNode('umeta_id', 'UmetaId', 'Integer', $this);
 				case 'UserId':
 					return new QQNode('user_id', 'UserId', 'Integer', $this);
+				case 'User':
+					return new QQNodeWpUsers('user_id', 'User', 'Integer', $this);
 				case 'MetaKey':
 					return new QQNode('meta_key', 'MetaKey', 'VarChar', $this);
 				case 'MetaValue':
@@ -1149,6 +1222,7 @@
     /**
      * @property-read QQNode $UmetaId
      * @property-read QQNode $UserId
+     * @property-read QQNodeWpUsers $User
      * @property-read QQNode $MetaKey
      * @property-read QQNode $MetaValue
      *
@@ -1166,6 +1240,8 @@
 					return new QQNode('umeta_id', 'UmetaId', 'integer', $this);
 				case 'UserId':
 					return new QQNode('user_id', 'UserId', 'integer', $this);
+				case 'User':
+					return new QQNodeWpUsers('user_id', 'User', 'integer', $this);
 				case 'MetaKey':
 					return new QQNode('meta_key', 'MetaKey', 'string', $this);
 				case 'MetaValue':

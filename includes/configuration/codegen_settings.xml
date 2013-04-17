@@ -77,6 +77,11 @@
 				    	ALTER TABLE foo ADD CONSTRAINT blah FOREIGN KEY (bar_id) REFERENCES bar (id);
 			-->
 			<relationships><![CDATA[
+				dle_category.parentid => dle_category.id
+				dle_post.autor => dle_users.name
+				dle_comments.post_id => dle_post.id
+				dle_comments.user_id => dle_users.user_id
+				dle_tags.news_id => dle_post.id
 			]]></relationships>
 			<relationshipsScript filepath="" format="sql"/>
 		</database>
@@ -146,6 +151,24 @@
 				    	ALTER TABLE foo ADD CONSTRAINT blah FOREIGN KEY (bar_id) REFERENCES bar (id);
 			-->
 			<relationships><![CDATA[
+				wp_comments.comment_post_ID => wp_posts.ID
+				wp_comments.comment_parent => wp_comments.comment_ID
+				wp_comments.user_id => wp_users.ID
+				wp_pollsa.polla_qid => wp_pollsq.pollq_id
+				wp_pollsip.pollip_qid => wp_pollsq.pollq_id
+				wp_pollsip.pollip_aid => wp_pollsa.polla_aid
+				wp_pollsip.pollip_userid => wp_users.ID
+				wp_postmeta.post_id => wp_posts.ID
+				wp_posts.post_author => wp_users.ID
+				wp_posts.post_parent => wp_posts.ID
+				wp_pvc_daily.postnum => wp_posts.ID
+				wp_pvc_total.postnum => wp_posts.ID
+				wp_term_relationships.term_taxonomy_id => wp_term_taxonomy.term_taxonomy_id
+				wp_term_taxonomy.term_id => wp_terms.term_id
+				wp_term_taxonomy.parent => wp_term_taxonomy.term_taxonomy_id
+				wp_usermeta.user_id => wp_users.ID
+				wp_wti_like_post.post_id => wp_posts.ID
+				wp_wti_like_post.user_id => wp_users.ID
 			]]></relationships>
 			<relationshipsScript filepath="" format="sql"/>
 		</database>

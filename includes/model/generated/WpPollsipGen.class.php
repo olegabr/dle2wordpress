@@ -23,6 +23,9 @@
 	 * @property string $PollipTimestamp the value for strPollipTimestamp (Not Null)
 	 * @property string $PollipUser the value for strPollipUser (Not Null)
 	 * @property integer $PollipUserid the value for intPollipUserid (Not Null)
+	 * @property WpPollsq $PollipQidObject the value for the WpPollsq object referenced by strPollipQid (Not Null)
+	 * @property WpPollsa $PollipAidObject the value for the WpPollsa object referenced by strPollipAid (Not Null)
+	 * @property WpUsers $PollipUseridObject the value for the WpUsers object referenced by intPollipUserid (Not Null)
 	 * @property-read boolean $__Restored whether or not this object was restored from the database (as opposed to created new)
 	 */
 	class WpPollsipGen extends QBaseClass implements IteratorAggregate {
@@ -121,6 +124,36 @@
 		///////////////////////////////
 		// PROTECTED MEMBER OBJECTS
 		///////////////////////////////
+
+		/**
+		 * Protected member variable that contains the object pointed by the reference
+		 * in the database column wp_pollsip.pollip_qid.
+		 *
+		 * NOTE: Always use the PollipQidObject property getter to correctly retrieve this WpPollsq object.
+		 * (Because this class implements late binding, this variable reference MAY be null.)
+		 * @var WpPollsq objPollipQidObject
+		 */
+		protected $objPollipQidObject;
+
+		/**
+		 * Protected member variable that contains the object pointed by the reference
+		 * in the database column wp_pollsip.pollip_aid.
+		 *
+		 * NOTE: Always use the PollipAidObject property getter to correctly retrieve this WpPollsa object.
+		 * (Because this class implements late binding, this variable reference MAY be null.)
+		 * @var WpPollsa objPollipAidObject
+		 */
+		protected $objPollipAidObject;
+
+		/**
+		 * Protected member variable that contains the object pointed by the reference
+		 * in the database column wp_pollsip.pollip_userid.
+		 *
+		 * NOTE: Always use the PollipUseridObject property getter to correctly retrieve this WpUsers object.
+		 * (Because this class implements late binding, this variable reference MAY be null.)
+		 * @var WpUsers objPollipUseridObject
+		 */
+		protected $objPollipUseridObject;
 
 
 
@@ -551,6 +584,24 @@
 			if (!$strAliasPrefix)
 				$strAliasPrefix = 'wp_pollsip__';
 
+			// Check for PollipQidObject Early Binding
+			$strAlias = $strAliasPrefix . 'pollip_qid__pollq_id';
+			$strAliasName = array_key_exists($strAlias, $strColumnAliasArray) ? $strColumnAliasArray[$strAlias] : $strAlias;
+			if (!is_null($objDbRow->GetColumn($strAliasName)))
+				$objToReturn->objPollipQidObject = WpPollsq::InstantiateDbRow($objDbRow, $strAliasPrefix . 'pollip_qid__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+
+			// Check for PollipAidObject Early Binding
+			$strAlias = $strAliasPrefix . 'pollip_aid__polla_aid';
+			$strAliasName = array_key_exists($strAlias, $strColumnAliasArray) ? $strColumnAliasArray[$strAlias] : $strAlias;
+			if (!is_null($objDbRow->GetColumn($strAliasName)))
+				$objToReturn->objPollipAidObject = WpPollsa::InstantiateDbRow($objDbRow, $strAliasPrefix . 'pollip_aid__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+
+			// Check for PollipUseridObject Early Binding
+			$strAlias = $strAliasPrefix . 'pollip_userid__ID';
+			$strAliasName = array_key_exists($strAlias, $strColumnAliasArray) ? $strColumnAliasArray[$strAlias] : $strAlias;
+			if (!is_null($objDbRow->GetColumn($strAliasName)))
+				$objToReturn->objPollipUseridObject = WpUsers::InstantiateDbRow($objDbRow, $strAliasPrefix . 'pollip_userid__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+
 
 
 
@@ -670,6 +721,70 @@
 			// Call WpPollsip::QueryCount to perform the CountByPollipQid query
 			return WpPollsip::QueryCount(
 				QQ::Equal(QQN::WpPollsip()->PollipQid, $strPollipQid)
+			);
+		}
+
+		/**
+		 * Load an array of WpPollsip objects,
+		 * by PollipAid Index(es)
+		 * @param string $strPollipAid
+		 * @param QQClause[] $objOptionalClauses additional optional QQClause objects for this query
+		 * @return WpPollsip[]
+		*/
+		public static function LoadArrayByPollipAid($strPollipAid, $objOptionalClauses = null) {
+			// Call WpPollsip::QueryArray to perform the LoadArrayByPollipAid query
+			try {
+				return WpPollsip::QueryArray(
+					QQ::Equal(QQN::WpPollsip()->PollipAid, $strPollipAid),
+					$objOptionalClauses);
+			} catch (QCallerException $objExc) {
+				$objExc->IncrementOffset();
+				throw $objExc;
+			}
+		}
+
+		/**
+		 * Count WpPollsips
+		 * by PollipAid Index(es)
+		 * @param string $strPollipAid
+		 * @return int
+		*/
+		public static function CountByPollipAid($strPollipAid) {
+			// Call WpPollsip::QueryCount to perform the CountByPollipAid query
+			return WpPollsip::QueryCount(
+				QQ::Equal(QQN::WpPollsip()->PollipAid, $strPollipAid)
+			);
+		}
+
+		/**
+		 * Load an array of WpPollsip objects,
+		 * by PollipUserid Index(es)
+		 * @param integer $intPollipUserid
+		 * @param QQClause[] $objOptionalClauses additional optional QQClause objects for this query
+		 * @return WpPollsip[]
+		*/
+		public static function LoadArrayByPollipUserid($intPollipUserid, $objOptionalClauses = null) {
+			// Call WpPollsip::QueryArray to perform the LoadArrayByPollipUserid query
+			try {
+				return WpPollsip::QueryArray(
+					QQ::Equal(QQN::WpPollsip()->PollipUserid, $intPollipUserid),
+					$objOptionalClauses);
+			} catch (QCallerException $objExc) {
+				$objExc->IncrementOffset();
+				throw $objExc;
+			}
+		}
+
+		/**
+		 * Count WpPollsips
+		 * by PollipUserid Index(es)
+		 * @param integer $intPollipUserid
+		 * @return int
+		*/
+		public static function CountByPollipUserid($intPollipUserid) {
+			// Call WpPollsip::QueryCount to perform the CountByPollipUserid query
+			return WpPollsip::QueryCount(
+				QQ::Equal(QQN::WpPollsip()->PollipUserid, $intPollipUserid)
 			);
 		}
 
@@ -844,13 +959,13 @@
 			$objReloaded = WpPollsip::Load($this->intPollipId);
 
 			// Update $this's local variables to match
-			$this->strPollipQid = $objReloaded->strPollipQid;
-			$this->strPollipAid = $objReloaded->strPollipAid;
+			$this->PollipQid = $objReloaded->PollipQid;
+			$this->PollipAid = $objReloaded->PollipAid;
 			$this->strPollipIp = $objReloaded->strPollipIp;
 			$this->strPollipHost = $objReloaded->strPollipHost;
 			$this->strPollipTimestamp = $objReloaded->strPollipTimestamp;
 			$this->strPollipUser = $objReloaded->strPollipUser;
-			$this->intPollipUserid = $objReloaded->intPollipUserid;
+			$this->PollipUserid = $objReloaded->PollipUserid;
 		}
 
 
@@ -931,6 +1046,48 @@
 				///////////////////
 				// Member Objects
 				///////////////////
+				case 'PollipQidObject':
+					/**
+					 * Gets the value for the WpPollsq object referenced by strPollipQid (Not Null)
+					 * @return WpPollsq
+					 */
+					try {
+						if ((!$this->objPollipQidObject) && (!is_null($this->strPollipQid)))
+							$this->objPollipQidObject = WpPollsq::Load($this->strPollipQid);
+						return $this->objPollipQidObject;
+					} catch (QCallerException $objExc) {
+						$objExc->IncrementOffset();
+						throw $objExc;
+					}
+
+				case 'PollipAidObject':
+					/**
+					 * Gets the value for the WpPollsa object referenced by strPollipAid (Not Null)
+					 * @return WpPollsa
+					 */
+					try {
+						if ((!$this->objPollipAidObject) && (!is_null($this->strPollipAid)))
+							$this->objPollipAidObject = WpPollsa::Load($this->strPollipAid);
+						return $this->objPollipAidObject;
+					} catch (QCallerException $objExc) {
+						$objExc->IncrementOffset();
+						throw $objExc;
+					}
+
+				case 'PollipUseridObject':
+					/**
+					 * Gets the value for the WpUsers object referenced by intPollipUserid (Not Null)
+					 * @return WpUsers
+					 */
+					try {
+						if ((!$this->objPollipUseridObject) && (!is_null($this->intPollipUserid)))
+							$this->objPollipUseridObject = WpUsers::Load($this->intPollipUserid);
+						return $this->objPollipUseridObject;
+					} catch (QCallerException $objExc) {
+						$objExc->IncrementOffset();
+						throw $objExc;
+					}
+
 
 				////////////////////////////
 				// Virtual Object References (Many to Many and Reverse References)
@@ -971,6 +1128,7 @@
 					 * @return string
 					 */
 					try {
+						$this->objPollipQidObject = null;
 						return ($this->strPollipQid = QType::Cast($mixValue, QType::String));
 					} catch (QCallerException $objExc) {
 						$objExc->IncrementOffset();
@@ -984,6 +1142,7 @@
 					 * @return string
 					 */
 					try {
+						$this->objPollipAidObject = null;
 						return ($this->strPollipAid = QType::Cast($mixValue, QType::String));
 					} catch (QCallerException $objExc) {
 						$objExc->IncrementOffset();
@@ -1049,6 +1208,7 @@
 					 * @return integer
 					 */
 					try {
+						$this->objPollipUseridObject = null;
 						return ($this->intPollipUserid = QType::Cast($mixValue, QType::Integer));
 					} catch (QCallerException $objExc) {
 						$objExc->IncrementOffset();
@@ -1059,6 +1219,102 @@
 				///////////////////
 				// Member Objects
 				///////////////////
+				case 'PollipQidObject':
+					/**
+					 * Sets the value for the WpPollsq object referenced by strPollipQid (Not Null)
+					 * @param WpPollsq $mixValue
+					 * @return WpPollsq
+					 */
+					if (is_null($mixValue)) {
+						$this->strPollipQid = null;
+						$this->objPollipQidObject = null;
+						return null;
+					} else {
+						// Make sure $mixValue actually is a WpPollsq object
+						try {
+							$mixValue = QType::Cast($mixValue, 'WpPollsq');
+						} catch (QInvalidCastException $objExc) {
+							$objExc->IncrementOffset();
+							throw $objExc;
+						}
+
+						// Make sure $mixValue is a SAVED WpPollsq object
+						if (is_null($mixValue->PollqId))
+							throw new QCallerException('Unable to set an unsaved PollipQidObject for this WpPollsip');
+
+						// Update Local Member Variables
+						$this->objPollipQidObject = $mixValue;
+						$this->strPollipQid = $mixValue->PollqId;
+
+						// Return $mixValue
+						return $mixValue;
+					}
+					break;
+
+				case 'PollipAidObject':
+					/**
+					 * Sets the value for the WpPollsa object referenced by strPollipAid (Not Null)
+					 * @param WpPollsa $mixValue
+					 * @return WpPollsa
+					 */
+					if (is_null($mixValue)) {
+						$this->strPollipAid = null;
+						$this->objPollipAidObject = null;
+						return null;
+					} else {
+						// Make sure $mixValue actually is a WpPollsa object
+						try {
+							$mixValue = QType::Cast($mixValue, 'WpPollsa');
+						} catch (QInvalidCastException $objExc) {
+							$objExc->IncrementOffset();
+							throw $objExc;
+						}
+
+						// Make sure $mixValue is a SAVED WpPollsa object
+						if (is_null($mixValue->PollaAid))
+							throw new QCallerException('Unable to set an unsaved PollipAidObject for this WpPollsip');
+
+						// Update Local Member Variables
+						$this->objPollipAidObject = $mixValue;
+						$this->strPollipAid = $mixValue->PollaAid;
+
+						// Return $mixValue
+						return $mixValue;
+					}
+					break;
+
+				case 'PollipUseridObject':
+					/**
+					 * Sets the value for the WpUsers object referenced by intPollipUserid (Not Null)
+					 * @param WpUsers $mixValue
+					 * @return WpUsers
+					 */
+					if (is_null($mixValue)) {
+						$this->intPollipUserid = null;
+						$this->objPollipUseridObject = null;
+						return null;
+					} else {
+						// Make sure $mixValue actually is a WpUsers object
+						try {
+							$mixValue = QType::Cast($mixValue, 'WpUsers');
+						} catch (QInvalidCastException $objExc) {
+							$objExc->IncrementOffset();
+							throw $objExc;
+						}
+
+						// Make sure $mixValue is a SAVED WpUsers object
+						if (is_null($mixValue->Id))
+							throw new QCallerException('Unable to set an unsaved PollipUseridObject for this WpPollsip');
+
+						// Update Local Member Variables
+						$this->objPollipUseridObject = $mixValue;
+						$this->intPollipUserid = $mixValue->Id;
+
+						// Return $mixValue
+						return $mixValue;
+					}
+					break;
+
 				default:
 					try {
 						return parent::__set($strName, $mixValue);
@@ -1127,13 +1383,13 @@
 		public static function GetSoapComplexTypeXml() {
 			$strToReturn = '<complexType name="WpPollsip"><sequence>';
 			$strToReturn .= '<element name="PollipId" type="xsd:int"/>';
-			$strToReturn .= '<element name="PollipQid" type="xsd:string"/>';
-			$strToReturn .= '<element name="PollipAid" type="xsd:string"/>';
+			$strToReturn .= '<element name="PollipQidObject" type="xsd1:WpPollsq"/>';
+			$strToReturn .= '<element name="PollipAidObject" type="xsd1:WpPollsa"/>';
 			$strToReturn .= '<element name="PollipIp" type="xsd:string"/>';
 			$strToReturn .= '<element name="PollipHost" type="xsd:string"/>';
 			$strToReturn .= '<element name="PollipTimestamp" type="xsd:string"/>';
 			$strToReturn .= '<element name="PollipUser" type="xsd:string"/>';
-			$strToReturn .= '<element name="PollipUserid" type="xsd:int"/>';
+			$strToReturn .= '<element name="PollipUseridObject" type="xsd1:WpUsers"/>';
 			$strToReturn .= '<element name="__blnRestored" type="xsd:boolean"/>';
 			$strToReturn .= '</sequence></complexType>';
 			return $strToReturn;
@@ -1142,6 +1398,9 @@
 		public static function AlterSoapComplexTypeArray(&$strComplexTypeArray) {
 			if (!array_key_exists('WpPollsip', $strComplexTypeArray)) {
 				$strComplexTypeArray['WpPollsip'] = WpPollsip::GetSoapComplexTypeXml();
+				WpPollsq::AlterSoapComplexTypeArray($strComplexTypeArray);
+				WpPollsa::AlterSoapComplexTypeArray($strComplexTypeArray);
+				WpUsers::AlterSoapComplexTypeArray($strComplexTypeArray);
 			}
 		}
 
@@ -1158,10 +1417,12 @@
 			$objToReturn = new WpPollsip();
 			if (property_exists($objSoapObject, 'PollipId'))
 				$objToReturn->intPollipId = $objSoapObject->PollipId;
-			if (property_exists($objSoapObject, 'PollipQid'))
-				$objToReturn->strPollipQid = $objSoapObject->PollipQid;
-			if (property_exists($objSoapObject, 'PollipAid'))
-				$objToReturn->strPollipAid = $objSoapObject->PollipAid;
+			if ((property_exists($objSoapObject, 'PollipQidObject')) &&
+				($objSoapObject->PollipQidObject))
+				$objToReturn->PollipQidObject = WpPollsq::GetObjectFromSoapObject($objSoapObject->PollipQidObject);
+			if ((property_exists($objSoapObject, 'PollipAidObject')) &&
+				($objSoapObject->PollipAidObject))
+				$objToReturn->PollipAidObject = WpPollsa::GetObjectFromSoapObject($objSoapObject->PollipAidObject);
 			if (property_exists($objSoapObject, 'PollipIp'))
 				$objToReturn->strPollipIp = $objSoapObject->PollipIp;
 			if (property_exists($objSoapObject, 'PollipHost'))
@@ -1170,8 +1431,9 @@
 				$objToReturn->strPollipTimestamp = $objSoapObject->PollipTimestamp;
 			if (property_exists($objSoapObject, 'PollipUser'))
 				$objToReturn->strPollipUser = $objSoapObject->PollipUser;
-			if (property_exists($objSoapObject, 'PollipUserid'))
-				$objToReturn->intPollipUserid = $objSoapObject->PollipUserid;
+			if ((property_exists($objSoapObject, 'PollipUseridObject')) &&
+				($objSoapObject->PollipUseridObject))
+				$objToReturn->PollipUseridObject = WpUsers::GetObjectFromSoapObject($objSoapObject->PollipUseridObject);
 			if (property_exists($objSoapObject, '__blnRestored'))
 				$objToReturn->__blnRestored = $objSoapObject->__blnRestored;
 			return $objToReturn;
@@ -1190,6 +1452,18 @@
 		}
 
 		public static function GetSoapObjectFromObject($objObject, $blnBindRelatedObjects) {
+			if ($objObject->objPollipQidObject)
+				$objObject->objPollipQidObject = WpPollsq::GetSoapObjectFromObject($objObject->objPollipQidObject, false);
+			else if (!$blnBindRelatedObjects)
+				$objObject->strPollipQid = null;
+			if ($objObject->objPollipAidObject)
+				$objObject->objPollipAidObject = WpPollsa::GetSoapObjectFromObject($objObject->objPollipAidObject, false);
+			else if (!$blnBindRelatedObjects)
+				$objObject->strPollipAid = null;
+			if ($objObject->objPollipUseridObject)
+				$objObject->objPollipUseridObject = WpUsers::GetSoapObjectFromObject($objObject->objPollipUseridObject, false);
+			else if (!$blnBindRelatedObjects)
+				$objObject->intPollipUserid = null;
 			return $objObject;
 		}
 
@@ -1251,12 +1525,15 @@
      *
      * @property-read QQNode $PollipId
      * @property-read QQNode $PollipQid
+     * @property-read QQNodeWpPollsq $PollipQidObject
      * @property-read QQNode $PollipAid
+     * @property-read QQNodeWpPollsa $PollipAidObject
      * @property-read QQNode $PollipIp
      * @property-read QQNode $PollipHost
      * @property-read QQNode $PollipTimestamp
      * @property-read QQNode $PollipUser
      * @property-read QQNode $PollipUserid
+     * @property-read QQNodeWpUsers $PollipUseridObject
      *
      *
 
@@ -1272,8 +1549,12 @@
 					return new QQNode('pollip_id', 'PollipId', 'Integer', $this);
 				case 'PollipQid':
 					return new QQNode('pollip_qid', 'PollipQid', 'VarChar', $this);
+				case 'PollipQidObject':
+					return new QQNodeWpPollsq('pollip_qid', 'PollipQidObject', 'VarChar', $this);
 				case 'PollipAid':
 					return new QQNode('pollip_aid', 'PollipAid', 'VarChar', $this);
+				case 'PollipAidObject':
+					return new QQNodeWpPollsa('pollip_aid', 'PollipAidObject', 'VarChar', $this);
 				case 'PollipIp':
 					return new QQNode('pollip_ip', 'PollipIp', 'VarChar', $this);
 				case 'PollipHost':
@@ -1284,6 +1565,8 @@
 					return new QQNode('pollip_user', 'PollipUser', 'Blob', $this);
 				case 'PollipUserid':
 					return new QQNode('pollip_userid', 'PollipUserid', 'Integer', $this);
+				case 'PollipUseridObject':
+					return new QQNodeWpUsers('pollip_userid', 'PollipUseridObject', 'Integer', $this);
 
 				case '_PrimaryKeyNode':
 					return new QQNode('pollip_id', 'PollipId', 'Integer', $this);
@@ -1301,12 +1584,15 @@
     /**
      * @property-read QQNode $PollipId
      * @property-read QQNode $PollipQid
+     * @property-read QQNodeWpPollsq $PollipQidObject
      * @property-read QQNode $PollipAid
+     * @property-read QQNodeWpPollsa $PollipAidObject
      * @property-read QQNode $PollipIp
      * @property-read QQNode $PollipHost
      * @property-read QQNode $PollipTimestamp
      * @property-read QQNode $PollipUser
      * @property-read QQNode $PollipUserid
+     * @property-read QQNodeWpUsers $PollipUseridObject
      *
      *
 
@@ -1322,8 +1608,12 @@
 					return new QQNode('pollip_id', 'PollipId', 'integer', $this);
 				case 'PollipQid':
 					return new QQNode('pollip_qid', 'PollipQid', 'string', $this);
+				case 'PollipQidObject':
+					return new QQNodeWpPollsq('pollip_qid', 'PollipQidObject', 'string', $this);
 				case 'PollipAid':
 					return new QQNode('pollip_aid', 'PollipAid', 'string', $this);
+				case 'PollipAidObject':
+					return new QQNodeWpPollsa('pollip_aid', 'PollipAidObject', 'string', $this);
 				case 'PollipIp':
 					return new QQNode('pollip_ip', 'PollipIp', 'string', $this);
 				case 'PollipHost':
@@ -1334,6 +1624,8 @@
 					return new QQNode('pollip_user', 'PollipUser', 'string', $this);
 				case 'PollipUserid':
 					return new QQNode('pollip_userid', 'PollipUserid', 'integer', $this);
+				case 'PollipUseridObject':
+					return new QQNodeWpUsers('pollip_userid', 'PollipUseridObject', 'integer', $this);
 
 				case '_PrimaryKeyNode':
 					return new QQNode('pollip_id', 'PollipId', 'integer', $this);
