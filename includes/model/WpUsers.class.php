@@ -26,6 +26,10 @@
 		public function __toString() {
 			return sprintf('WpUsers Object %s',  $this->intId);
 		}
+		
+		public function LoadFirst() {
+			return self::QuerySingle(QQ::All(), QQ::Clause(QQ::OrderBy(QQN::WpUsers()->Id), QQ::LimitInfo(1)));
+		}
 
 
 		// Override or Create New Load/Count methods

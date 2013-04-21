@@ -27,6 +27,55 @@
 			return sprintf('DlePost Object %s',  $this->intId);
 		}
 
+		/**
+		 * @return WpUsers The Wordpress user for this DLE post author.
+		 */
+		public function LoadWpUser() {
+			$objDleUsers = DleUsers::LoadByName($this->Autor);
+			if (!$objDleUsers) {
+				return null;
+			}
+			return WpUsers::QuerySingle(QQ::Equal(QQN::WpUsers()->UserEmail, $objDleUsers->Email), QQ::Clause(QQ::LimitInfo(1)));
+		}
+
+		/**
+		 * @return WpPosts|null The WpPosts object, that is a copy of this DLE post.
+		 */
+		public function LoadWpPosts() {
+			$objWpUsers = $this->LoadWpUser();
+			if (!$objWpUsers) {
+				return null;
+			}
+			return WpPosts::QuerySingle(QQ::AndCondition(
+				QQ::Equal(QQN::WpPosts()->PostAuthor, $objWpUsers->Id)
+				, QQ::Equal(QQN::WpPosts()->PostDate, $this->Date)
+				, QQ::Equal(QQN::WpPosts()->PostName, $this->AltName)
+			), QQ::Clause(QQ::LimitInfo(1)));
+		}
+
+		/**
+		 * @return int[] The array of the WP categories for this DLE post.
+		 */
+		public function LoadWpTermsArray() {
+			$objWpTermsArray = array();
+			$intDleCategoryIdArray = split(",", $this->Category);
+			if ($intDleCategoryIdArray) foreach ($intDleCategoryIdArray as $intDleCategoryId) {
+				$objDleCategory = DleCategory::Load($intDleCategoryId);
+				if (!$objDleCategory) {
+					continue;
+				}
+				$objWpTerms = $objDleCategory->LoadWpTerms();
+				if (!$objWpTerms) {
+					continue;
+				}
+				$objWpTermsArray[$objWpTerms->TermId] = $objWpTerms;
+			}
+			return $objWpTermsArray;
+		}
+
+		public function GetDleCategoryIdArray() {
+			return split(",", $this->Category);
+		}
 
 		// Override or Create New Load/Count methods
 		// (For obvious reasons, these methods are commented out...

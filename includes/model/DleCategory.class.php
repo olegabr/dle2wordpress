@@ -26,6 +26,14 @@
 		public function __toString() {
 			return sprintf('DleCategory Object %s',  $this->intId);
 		}
+		
+		/**
+		 * 
+		 * @return WPTerms The Wordpress terms for this category
+		 */
+		public function LoadWpTerms() {
+			return WPTerms::LoadBySlug($this->AltName);
+		}
 
 
 		// Override or Create New Load/Count methods

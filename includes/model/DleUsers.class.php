@@ -26,6 +26,13 @@
 		public function __toString() {
 			return sprintf('DleUsers Object %s',  $this->intUserId);
 		}
+		
+		/**
+		 * @return WpUsers The Wordpress user for this DLE user.
+		 */
+		public function LoadWpUsers() {
+			return WpUsers::QuerySingle(QQ::Equal(QQN::WpUsers()->UserEmail, $this->Email), QQ::Clause(QQ::LimitInfo(1)));
+		}
 
 
 		// Override or Create New Load/Count methods

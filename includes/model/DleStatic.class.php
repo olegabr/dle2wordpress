@@ -26,6 +26,13 @@
 		public function __toString() {
 			return sprintf('DleStatic Object %s',  $this->intId);
 		}
+		
+		public function LoadWpPost() {
+			return WpPosts::QuerySingle(QQ::AndCondition(
+				QQ::Equal(QQN::WpPosts()->PostName, $this->Name)
+				, QQ::Equal(QQN::WpPosts()->PostType, "page")
+			), QQ::Clause(QQ::LimitInfo(1)));
+		}
 
 
 		// Override or Create New Load/Count methods
@@ -100,10 +107,10 @@
 		// of the data generated properties, please feel free to uncomment them.
 /*
 		protected $strSomeNewProperty;
-
+*/
 		public function __get($strName) {
 			switch ($strName) {
-				case 'SomeNewProperty': return $this->strSomeNewProperty;
+				case 'Date': return QDateTime::FromTimestamp($this->strDate);
 
 				default:
 					try {
@@ -117,9 +124,9 @@
 
 		public function __set($strName, $mixValue) {
 			switch ($strName) {
-				case 'SomeNewProperty':
+				case 'Date':
 					try {
-						return ($this->strSomeNewProperty = QType::Cast($mixValue, QType::String));
+						return ($this->strDate = QType::Cast($mixValue->Timestamp, QType::String));
 					} catch (QInvalidCastException $objExc) {
 						$objExc->IncrementOffset();
 						throw $objExc;
@@ -134,7 +141,6 @@
 					}
 			}
 		}
-*/
 
 
 		// Initialize each property with default values from database definition

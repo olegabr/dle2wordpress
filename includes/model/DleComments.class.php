@@ -26,6 +26,49 @@
 		public function __toString() {
 			return sprintf('DleComments Object %s',  $this->intId);
 		}
+		
+		/**
+		 * @return WpUsers|null The Wordpress user for this DLE comment author.
+		 */
+		public function LoadWpUsers() {
+			$objDleUsers = $this->User;
+			if (!$objDleUsers) {
+				return WpUsers::QuerySingle(QQ::Equal(QQN::WpUsers()->UserEmail, $this->Email), QQ::Clause(QQ::LimitInfo(1)));
+			}
+			return $objDleUsers->LoadWpUsers();
+		}
+
+		/**
+		 * @return WpPosts|null The Wordpress post for this DLE comment.
+		 */
+		public function LoadWpPosts() {
+			$objDlePost = $this->Post;
+			if (!$objDlePost) {
+				return null;
+			}
+			return $objDlePost->LoadWpPosts();
+		}
+
+		/**
+		 * @return WpComments|null The Worpress comment for this DLE comment.
+		 */
+		public function LoadWpComments() {
+			$objWpPosts = $this->LoadWpPosts();
+			if (!$objWpPosts) {
+				return null;
+			}
+			$objWpUsers = $this->LoadWpUsers();
+			$conUsersCondition = QQ::Equal(QQN::WpComments()->CommentAuthorEmail, $this->Email);
+			if ($objWpUsers) {
+				$conUsersCondition = QQ::Equal(QQN::WpComments()->UserId, $objWpUsers->Id);
+			}
+			return WpComments::QuerySingle(QQ::AndCondition(
+				QQ::Equal(QQN::WpComments()->CommentPostID, $objWpPosts->Id)
+				, $conUsersCondition
+				, QQ::Equal(QQN::WpComments()->CommentDate, $this->Date)
+				, QQ::Equal(QQN::WpComments()->CommentContent, str_replace('\"', '"', $this->Text))
+			), QQ::Clause(QQ::OrderBy(QQN::WpComments()->CommentID), QQ::LimitInfo(1)));
+		}
 
 
 		// Override or Create New Load/Count methods
