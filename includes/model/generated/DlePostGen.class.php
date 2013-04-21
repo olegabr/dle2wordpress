@@ -46,7 +46,6 @@
 	 * @property boolean $ViewEdit the value for blnViewEdit (Not Null)
 	 * @property string $Tags the value for strTags (Not Null)
 	 * @property string $Metatitle the value for strMetatitle (Not Null)
-	 * @property DleUsers $AutorObject the value for the DleUsers object referenced by strAutor (Not Null)
 	 * @property-read DleComments $_DleCommentsAsPost the value for the private _objDleCommentsAsPost (Read-Only) if set due to an expansion on the dle_comments.post_id reverse relationship
 	 * @property-read DleComments[] $_DleCommentsAsPostArray the value for the private _objDleCommentsAsPostArray (Read-Only) if set due to an ExpandAsArray on the dle_comments.post_id reverse relationship
 	 * @property-read DleTags $_DleTagsAsNews the value for the private _objDleTagsAsNews (Read-Only) if set due to an expansion on the dle_tags.news_id reverse relationship
@@ -372,16 +371,6 @@
 		///////////////////////////////
 		// PROTECTED MEMBER OBJECTS
 		///////////////////////////////
-
-		/**
-		 * Protected member variable that contains the object pointed by the reference
-		 * in the database column dle_post.autor.
-		 *
-		 * NOTE: Always use the AutorObject property getter to correctly retrieve this DleUsers object.
-		 * (Because this class implements late binding, this variable reference MAY be null.)
-		 * @var DleUsers objAutorObject
-		 */
-		protected $objAutorObject;
 
 
 
@@ -1001,12 +990,6 @@
 			// Prepare to Check for Early/Virtual Binding
 			if (!$strAliasPrefix)
 				$strAliasPrefix = 'dle_post__';
-
-			// Check for AutorObject Early Binding
-			$strAlias = $strAliasPrefix . 'autor__user_id';
-			$strAliasName = array_key_exists($strAlias, $strColumnAliasArray) ? $strColumnAliasArray[$strAlias] : $strAlias;
-			if (!is_null($objDbRow->GetColumn($strAliasName)))
-				$objToReturn->objAutorObject = DleUsers::InstantiateDbRow($objDbRow, $strAliasPrefix . 'autor__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
 
 
 
@@ -1652,7 +1635,7 @@
 			$objReloaded = DlePost::Load($this->intId);
 
 			// Update $this's local variables to match
-			$this->Autor = $objReloaded->Autor;
+			$this->strAutor = $objReloaded->strAutor;
 			$this->dttDate = $objReloaded->dttDate;
 			$this->strShortStory = $objReloaded->strShortStory;
 			$this->strFullStory = $objReloaded->strFullStory;
@@ -1923,20 +1906,6 @@
 				///////////////////
 				// Member Objects
 				///////////////////
-				case 'AutorObject':
-					/**
-					 * Gets the value for the DleUsers object referenced by strAutor (Not Null)
-					 * @return DleUsers
-					 */
-					try {
-						if ((!$this->objAutorObject) && (!is_null($this->strAutor)))
-							$this->objAutorObject = DleUsers::Load($this->strAutor);
-						return $this->objAutorObject;
-					} catch (QCallerException $objExc) {
-						$objExc->IncrementOffset();
-						throw $objExc;
-					}
-
 
 				////////////////////////////
 				// Virtual Object References (Many to Many and Reverse References)
@@ -2009,7 +1978,6 @@
 					 * @return string
 					 */
 					try {
-						$this->objAutorObject = null;
 						return ($this->strAutor = QType::Cast($mixValue, QType::String));
 					} catch (QCallerException $objExc) {
 						$objExc->IncrementOffset();
@@ -2397,38 +2365,6 @@
 				///////////////////
 				// Member Objects
 				///////////////////
-				case 'AutorObject':
-					/**
-					 * Sets the value for the DleUsers object referenced by strAutor (Not Null)
-					 * @param DleUsers $mixValue
-					 * @return DleUsers
-					 */
-					if (is_null($mixValue)) {
-						$this->strAutor = null;
-						$this->objAutorObject = null;
-						return null;
-					} else {
-						// Make sure $mixValue actually is a DleUsers object
-						try {
-							$mixValue = QType::Cast($mixValue, 'DleUsers');
-						} catch (QInvalidCastException $objExc) {
-							$objExc->IncrementOffset();
-							throw $objExc;
-						}
-
-						// Make sure $mixValue is a SAVED DleUsers object
-						if (is_null($mixValue->Name))
-							throw new QCallerException('Unable to set an unsaved AutorObject for this DlePost');
-
-						// Update Local Member Variables
-						$this->objAutorObject = $mixValue;
-						$this->strAutor = $mixValue->Name;
-
-						// Return $mixValue
-						return $mixValue;
-					}
-					break;
-
 				default:
 					try {
 						return parent::__set($strName, $mixValue);
@@ -2795,7 +2731,7 @@
 		public static function GetSoapComplexTypeXml() {
 			$strToReturn = '<complexType name="DlePost"><sequence>';
 			$strToReturn .= '<element name="Id" type="xsd:int"/>';
-			$strToReturn .= '<element name="AutorObject" type="xsd1:DleUsers"/>';
+			$strToReturn .= '<element name="Autor" type="xsd:string"/>';
 			$strToReturn .= '<element name="Date" type="xsd:dateTime"/>';
 			$strToReturn .= '<element name="ShortStory" type="xsd:string"/>';
 			$strToReturn .= '<element name="FullStory" type="xsd:string"/>';
@@ -2833,7 +2769,6 @@
 		public static function AlterSoapComplexTypeArray(&$strComplexTypeArray) {
 			if (!array_key_exists('DlePost', $strComplexTypeArray)) {
 				$strComplexTypeArray['DlePost'] = DlePost::GetSoapComplexTypeXml();
-				DleUsers::AlterSoapComplexTypeArray($strComplexTypeArray);
 			}
 		}
 
@@ -2850,9 +2785,8 @@
 			$objToReturn = new DlePost();
 			if (property_exists($objSoapObject, 'Id'))
 				$objToReturn->intId = $objSoapObject->Id;
-			if ((property_exists($objSoapObject, 'AutorObject')) &&
-				($objSoapObject->AutorObject))
-				$objToReturn->AutorObject = DleUsers::GetObjectFromSoapObject($objSoapObject->AutorObject);
+			if (property_exists($objSoapObject, 'Autor'))
+				$objToReturn->strAutor = $objSoapObject->Autor;
 			if (property_exists($objSoapObject, 'Date'))
 				$objToReturn->dttDate = new QDateTime($objSoapObject->Date);
 			if (property_exists($objSoapObject, 'ShortStory'))
@@ -2929,10 +2863,6 @@
 		}
 
 		public static function GetSoapObjectFromObject($objObject, $blnBindRelatedObjects) {
-			if ($objObject->objAutorObject)
-				$objObject->objAutorObject = DleUsers::GetSoapObjectFromObject($objObject->objAutorObject, false);
-			else if (!$blnBindRelatedObjects)
-				$objObject->strAutor = null;
 			if ($objObject->dttDate)
 				$objObject->dttDate = $objObject->dttDate->qFormat(QDateTime::FormatSoap);
 			return $objObject;
@@ -3019,7 +2949,6 @@
      *
      * @property-read QQNode $Id
      * @property-read QQNode $Autor
-     * @property-read QQNodeDleUsers $AutorObject
      * @property-read QQNode $Date
      * @property-read QQNode $ShortStory
      * @property-read QQNode $FullStory
@@ -3066,8 +2995,6 @@
 					return new QQNode('id', 'Id', 'Integer', $this);
 				case 'Autor':
 					return new QQNode('autor', 'Autor', 'VarChar', $this);
-				case 'AutorObject':
-					return new QQNodeDleUsers('autor', 'AutorObject', 'VarChar', $this);
 				case 'Date':
 					return new QQNode('date', 'Date', 'DateTime', $this);
 				case 'ShortStory':
@@ -3147,7 +3074,6 @@
     /**
      * @property-read QQNode $Id
      * @property-read QQNode $Autor
-     * @property-read QQNodeDleUsers $AutorObject
      * @property-read QQNode $Date
      * @property-read QQNode $ShortStory
      * @property-read QQNode $FullStory
@@ -3194,8 +3120,6 @@
 					return new QQNode('id', 'Id', 'integer', $this);
 				case 'Autor':
 					return new QQNode('autor', 'Autor', 'string', $this);
-				case 'AutorObject':
-					return new QQNodeDleUsers('autor', 'AutorObject', 'string', $this);
 				case 'Date':
 					return new QQNode('date', 'Date', 'QDateTime', $this);
 				case 'ShortStory':
