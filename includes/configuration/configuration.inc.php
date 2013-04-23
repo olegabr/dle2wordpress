@@ -376,6 +376,8 @@ if (!defined('SERVER_INSTANCE')) {
 			// To enable the display of "Friendly" error pages and messages, define them here (path MUST be relative from the DOCROOT)
 			//			define('ERROR_FRIENDLY_PAGE_PATH', __PHP_ASSETS__ . '/friendly_error_page.php');
 			//			define('ERROR_FRIENDLY_AJAX_MESSAGE', 'Oops!  An error has occurred.\r\n\r\nThe error was logged, and we will take a look into this right away.');
+			
+			//setlocale(LC_ALL, array('ru_RU.utf8', 'ru_RU.UTF-8', 'ru_RU.UTF8', 'ru_RU', 'ru_ru', 'ru', 'RU'));
 
 			break;
 	}
