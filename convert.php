@@ -326,6 +326,107 @@
 			}
 		}
 		
+		$intPollCount = 0;
+		$objDlePollArray = DlePoll::LoadAll(QQ::Clause(QQ::OrderBy(QQN::DlePoll()->Id)));
+		if ($objDlePollArray) foreach ($objDlePollArray as $objDlePoll) {
+			$objWpPollsq = WpPollsq::QuerySingle(QQ::Equal(QQN::WpPollsq()->PollqQuestion, $objDlePoll->Frage), QQ::Clause(QQ::LimitInfo(1)));
+			if (!$objWpPollsq) {
+				$objWpPollsq = new WpPollsq;
+				$objWpPollsq->PollqQuestion = $objDlePoll->Frage;
+				$objWpPollsq->PollqTimestamp = $objDlePoll->News->Date->Timestamp;
+				$objWpPollsq->PollqTotalvotes = $objDlePoll->Votes;
+				$objWpPollsq->PollqActive = 1;
+				$objWpPollsq->PollqExpiry = '';
+				$objWpPollsq->PollqMultiple = intval($objDlePoll->Multiple);
+				$objWpPollsq->PollqTotalvoters = $objDlePoll->Votes;
+				$objWpPollsq->Save();
+				$intPollCount++;
+			}
+
+			if ($objDlePoll->Answer && strlen($objDlePoll->Answer) && $objDlePoll->Body && strlen($objDlePoll->Body)) {
+				$intA2VArray = array();
+				$strAnswerVoteArray = explode("|", $objDlePoll->Answer);
+				if ($strAnswerVoteArray) foreach ($strAnswerVoteArray as $strAnswerVote) {
+					$intA2V = explode(":", $strAnswerVote);
+					if (2 == count($intA2V)) {
+						$intA2VArray[$intA2V[0]] = $intA2V[1];
+					}
+				}
+				$strAnswerArray = explode("<br />", $objDlePoll->Body);
+				$intAnswerCounter = 0;
+				if ($strAnswerArray) foreach ($strAnswerArray as $strAnswer) {
+					$objWpPollsa = WpPollsa::QuerySingle(
+						QQ::AndCondition(
+							QQ::Equal(QQN::WpPollsa()->PollaQid, $objWpPollsq->PollqId)
+							, QQ::Equal(QQN::WpPollsa()->PollaAnswers, $strAnswer))
+						, QQ::Clause(QQ::OrderBy(QQN::WpPollsa()->PollaAid), QQ::LimitInfo(1))
+					);
+					if (!$objWpPollsa) {
+						$objWpPollsa = new WpPollsa;
+						$objWpPollsa->PollaQid = $objWpPollsq->PollqId;
+						$objWpPollsa->PollaAnswers = $strAnswer;
+						$intVotes = 0;
+						if (isset($intA2VArray[$intAnswerCounter])) {
+							$intVotes = $intA2VArray[$intAnswerCounter];
+						}
+						$objWpPollsa->PollaVotes = $intVotes;
+						$objWpPollsa->Save();
+						$intAnswerCounter++;
+					}
+				}
+			}
+
+			$objDlePollLogArray = DlePollLog::LoadArrayByNewsId($objDlePoll->NewsId);
+			if ($objDlePollLogArray) foreach ($objDlePollLogArray as $objDlePollLog) {
+				$strPollipUser = '';
+				$intPollipUserid = 0;
+				$strPollipIp = '';
+				if (false === strpos($objDlePollLog->Member, '.')) {
+					// The userId saved in the field Member
+					$objDleUsers = DleUsers::Load($objDlePollLog->Member);
+					if ($objDleUsers) {
+						$objWpUsers = $objDleUsers->LoadWpUsers();
+						if ($objWpUsers) {
+							$strPollipUser = $objWpUsers->UserLogin;
+							$intPollipUserid = $objWpUsers->Id;
+						}
+					}
+				} else {
+					// The IP address is saved in the field Member
+					$strPollipIp = $objDlePollLog->Member;
+				}
+				$objWpPollsip = WpPollsip::QuerySingle(
+					QQ::AndCondition(
+						QQ::Equal(QQN::WpPollsip()->PollipQid, $objWpPollsq->PollqId)
+						, QQ::Equal(QQN::WpPollsip()->PollipIp, $strPollipIp)
+						, QQ::Equal(QQN::WpPollsip()->PollipUser, $strPollipUser)
+						, QQ::Equal(QQN::WpPollsip()->PollipUserid, $intPollipUserid)
+					)
+					, QQ::Clause(QQ::OrderBy(QQN::WpPollsip()->PollipId), QQ::LimitInfo(1))
+				);
+				if (!$objWpPollsip) {
+					$objWpPollsip = new WpPollsip;
+					$objWpPollsip->PollipQid = $objWpPollsq->PollqId;
+					$objWpPollsip->PollipAid = '';
+					$objWpPollsip->PollipIp = $strPollipIp;
+					$objWpPollsip->PollipUser = $strPollipUser;
+					$objWpPollsip->PollipUserid = $intPollipUserid;
+					$objWpPollsip->PollipHost = '';
+					$objWpPollsip->PollipTimestamp = '0';
+					$objWpPollsip->Save();
+				}
+			}
+
+			// Insert the poll into the corresponding WP post
+			$objDlePost = $objDlePoll->News;
+			$objWpPosts = $objDlePost->LoadWpPosts();
+			$strText = $objWpPosts->PostContent;
+			if (false === strpos($strText, "[poll id=")) {
+				$objWpPosts->PostContent = sprintf('[poll id="%s"] %s', $objWpPollsq->PollqId, $strText);
+				$objWpPosts->Save();
+			}
+		}
+		
 		
 		WpUsers::GetDatabase()->TransactionCommit();
 	} catch(QDatabaseExceptionBase $ex) {
@@ -358,6 +459,7 @@
 		<li><strong><?php _p($intPostCount); ?></strong> term posts from <strong><?php _p(DlePost::CountAll()) ?></strong> converted. The wordpress database already has <strong><?php _p(WpPosts::CountAll()) ?></strong> posts.</li>
 		<li><strong><?php _p($intTermRelationshipsCount); ?></strong> term relationships from <strong><?php _p($intDleTermRelationshipsCount) ?></strong> converted. The wordpress database already has <strong><?php _p(WpTermRelationships::CountAll()) ?></strong> term relationships.</li>
 		<li><strong><?php _p($intCommentsCount); ?></strong> comments from <strong><?php _p(DleComments::CountAll()) ?></strong> converted. The wordpress database already has <strong><?php _p(WpComments::CountAll()) ?></strong> comments.</li>
+		<li><strong><?php _p($intPollCount); ?></strong> polls from <strong><?php _p(DlePoll::CountAll()) ?></strong> converted. The wordpress database already has <strong><?php _p(WpPollsq::CountAll()) ?></strong> polls.</li>
 	</ul>
 	
 <?php require(__CONFIGURATION__ . '/footer.inc.php'); ?>
