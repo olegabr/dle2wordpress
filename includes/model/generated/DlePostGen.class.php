@@ -48,6 +48,10 @@
 	 * @property string $Metatitle the value for strMetatitle (Not Null)
 	 * @property-read DleComments $_DleCommentsAsPost the value for the private _objDleCommentsAsPost (Read-Only) if set due to an expansion on the dle_comments.post_id reverse relationship
 	 * @property-read DleComments[] $_DleCommentsAsPostArray the value for the private _objDleCommentsAsPostArray (Read-Only) if set due to an ExpandAsArray on the dle_comments.post_id reverse relationship
+	 * @property-read DlePoll $_DlePollAsNews the value for the private _objDlePollAsNews (Read-Only) if set due to an expansion on the dle_poll.news_id reverse relationship
+	 * @property-read DlePoll[] $_DlePollAsNewsArray the value for the private _objDlePollAsNewsArray (Read-Only) if set due to an ExpandAsArray on the dle_poll.news_id reverse relationship
+	 * @property-read DlePollLog $_DlePollLogAsNews the value for the private _objDlePollLogAsNews (Read-Only) if set due to an expansion on the dle_poll_log.news_id reverse relationship
+	 * @property-read DlePollLog[] $_DlePollLogAsNewsArray the value for the private _objDlePollLogAsNewsArray (Read-Only) if set due to an ExpandAsArray on the dle_poll_log.news_id reverse relationship
 	 * @property-read DleTags $_DleTagsAsNews the value for the private _objDleTagsAsNews (Read-Only) if set due to an expansion on the dle_tags.news_id reverse relationship
 	 * @property-read DleTags[] $_DleTagsAsNewsArray the value for the private _objDleTagsAsNewsArray (Read-Only) if set due to an ExpandAsArray on the dle_tags.news_id reverse relationship
 	 * @property-read boolean $__Restored whether or not this object was restored from the database (as opposed to created new)
@@ -333,6 +337,38 @@
 		 * @var DleComments[] _objDleCommentsAsPostArray;
 		 */
 		private $_objDleCommentsAsPostArray = null;
+
+		/**
+		 * Private member variable that stores a reference to a single DlePollAsNews object
+		 * (of type DlePoll), if this DlePost object was restored with
+		 * an expansion on the dle_poll association table.
+		 * @var DlePoll _objDlePollAsNews;
+		 */
+		private $_objDlePollAsNews;
+
+		/**
+		 * Private member variable that stores a reference to an array of DlePollAsNews objects
+		 * (of type DlePoll[]), if this DlePost object was restored with
+		 * an ExpandAsArray on the dle_poll association table.
+		 * @var DlePoll[] _objDlePollAsNewsArray;
+		 */
+		private $_objDlePollAsNewsArray = null;
+
+		/**
+		 * Private member variable that stores a reference to a single DlePollLogAsNews object
+		 * (of type DlePollLog), if this DlePost object was restored with
+		 * an expansion on the dle_poll_log association table.
+		 * @var DlePollLog _objDlePollLogAsNews;
+		 */
+		private $_objDlePollLogAsNews;
+
+		/**
+		 * Private member variable that stores a reference to an array of DlePollLogAsNews objects
+		 * (of type DlePollLog[]), if this DlePost object was restored with
+		 * an ExpandAsArray on the dle_poll_log association table.
+		 * @var DlePollLog[] _objDlePollLogAsNewsArray;
+		 */
+		private $_objDlePollLogAsNewsArray = null;
 
 		/**
 		 * Private member variable that stores a reference to a single DleTagsAsNews object
@@ -825,6 +861,44 @@
 							$blnExpandedViaArray = true;
 						}
 
+						// Expanding reverse references: DlePollAsNews
+						$strAlias = $strAliasPrefix . 'dlepollasnews__id';
+						$strAliasName = array_key_exists($strAlias, $strColumnAliasArray) ? $strColumnAliasArray[$strAlias] : $strAlias;
+						if ((array_key_exists($strAlias, $strExpandAsArrayNodes)) &&
+							(!is_null($objDbRow->GetColumn($strAliasName)))) {
+							if(null === $objPreviousItem->_objDlePollAsNewsArray)
+								$objPreviousItem->_objDlePollAsNewsArray = array();
+							if ($intPreviousChildItemCount = count($objPreviousItem->_objDlePollAsNewsArray)) {
+								$objPreviousChildItems = $objPreviousItem->_objDlePollAsNewsArray;
+								$objChildItem = DlePoll::InstantiateDbRow($objDbRow, $strAliasPrefix . 'dlepollasnews__', $strExpandAsArrayNodes, $objPreviousChildItems, $strColumnAliasArray);
+								if ($objChildItem) {
+									$objPreviousItem->_objDlePollAsNewsArray[] = $objChildItem;
+								}
+							} else {
+								$objPreviousItem->_objDlePollAsNewsArray[] = DlePoll::InstantiateDbRow($objDbRow, $strAliasPrefix . 'dlepollasnews__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+							}
+							$blnExpandedViaArray = true;
+						}
+
+						// Expanding reverse references: DlePollLogAsNews
+						$strAlias = $strAliasPrefix . 'dlepolllogasnews__id';
+						$strAliasName = array_key_exists($strAlias, $strColumnAliasArray) ? $strColumnAliasArray[$strAlias] : $strAlias;
+						if ((array_key_exists($strAlias, $strExpandAsArrayNodes)) &&
+							(!is_null($objDbRow->GetColumn($strAliasName)))) {
+							if(null === $objPreviousItem->_objDlePollLogAsNewsArray)
+								$objPreviousItem->_objDlePollLogAsNewsArray = array();
+							if ($intPreviousChildItemCount = count($objPreviousItem->_objDlePollLogAsNewsArray)) {
+								$objPreviousChildItems = $objPreviousItem->_objDlePollLogAsNewsArray;
+								$objChildItem = DlePollLog::InstantiateDbRow($objDbRow, $strAliasPrefix . 'dlepolllogasnews__', $strExpandAsArrayNodes, $objPreviousChildItems, $strColumnAliasArray);
+								if ($objChildItem) {
+									$objPreviousItem->_objDlePollLogAsNewsArray[] = $objChildItem;
+								}
+							} else {
+								$objPreviousItem->_objDlePollLogAsNewsArray[] = DlePollLog::InstantiateDbRow($objDbRow, $strAliasPrefix . 'dlepolllogasnews__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+							}
+							$blnExpandedViaArray = true;
+						}
+
 						// Expanding reverse references: DleTagsAsNews
 						$strAlias = $strAliasPrefix . 'dletagsasnews__id';
 						$strAliasName = array_key_exists($strAlias, $strColumnAliasArray) ? $strColumnAliasArray[$strAlias] : $strAlias;
@@ -965,6 +1039,22 @@
 						continue;
 					}
 
+					$prevCnt = count($objPreviousItem->_objDlePollAsNewsArray);
+					$cnt = count($objToReturn->_objDlePollAsNewsArray);
+					if ($prevCnt != $cnt)
+					    continue;
+					if ($prevCnt == 0 || $cnt == 0 || !array_diff($objPreviousItem->_objDlePollAsNewsArray, $objToReturn->_objDlePollAsNewsArray)) {
+						continue;
+					}
+
+					$prevCnt = count($objPreviousItem->_objDlePollLogAsNewsArray);
+					$cnt = count($objToReturn->_objDlePollLogAsNewsArray);
+					if ($prevCnt != $cnt)
+					    continue;
+					if ($prevCnt == 0 || $cnt == 0 || !array_diff($objPreviousItem->_objDlePollLogAsNewsArray, $objToReturn->_objDlePollLogAsNewsArray)) {
+						continue;
+					}
+
 					$prevCnt = count($objPreviousItem->_objDleTagsAsNewsArray);
 					$cnt = count($objToReturn->_objDleTagsAsNewsArray);
 					if ($prevCnt != $cnt)
@@ -1005,6 +1095,32 @@
 					$objToReturn->_objDleCommentsAsPostArray[] = DleComments::InstantiateDbRow($objDbRow, $strAliasPrefix . 'dlecommentsaspost__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
 				else
 					$objToReturn->_objDleCommentsAsPost = DleComments::InstantiateDbRow($objDbRow, $strAliasPrefix . 'dlecommentsaspost__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+			}
+
+			// Check for DlePollAsNews Virtual Binding
+			$strAlias = $strAliasPrefix . 'dlepollasnews__id';
+			$strAliasName = array_key_exists($strAlias, $strColumnAliasArray) ? $strColumnAliasArray[$strAlias] : $strAlias;
+			$blnExpanded = $strExpandAsArrayNodes && array_key_exists($strAlias, $strExpandAsArrayNodes);
+			if ($blnExpanded && null === $objToReturn->_objDlePollAsNewsArray)
+				$objToReturn->_objDlePollAsNewsArray = array();
+			if (!is_null($objDbRow->GetColumn($strAliasName))) {
+				if ($blnExpanded)
+					$objToReturn->_objDlePollAsNewsArray[] = DlePoll::InstantiateDbRow($objDbRow, $strAliasPrefix . 'dlepollasnews__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+				else
+					$objToReturn->_objDlePollAsNews = DlePoll::InstantiateDbRow($objDbRow, $strAliasPrefix . 'dlepollasnews__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+			}
+
+			// Check for DlePollLogAsNews Virtual Binding
+			$strAlias = $strAliasPrefix . 'dlepolllogasnews__id';
+			$strAliasName = array_key_exists($strAlias, $strColumnAliasArray) ? $strColumnAliasArray[$strAlias] : $strAlias;
+			$blnExpanded = $strExpandAsArrayNodes && array_key_exists($strAlias, $strExpandAsArrayNodes);
+			if ($blnExpanded && null === $objToReturn->_objDlePollLogAsNewsArray)
+				$objToReturn->_objDlePollLogAsNewsArray = array();
+			if (!is_null($objDbRow->GetColumn($strAliasName))) {
+				if ($blnExpanded)
+					$objToReturn->_objDlePollLogAsNewsArray[] = DlePollLog::InstantiateDbRow($objDbRow, $strAliasPrefix . 'dlepolllogasnews__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+				else
+					$objToReturn->_objDlePollLogAsNews = DlePollLog::InstantiateDbRow($objDbRow, $strAliasPrefix . 'dlepolllogasnews__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
 			}
 
 			// Check for DleTagsAsNews Virtual Binding
@@ -1928,6 +2044,38 @@
 					 */
 					return $this->_objDleCommentsAsPostArray;
 
+				case '_DlePollAsNews':
+					/**
+					 * Gets the value for the private _objDlePollAsNews (Read-Only)
+					 * if set due to an expansion on the dle_poll.news_id reverse relationship
+					 * @return DlePoll
+					 */
+					return $this->_objDlePollAsNews;
+
+				case '_DlePollAsNewsArray':
+					/**
+					 * Gets the value for the private _objDlePollAsNewsArray (Read-Only)
+					 * if set due to an ExpandAsArray on the dle_poll.news_id reverse relationship
+					 * @return DlePoll[]
+					 */
+					return $this->_objDlePollAsNewsArray;
+
+				case '_DlePollLogAsNews':
+					/**
+					 * Gets the value for the private _objDlePollLogAsNews (Read-Only)
+					 * if set due to an expansion on the dle_poll_log.news_id reverse relationship
+					 * @return DlePollLog
+					 */
+					return $this->_objDlePollLogAsNews;
+
+				case '_DlePollLogAsNewsArray':
+					/**
+					 * Gets the value for the private _objDlePollLogAsNewsArray (Read-Only)
+					 * if set due to an ExpandAsArray on the dle_poll_log.news_id reverse relationship
+					 * @return DlePollLog[]
+					 */
+					return $this->_objDlePollLogAsNewsArray;
+
 				case '_DleTagsAsNews':
 					/**
 					 * Gets the value for the private _objDleTagsAsNews (Read-Only)
@@ -2543,6 +2691,304 @@
 		}
 
 
+		// Related Objects' Methods for DlePollAsNews
+		//-------------------------------------------------------------------
+
+		/**
+		 * Gets all associated DlePollsAsNews as an array of DlePoll objects
+		 * @param QQClause[] $objOptionalClauses additional optional QQClause objects for this query
+		 * @return DlePoll[]
+		*/
+		public function GetDlePollAsNewsArray($objOptionalClauses = null) {
+			if ((is_null($this->intId)))
+				return array();
+
+			try {
+				return DlePoll::LoadArrayByNewsId($this->intId, $objOptionalClauses);
+			} catch (QCallerException $objExc) {
+				$objExc->IncrementOffset();
+				throw $objExc;
+			}
+		}
+
+		/**
+		 * Counts all associated DlePollsAsNews
+		 * @return int
+		*/
+		public function CountDlePollsAsNews() {
+			if ((is_null($this->intId)))
+				return 0;
+
+			return DlePoll::CountByNewsId($this->intId);
+		}
+
+		/**
+		 * Associates a DlePollAsNews
+		 * @param DlePoll $objDlePoll
+		 * @return void
+		*/
+		public function AssociateDlePollAsNews(DlePoll $objDlePoll) {
+			if ((is_null($this->intId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call AssociateDlePollAsNews on this unsaved DlePost.');
+			if ((is_null($objDlePoll->Id)))
+				throw new QUndefinedPrimaryKeyException('Unable to call AssociateDlePollAsNews on this DlePost with an unsaved DlePoll.');
+
+			// Get the Database Object for this Class
+			$objDatabase = DlePost::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				UPDATE
+					`dle_poll`
+				SET
+					`news_id` = ' . $objDatabase->SqlVariable($this->intId) . '
+				WHERE
+					`id` = ' . $objDatabase->SqlVariable($objDlePoll->Id) . ' 
+			');
+		}
+
+		/**
+		 * Unassociates a DlePollAsNews
+		 * @param DlePoll $objDlePoll
+		 * @return void
+		*/
+		public function UnassociateDlePollAsNews(DlePoll $objDlePoll) {
+			if ((is_null($this->intId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateDlePollAsNews on this unsaved DlePost.');
+			if ((is_null($objDlePoll->Id)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateDlePollAsNews on this DlePost with an unsaved DlePoll.');
+
+			// Get the Database Object for this Class
+			$objDatabase = DlePost::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				UPDATE
+					`dle_poll`
+				SET
+					`news_id` = null
+				WHERE
+					`id` = ' . $objDatabase->SqlVariable($objDlePoll->Id) . ' AND
+					`news_id` = ' . $objDatabase->SqlVariable($this->intId) . '
+			');
+		}
+
+		/**
+		 * Unassociates all DlePollsAsNews
+		 * @return void
+		*/
+		public function UnassociateAllDlePollsAsNews() {
+			if ((is_null($this->intId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateDlePollAsNews on this unsaved DlePost.');
+
+			// Get the Database Object for this Class
+			$objDatabase = DlePost::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				UPDATE
+					`dle_poll`
+				SET
+					`news_id` = null
+				WHERE
+					`news_id` = ' . $objDatabase->SqlVariable($this->intId) . '
+			');
+		}
+
+		/**
+		 * Deletes an associated DlePollAsNews
+		 * @param DlePoll $objDlePoll
+		 * @return void
+		*/
+		public function DeleteAssociatedDlePollAsNews(DlePoll $objDlePoll) {
+			if ((is_null($this->intId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateDlePollAsNews on this unsaved DlePost.');
+			if ((is_null($objDlePoll->Id)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateDlePollAsNews on this DlePost with an unsaved DlePoll.');
+
+			// Get the Database Object for this Class
+			$objDatabase = DlePost::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				DELETE FROM
+					`dle_poll`
+				WHERE
+					`id` = ' . $objDatabase->SqlVariable($objDlePoll->Id) . ' AND
+					`news_id` = ' . $objDatabase->SqlVariable($this->intId) . '
+			');
+		}
+
+		/**
+		 * Deletes all associated DlePollsAsNews
+		 * @return void
+		*/
+		public function DeleteAllDlePollsAsNews() {
+			if ((is_null($this->intId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateDlePollAsNews on this unsaved DlePost.');
+
+			// Get the Database Object for this Class
+			$objDatabase = DlePost::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				DELETE FROM
+					`dle_poll`
+				WHERE
+					`news_id` = ' . $objDatabase->SqlVariable($this->intId) . '
+			');
+		}
+
+
+		// Related Objects' Methods for DlePollLogAsNews
+		//-------------------------------------------------------------------
+
+		/**
+		 * Gets all associated DlePollLogsAsNews as an array of DlePollLog objects
+		 * @param QQClause[] $objOptionalClauses additional optional QQClause objects for this query
+		 * @return DlePollLog[]
+		*/
+		public function GetDlePollLogAsNewsArray($objOptionalClauses = null) {
+			if ((is_null($this->intId)))
+				return array();
+
+			try {
+				return DlePollLog::LoadArrayByNewsId($this->intId, $objOptionalClauses);
+			} catch (QCallerException $objExc) {
+				$objExc->IncrementOffset();
+				throw $objExc;
+			}
+		}
+
+		/**
+		 * Counts all associated DlePollLogsAsNews
+		 * @return int
+		*/
+		public function CountDlePollLogsAsNews() {
+			if ((is_null($this->intId)))
+				return 0;
+
+			return DlePollLog::CountByNewsId($this->intId);
+		}
+
+		/**
+		 * Associates a DlePollLogAsNews
+		 * @param DlePollLog $objDlePollLog
+		 * @return void
+		*/
+		public function AssociateDlePollLogAsNews(DlePollLog $objDlePollLog) {
+			if ((is_null($this->intId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call AssociateDlePollLogAsNews on this unsaved DlePost.');
+			if ((is_null($objDlePollLog->Id)))
+				throw new QUndefinedPrimaryKeyException('Unable to call AssociateDlePollLogAsNews on this DlePost with an unsaved DlePollLog.');
+
+			// Get the Database Object for this Class
+			$objDatabase = DlePost::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				UPDATE
+					`dle_poll_log`
+				SET
+					`news_id` = ' . $objDatabase->SqlVariable($this->intId) . '
+				WHERE
+					`id` = ' . $objDatabase->SqlVariable($objDlePollLog->Id) . ' 
+			');
+		}
+
+		/**
+		 * Unassociates a DlePollLogAsNews
+		 * @param DlePollLog $objDlePollLog
+		 * @return void
+		*/
+		public function UnassociateDlePollLogAsNews(DlePollLog $objDlePollLog) {
+			if ((is_null($this->intId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateDlePollLogAsNews on this unsaved DlePost.');
+			if ((is_null($objDlePollLog->Id)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateDlePollLogAsNews on this DlePost with an unsaved DlePollLog.');
+
+			// Get the Database Object for this Class
+			$objDatabase = DlePost::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				UPDATE
+					`dle_poll_log`
+				SET
+					`news_id` = null
+				WHERE
+					`id` = ' . $objDatabase->SqlVariable($objDlePollLog->Id) . ' AND
+					`news_id` = ' . $objDatabase->SqlVariable($this->intId) . '
+			');
+		}
+
+		/**
+		 * Unassociates all DlePollLogsAsNews
+		 * @return void
+		*/
+		public function UnassociateAllDlePollLogsAsNews() {
+			if ((is_null($this->intId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateDlePollLogAsNews on this unsaved DlePost.');
+
+			// Get the Database Object for this Class
+			$objDatabase = DlePost::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				UPDATE
+					`dle_poll_log`
+				SET
+					`news_id` = null
+				WHERE
+					`news_id` = ' . $objDatabase->SqlVariable($this->intId) . '
+			');
+		}
+
+		/**
+		 * Deletes an associated DlePollLogAsNews
+		 * @param DlePollLog $objDlePollLog
+		 * @return void
+		*/
+		public function DeleteAssociatedDlePollLogAsNews(DlePollLog $objDlePollLog) {
+			if ((is_null($this->intId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateDlePollLogAsNews on this unsaved DlePost.');
+			if ((is_null($objDlePollLog->Id)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateDlePollLogAsNews on this DlePost with an unsaved DlePollLog.');
+
+			// Get the Database Object for this Class
+			$objDatabase = DlePost::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				DELETE FROM
+					`dle_poll_log`
+				WHERE
+					`id` = ' . $objDatabase->SqlVariable($objDlePollLog->Id) . ' AND
+					`news_id` = ' . $objDatabase->SqlVariable($this->intId) . '
+			');
+		}
+
+		/**
+		 * Deletes all associated DlePollLogsAsNews
+		 * @return void
+		*/
+		public function DeleteAllDlePollLogsAsNews() {
+			if ((is_null($this->intId)))
+				throw new QUndefinedPrimaryKeyException('Unable to call UnassociateDlePollLogAsNews on this unsaved DlePost.');
+
+			// Get the Database Object for this Class
+			$objDatabase = DlePost::GetDatabase();
+
+			// Perform the SQL Query
+			$objDatabase->NonQuery('
+				DELETE FROM
+					`dle_poll_log`
+				WHERE
+					`news_id` = ' . $objDatabase->SqlVariable($this->intId) . '
+			');
+		}
+
+
 		// Related Objects' Methods for DleTagsAsNews
 		//-------------------------------------------------------------------
 
@@ -2981,6 +3427,8 @@
      *
      *
      * @property-read QQReverseReferenceNodeDleComments $DleCommentsAsPost
+     * @property-read QQReverseReferenceNodeDlePoll $DlePollAsNews
+     * @property-read QQReverseReferenceNodeDlePollLog $DlePollLogAsNews
      * @property-read QQReverseReferenceNodeDleTags $DleTagsAsNews
 
      * @property-read QQNode $_PrimaryKeyNode
@@ -3055,6 +3503,10 @@
 					return new QQNode('metatitle', 'Metatitle', 'VarChar', $this);
 				case 'DleCommentsAsPost':
 					return new QQReverseReferenceNodeDleComments($this, 'dlecommentsaspost', 'reverse_reference', 'post_id');
+				case 'DlePollAsNews':
+					return new QQReverseReferenceNodeDlePoll($this, 'dlepollasnews', 'reverse_reference', 'news_id');
+				case 'DlePollLogAsNews':
+					return new QQReverseReferenceNodeDlePollLog($this, 'dlepolllogasnews', 'reverse_reference', 'news_id');
 				case 'DleTagsAsNews':
 					return new QQReverseReferenceNodeDleTags($this, 'dletagsasnews', 'reverse_reference', 'news_id');
 
@@ -3106,6 +3558,8 @@
      *
      *
      * @property-read QQReverseReferenceNodeDleComments $DleCommentsAsPost
+     * @property-read QQReverseReferenceNodeDlePoll $DlePollAsNews
+     * @property-read QQReverseReferenceNodeDlePollLog $DlePollLogAsNews
      * @property-read QQReverseReferenceNodeDleTags $DleTagsAsNews
 
      * @property-read QQNode $_PrimaryKeyNode
@@ -3180,6 +3634,10 @@
 					return new QQNode('metatitle', 'Metatitle', 'string', $this);
 				case 'DleCommentsAsPost':
 					return new QQReverseReferenceNodeDleComments($this, 'dlecommentsaspost', 'reverse_reference', 'post_id');
+				case 'DlePollAsNews':
+					return new QQReverseReferenceNodeDlePoll($this, 'dlepollasnews', 'reverse_reference', 'news_id');
+				case 'DlePollLogAsNews':
+					return new QQReverseReferenceNodeDlePollLog($this, 'dlepolllogasnews', 'reverse_reference', 'news_id');
 				case 'DleTagsAsNews':
 					return new QQReverseReferenceNodeDleTags($this, 'dletagsasnews', 'reverse_reference', 'news_id');
 

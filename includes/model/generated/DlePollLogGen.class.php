@@ -18,6 +18,7 @@
 	 * @property-read integer $Id the value for intId (Read-Only PK)
 	 * @property integer $NewsId the value for intNewsId (Not Null)
 	 * @property string $Member the value for strMember (Not Null)
+	 * @property DlePost $News the value for the DlePost object referenced by intNewsId (Not Null)
 	 * @property-read boolean $__Restored whether or not this object was restored from the database (as opposed to created new)
 	 */
 	class DlePollLogGen extends QBaseClass implements IteratorAggregate {
@@ -72,6 +73,16 @@
 		///////////////////////////////
 		// PROTECTED MEMBER OBJECTS
 		///////////////////////////////
+
+		/**
+		 * Protected member variable that contains the object pointed by the reference
+		 * in the database column dle_poll_log.news_id.
+		 *
+		 * NOTE: Always use the News property getter to correctly retrieve this DlePost object.
+		 * (Because this class implements late binding, this variable reference MAY be null.)
+		 * @var DlePost objNews
+		 */
+		protected $objNews;
 
 
 
@@ -477,6 +488,12 @@
 			if (!$strAliasPrefix)
 				$strAliasPrefix = 'dle_poll_log__';
 
+			// Check for News Early Binding
+			$strAlias = $strAliasPrefix . 'news_id__id';
+			$strAliasName = array_key_exists($strAlias, $strColumnAliasArray) ? $strColumnAliasArray[$strAlias] : $strAlias;
+			if (!is_null($objDbRow->GetColumn($strAliasName)))
+				$objToReturn->objNews = DlePost::InstantiateDbRow($objDbRow, $strAliasPrefix . 'news_id__', $strExpandAsArrayNodes, null, $strColumnAliasArray);
+
 
 
 
@@ -604,6 +621,38 @@
 				QQ::Equal(QQN::DlePollLog()->NewsId, $intNewsId),
 				QQ::Equal(QQN::DlePollLog()->Member, $strMember)				)
 
+			);
+		}
+
+		/**
+		 * Load an array of DlePollLog objects,
+		 * by NewsId Index(es)
+		 * @param integer $intNewsId
+		 * @param QQClause[] $objOptionalClauses additional optional QQClause objects for this query
+		 * @return DlePollLog[]
+		*/
+		public static function LoadArrayByNewsId($intNewsId, $objOptionalClauses = null) {
+			// Call DlePollLog::QueryArray to perform the LoadArrayByNewsId query
+			try {
+				return DlePollLog::QueryArray(
+					QQ::Equal(QQN::DlePollLog()->NewsId, $intNewsId),
+					$objOptionalClauses);
+			} catch (QCallerException $objExc) {
+				$objExc->IncrementOffset();
+				throw $objExc;
+			}
+		}
+
+		/**
+		 * Count DlePollLogs
+		 * by NewsId Index(es)
+		 * @param integer $intNewsId
+		 * @return int
+		*/
+		public static function CountByNewsId($intNewsId) {
+			// Call DlePollLog::QueryCount to perform the CountByNewsId query
+			return DlePollLog::QueryCount(
+				QQ::Equal(QQN::DlePollLog()->NewsId, $intNewsId)
 			);
 		}
 
@@ -763,7 +812,7 @@
 			$objReloaded = DlePollLog::Load($this->intId);
 
 			// Update $this's local variables to match
-			$this->intNewsId = $objReloaded->intNewsId;
+			$this->NewsId = $objReloaded->NewsId;
 			$this->strMember = $objReloaded->strMember;
 		}
 
@@ -810,6 +859,20 @@
 				///////////////////
 				// Member Objects
 				///////////////////
+				case 'News':
+					/**
+					 * Gets the value for the DlePost object referenced by intNewsId (Not Null)
+					 * @return DlePost
+					 */
+					try {
+						if ((!$this->objNews) && (!is_null($this->intNewsId)))
+							$this->objNews = DlePost::Load($this->intNewsId);
+						return $this->objNews;
+					} catch (QCallerException $objExc) {
+						$objExc->IncrementOffset();
+						throw $objExc;
+					}
+
 
 				////////////////////////////
 				// Virtual Object References (Many to Many and Reverse References)
@@ -850,6 +913,7 @@
 					 * @return integer
 					 */
 					try {
+						$this->objNews = null;
 						return ($this->intNewsId = QType::Cast($mixValue, QType::Integer));
 					} catch (QCallerException $objExc) {
 						$objExc->IncrementOffset();
@@ -873,6 +937,38 @@
 				///////////////////
 				// Member Objects
 				///////////////////
+				case 'News':
+					/**
+					 * Sets the value for the DlePost object referenced by intNewsId (Not Null)
+					 * @param DlePost $mixValue
+					 * @return DlePost
+					 */
+					if (is_null($mixValue)) {
+						$this->intNewsId = null;
+						$this->objNews = null;
+						return null;
+					} else {
+						// Make sure $mixValue actually is a DlePost object
+						try {
+							$mixValue = QType::Cast($mixValue, 'DlePost');
+						} catch (QInvalidCastException $objExc) {
+							$objExc->IncrementOffset();
+							throw $objExc;
+						}
+
+						// Make sure $mixValue is a SAVED DlePost object
+						if (is_null($mixValue->Id))
+							throw new QCallerException('Unable to set an unsaved News for this DlePollLog');
+
+						// Update Local Member Variables
+						$this->objNews = $mixValue;
+						$this->intNewsId = $mixValue->Id;
+
+						// Return $mixValue
+						return $mixValue;
+					}
+					break;
+
 				default:
 					try {
 						return parent::__set($strName, $mixValue);
@@ -941,7 +1037,7 @@
 		public static function GetSoapComplexTypeXml() {
 			$strToReturn = '<complexType name="DlePollLog"><sequence>';
 			$strToReturn .= '<element name="Id" type="xsd:int"/>';
-			$strToReturn .= '<element name="NewsId" type="xsd:int"/>';
+			$strToReturn .= '<element name="News" type="xsd1:DlePost"/>';
 			$strToReturn .= '<element name="Member" type="xsd:string"/>';
 			$strToReturn .= '<element name="__blnRestored" type="xsd:boolean"/>';
 			$strToReturn .= '</sequence></complexType>';
@@ -951,6 +1047,7 @@
 		public static function AlterSoapComplexTypeArray(&$strComplexTypeArray) {
 			if (!array_key_exists('DlePollLog', $strComplexTypeArray)) {
 				$strComplexTypeArray['DlePollLog'] = DlePollLog::GetSoapComplexTypeXml();
+				DlePost::AlterSoapComplexTypeArray($strComplexTypeArray);
 			}
 		}
 
@@ -967,8 +1064,9 @@
 			$objToReturn = new DlePollLog();
 			if (property_exists($objSoapObject, 'Id'))
 				$objToReturn->intId = $objSoapObject->Id;
-			if (property_exists($objSoapObject, 'NewsId'))
-				$objToReturn->intNewsId = $objSoapObject->NewsId;
+			if ((property_exists($objSoapObject, 'News')) &&
+				($objSoapObject->News))
+				$objToReturn->News = DlePost::GetObjectFromSoapObject($objSoapObject->News);
 			if (property_exists($objSoapObject, 'Member'))
 				$objToReturn->strMember = $objSoapObject->Member;
 			if (property_exists($objSoapObject, '__blnRestored'))
@@ -989,6 +1087,10 @@
 		}
 
 		public static function GetSoapObjectFromObject($objObject, $blnBindRelatedObjects) {
+			if ($objObject->objNews)
+				$objObject->objNews = DlePost::GetSoapObjectFromObject($objObject->objNews, false);
+			else if (!$blnBindRelatedObjects)
+				$objObject->intNewsId = null;
 			return $objObject;
 		}
 
@@ -1045,6 +1147,7 @@
      *
      * @property-read QQNode $Id
      * @property-read QQNode $NewsId
+     * @property-read QQNodeDlePost $News
      * @property-read QQNode $Member
      *
      *
@@ -1061,6 +1164,8 @@
 					return new QQNode('id', 'Id', 'Integer', $this);
 				case 'NewsId':
 					return new QQNode('news_id', 'NewsId', 'Integer', $this);
+				case 'News':
+					return new QQNodeDlePost('news_id', 'News', 'Integer', $this);
 				case 'Member':
 					return new QQNode('member', 'Member', 'VarChar', $this);
 
@@ -1080,6 +1185,7 @@
     /**
      * @property-read QQNode $Id
      * @property-read QQNode $NewsId
+     * @property-read QQNodeDlePost $News
      * @property-read QQNode $Member
      *
      *
@@ -1096,6 +1202,8 @@
 					return new QQNode('id', 'Id', 'integer', $this);
 				case 'NewsId':
 					return new QQNode('news_id', 'NewsId', 'integer', $this);
+				case 'News':
+					return new QQNodeDlePost('news_id', 'News', 'integer', $this);
 				case 'Member':
 					return new QQNode('member', 'Member', 'string', $this);
 

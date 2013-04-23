@@ -81,6 +81,8 @@
 				dle_comments.post_id => dle_post.id
 				dle_comments.user_id => dle_users.user_id
 				dle_tags.news_id => dle_post.id
+				dle_poll.news_id => dle_post.id
+				dle_poll_log.news_id => dle_post.id
 			]]></relationships>
 			<relationshipsScript filepath="" format="sql"/>
 		</database>
