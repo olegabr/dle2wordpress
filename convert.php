@@ -390,6 +390,20 @@
 			$objWpPosts->Save();
 		}
 		
+		WpUsers::GetDatabase()->TransactionCommit();
+	} catch(QDatabaseExceptionBase $ex) {
+		WpUsers::GetDatabase()->TransactionRollBack();
+		$strErrorMessage = $ex->getMessage();
+	} catch(QCallerException $ex) {
+		WpUsers::GetDatabase()->TransactionRollBack();
+		$strErrorMessage = $ex->getMessage();
+	} catch(Exception $ex) {
+		WpUsers::GetDatabase()->TransactionRollBack();
+		$strErrorMessage = $ex->getMessage();
+	}
+	
+	// This needs the Page Views Count plugin to be installed: http://wordpress.org/extend/plugins/page-views-count/
+	try {
 		// 7. copy the Postcount
 		if ($objDlePostArray) foreach ($objDlePostArray as $objDlePost) {
 			$objWpPosts = $objDlePost->LoadWpPosts();
@@ -408,6 +422,20 @@
 			}
 		}
 		
+		WpUsers::GetDatabase()->TransactionCommit();
+	} catch(QDatabaseExceptionBase $ex) {
+		WpUsers::GetDatabase()->TransactionRollBack();
+		$strErrorMessage = $ex->getMessage();
+	} catch(QCallerException $ex) {
+		WpUsers::GetDatabase()->TransactionRollBack();
+		$strErrorMessage = $ex->getMessage();
+	} catch(Exception $ex) {
+		WpUsers::GetDatabase()->TransactionRollBack();
+		$strErrorMessage = $ex->getMessage();
+	}
+	
+	// This needs the WP-Polls plugin to be installed: http://wordpress.org/extend/plugins/wp-polls/
+	try {
 		$intPollCount = 0;
 		$objDlePollArray = DlePoll::LoadAll(QQ::Clause(QQ::OrderBy(QQN::DlePoll()->Id)));
 		if ($objDlePollArray) foreach ($objDlePollArray as $objDlePoll) {
@@ -525,7 +553,7 @@
 	$strPageTitle = 'DLE to Wordpress conversion';
 	require(__CONFIGURATION__ . '/header.inc.php');
 ?>
-	<h1 class="page-title">DLE to Wordpress conversion</h1>
+	<h1 class="page-title"><?php _t($strPageTitle) ?></h1>
 	
 <?php
 	if ($strErrorMessage) {
