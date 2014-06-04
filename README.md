@@ -24,3 +24,5 @@ The DLE to Wordpress database conversion script
 * Перенос сайта с DLE на wordpress
 * Конвертация с DLE в Wordpress
 * Перенос DLE на Wordpress
+
+Платный аналог: http://www.cms2cms.com/supported-cms/datalife-engine-to-wordpress-migration/
