@@ -58,7 +58,7 @@
 		 */
 		public function LoadWpTermsArray() {
 			$objWpTermsArray = array();
-			$intDleCategoryIdArray = split(",", $this->Category);
+			$intDleCategoryIdArray = explode(",", $this->Category);
 			if ($intDleCategoryIdArray) foreach ($intDleCategoryIdArray as $intDleCategoryId) {
 				$objDleCategory = DleCategory::Load($intDleCategoryId);
 				if (!$objDleCategory) {
@@ -74,7 +74,7 @@
 		}
 
 		public function GetDleCategoryIdArray() {
-			return split(",", $this->Category);
+			return explode(",", $this->Category);
 		}
 
 		// Override or Create New Load/Count methods
