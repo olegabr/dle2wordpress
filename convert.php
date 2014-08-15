@@ -91,6 +91,7 @@
 	$intDleTermRelationshipsCount = 0;
 	$intCommentsCount = 0;
 	$intTermRelationshipsCount = 0;
+	$objDlePostArray = null;
 	try {
 		WpUsers::GetDatabase()->TransactionBegin();
 		// 1. convert users
