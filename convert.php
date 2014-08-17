@@ -65,7 +65,7 @@
 			$this->lblMessage->HtmlEntities = false;
 			$this->lblMessage->AddCssFile(__JQUERY_CSS__);
 			
-			$this->btnButton = new QButton($this);
+			$this->btnButton = new QJqButton($this);
 			$this->btnButton->Text = QApplication::Translate('Convert!');
 			$this->btnButton->AddAction(new QClickEvent(), new QServerAction('btnButton_Click'));
 		}
