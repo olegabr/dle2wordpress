@@ -6,6 +6,8 @@ The DLE to Wordpress database conversion script
 Скрипт преобразования базы данных [CMS DLE](http://dle-news.ru/) в базу данных [CMS Wordpress](http://wordpress.org/).
 Преобразует всё: посты, комментарии, пользователей, опросы (требуется установить плагин [WP-Polls](http://wordpress.org/extend/plugins/wp-polls/)), категории, и все их связи с постами, теги, количество просмотров (требуется установить плагин [Page Views Count](http://wordpress.org/extend/plugins/page-views-count/)).
 
+ВНИМАНИЕ! Скрипт тестировался на версии DLE 9.5 и Wordpress 3.5. Для использования на более новых версиях вам, скорее всего, придётся доработать скрипт. Для этого следует выполнить первоначальную настройку, как описано ниже, и запустить перегенерацию [Code Generator](http://localhost/dle2wordpress/assets/php/_devtools/codegen.php) по ссылке `http://localhost/dle2wordpress/assets/php/_devtools/codegen.php`. В результате обновится ряд файлов и появятся новые поля в моделях данных, которые можно будет использовать для доработки скрипта.
+
 Для работы, скрипт надо распаковать в папку, доступную через web-сервер.
 Перед запуском, скрипту надо настроить соединение с базами данных DLE и Wordpress. Делается это в файле `includes/configuration/configuration.inc.php`.
 * `DB_CONNECTION_1` использется для подключения к DLE
