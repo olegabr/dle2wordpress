@@ -49,7 +49,7 @@
 			return WpPosts::QuerySingle(QQ::AndCondition(
 				QQ::Equal(QQN::WpPosts()->PostAuthor, $objWpUsers->Id)
 				, QQ::Equal(QQN::WpPosts()->PostDate, $this->Date)
-				, QQ::Equal(QQN::WpPosts()->PostName, $this->AltName)
+				, QQ::Equal(QQN::WpPosts()->PostName, $this->Id . '-' . $this->AltName)
 			), QQ::Clause(QQ::LimitInfo(1)));
 		}
 

@@ -57,7 +57,7 @@ RESULT;
 					$objWpPosts->PingStatus = "open";
 					$objWpPosts->PostStatus = "publish";
 					$objWpPosts->PostPassword = "";
-					$objWpPosts->PostName = $objDlePost->AltName;
+					$objWpPosts->PostName = $objDlePost->Id . '-' . $objDlePost->AltName;
 					$objWpPosts->ToPing = "";
 					$objWpPosts->Pinged = "";
 					$objWpPosts->Guid = "";
