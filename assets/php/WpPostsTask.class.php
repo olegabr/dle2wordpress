@@ -66,7 +66,7 @@ RESULT;
 					$objWpPosts->PostMimeType = "";
 					$objWpPosts->CommentCount = 0;
 					$objWpPosts->Save();
-					$this->intPostCount++;
+					$this->intPostsCount++;
 				}
 			}
 		}
