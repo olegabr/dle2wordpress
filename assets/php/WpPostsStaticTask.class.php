@@ -72,7 +72,7 @@ RESULT;
 			$objWpPosts->PostMimeType = "";
 			$objWpPosts->CommentCount = 0;
 			$objWpPosts->Save();
-			$this->intPostCount++;
+			$this->intPostsCount++;
 		}
 		/**
 		 * @return int The number of object in the DLE database to process.
