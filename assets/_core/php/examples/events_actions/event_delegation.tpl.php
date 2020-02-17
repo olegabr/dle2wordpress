@@ -71,7 +71,7 @@ div.table, div.code {
 		<p>
 		The <b>QOnEvent</b>'s first parameter defines the event we want
 		to respond to (i.e.: "click"). The second parameter is a
-		<a href="#" onclick="window.open('http://api.jquery.com/category/selectors/','_newtab')">JQuery selector</a>
+		<a href="#" onclick="window.open('//api.jquery.com/category/selectors/','_newtab')">JQuery selector</a>
 		to filter events delegated from child elements to the parent where the
 		event is bound (Actually the event sources are filtered).
 		In this example the selectors are tr elements, the rows of the data grid

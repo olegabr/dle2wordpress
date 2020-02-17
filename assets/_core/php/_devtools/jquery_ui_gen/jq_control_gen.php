@@ -219,7 +219,7 @@ function jq_inc_gen() {
 	file_put_contents($strOutFileName, $strResult);
 }
 
-$baseUrl = "http://api.jqueryui.com";
+$baseUrl = "//api.jqueryui.com";
 
 // QBlock control uses these differently to make these capabilities a part of any block control
 jq_control_gen($baseUrl."/Draggable", null, 'QControl');
